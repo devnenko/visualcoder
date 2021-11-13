@@ -29,7 +29,7 @@ export class Canvas {
     updateContent() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.rects.forEach(rect => {
-            rect.resizeContent();
+            rect.resize();
             this.ctx.beginPath();
             this.ctx.rect(rect.absPos.x, rect.absPos.y, rect.absSize.w, rect.absSize.h);
             this.ctx.fillStyle = rect.color;
