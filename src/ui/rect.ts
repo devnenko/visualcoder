@@ -1,4 +1,4 @@
-import { Canvas } from './canvas.js';
+import { Canvas } from '../canvas.js';
 
 interface EdgesOpt {
     top?:number;
@@ -120,6 +120,9 @@ export class Rect {
     }
 
     public resize(){
+        //maybe make stretch define if they stretch to corner and else its just relative to fixed offset is just relative to othe side
+        //would make more sense and less problems
+        //should also resize children or we might get problems
         if(this.parent!=null){
             if(this.stretchTo.left==true){
                 this.absEdges.left=this.parent.absEdges.left;
@@ -135,16 +138,16 @@ export class Rect {
             }
 
             if(this.fixedOffset.left!=0){
-                this.absEdges.left=this.parent.absEdges.right-this.fixedOffset.left;
+                this.absEdges.left=this.parent.absEdges.left+this.fixedOffset.left;
             }
             if(this.fixedOffset.right!=0){
-                this.absEdges.right=this.absEdges.left+this.fixedOffset.right;
+                this.absEdges.right=this.parent.absEdges.left+this.fixedOffset.right;
             }
             if(this.fixedOffset.top!=0){
-                this.absEdges.top=this.parent.absEdges.bottom-this.fixedOffset.top;
+                this.absEdges.top=this.parent.absEdges.top+this.fixedOffset.top;
             }
             if(this.fixedOffset.bottom!=0){
-                this.absEdges.bottom=this.absEdges.top+this.fixedOffset.bottom;
+                this.absEdges.bottom=this.parent.absEdges.top+this.fixedOffset.bottom;
             }
         }
         else{

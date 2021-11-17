@@ -1,23 +1,22 @@
 import { Canvas } from './canvas.js';
-import { Rect } from './rect.js';
+import { Rect } from './ui/rect.js';
+import { Tabbar } from './ui/tabbar.js';
+import {MouseState} from './mouse_state.js';
 
 window.addEventListener("contextmenu", e => e.preventDefault());
 document.body.style.margin="0px";
 
-var canvas = new Canvas();
-var boundingBox = new Rect();
-canvas.startDraw(boundingBox);
-boundingBox.color="black"
-boundingBox.resize();
-canvas.updateContent();
-console.log(boundingBox)
+MouseState.init();
 
-var tabbar = new Rect();
-canvas.startDraw(tabbar);
-tabbar.setParent(boundingBox);
-tabbar.setStretchTo({top:true,left:true,right:true});
-tabbar.setFixedOffset({bottom:45});
-tabbar.color="green"
-tabbar.resize();
-canvas.updateContent();
-console.log(tabbar)
+var canvas = new Canvas();
+
+var tabbar = new Tabbar(canvas);
+tabbar.addTab();
+tabbar.addTab();
+tabbar.addTab();
+tabbar.addTab();
+tabbar.addTab();
+tabbar.addTab();
+tabbar.addTab();
+tabbar.addTab();
+tabbar.addTab();

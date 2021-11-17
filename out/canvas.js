@@ -1,6 +1,6 @@
+import { Rect } from "./ui/rect.js";
 export class Canvas {
     constructor() {
-        //public boundingRect:Rect=new Rect();
         this.rects = [];
         //create canvas in Dom and set value in class
         var canvas = document.createElement('canvas');
@@ -20,6 +20,10 @@ export class Canvas {
         //this.boundingRect.setMargin({left:10,right:20})
         //this.boundingRect.color="green";
         //this.updateContent();
+        this.boundingRect = new Rect();
+        this.boundingRect.color = "black";
+        this.startDraw(this.boundingRect);
+        this.updateContent();
     }
     resizeWindow() {
         this.canvas.width = window.innerWidth;
@@ -39,6 +43,7 @@ export class Canvas {
     startDraw(rect) {
         rect.canvas = this;
         this.rects.push(rect);
+        console.log(rect);
     }
     eraseShape() {
     }
