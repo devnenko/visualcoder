@@ -1,21 +1,72 @@
 import { Canvas } from '../canvas.js';
 
-interface EdgesBool {
+interface EdgesOpt {
+    top?:number;
+    bottom?:number;
+    left?:number;
+    right?:number;
+}
+
+interface EdgesBoolOpt {
+    top?:true;
+    bottom?:true;
+    left?:true;
+    right?:true;
+}
+
+class EdgesBool {
     top:boolean;
     bottom:boolean;
     left:boolean;
     right:boolean;
+
+    constructor(obj: EdgesBoolOpt){
+        this.top=obj.top||false;
+        this.bottom=obj.bottom||false;
+        this.left=obj.left||false;
+        this.right=obj.right||false;
+    }
+}
+
+class Other{
+    shouldResize:boolean;
+    inOffsetAmount:number;
+    constructor(shouldResize:boolean,inOffsetAmount:number){
+        this.shouldResize=shouldResize;
+        this.inOffsetAmount=inOffsetAmount;
+    }
+}
+
+class Test {
+    left:Other;
+    right:Other;
+    top:Other;
+    bottom:Other;
+
+    constructor(left:Other,right:Other,top:Other,bottom:Other){
+        this.left=left;
+        this.right=right;
+        this.top=top;
+        this.bottom=bottom;
+    }
 }
 
 
 
-class EdgesNumber {
-    top:number=0;
-    bottom:number=0;
-    left:number=0;
-    right:number=0;
+class Edges {
+    top:number;
+    bottom:number;
+    left:number;
+    right:number;
 
-    static getArrays(obj: EdgesNumber) {
+    constructor(obj: EdgesOpt){
+        this.top=obj.top||0;
+        this.bottom=obj.bottom||0;
+        this.left=obj.left||0;
+        this.right=obj.right||0;
+    }
+
+    static getArrays(obj: Edges) {
         let arrayNames=[]
         let arrayNumbers=[]
         if(obj.left!=null){
@@ -37,58 +88,54 @@ class EdgesNumber {
         return {nameArray:arrayNames,numberArray:arrayNumbers};
     }
 
+    static add(obj1:Edges,obj2:Edges){
+        return new Edges({
+            left:obj1.left+obj2.left,
+            right:obj1.right+obj2.right,
+            top:obj1.top+obj2.top,
+            bottom:obj1.bottom+obj2.bottom,
+        });
+    }
+
     static screenEdges(canvas:Canvas){
-        return {
+        return new Edges({
             left:0,
             right:canvas.canvas.width,
             top:0,
             bottom:canvas.canvas.height,
-        };
+        });
     }
 }
 
 export class Rect {
     //needed data
-    private canvas:Canvas;
+    public canvas:Canvas|null=null;
 
     //final render data
-    private absPos={x:0,y:0};
-    private absSize={w:100,h:100};
-    private color="pink";
+    public absPos={x:0,y:0};
+    public absSize={w:100,h:100};
+    public color="pink";
 
     //for relative calculations
     private parent:Rect|null=null;
-    private absEdges:EdgesNumber=new EdgesNumber(); //maybe needs to be read by child
+    public absEdges:Edges=new Edges({});
+    public relEdges:Edges=new Edges({});
 
     //addit data
-    private stretchTo:EdgesBool={left:true,right:true,top:true,bottom:true};
-    private fixedOffset:EdgesNumber=new EdgesNumber();
+    public stretchTo:EdgesBool=new EdgesBool({});
+    public fixedOffset:Edges=new Edges({});
 
-    constructor(parent:Rect|null,canvas:Canvas) {
+    constructor(parent:Rect|null,edges:Test) {
         this.parent=parent;
-        this.canvas=canvas;
     }
 
-    public setParent(parent:Rect|null){
-        this.parent=parent;
+    public setStretchTo(obj:EdgesBoolOpt){
+        this.stretchTo=new EdgesBool(obj);
         this.resize();
     }
 
-    public setCanvas(canvas:Canvas){
-        this.canvas=canvas;
-    }
-
-    public setColor(color:string){
-        this.color=color;
-    }
-
-    public setStretchTo(left:boolean,right:boolean,top:boolean,bottom:boolean){
-        this.stretchTo={left:left,right:right,top:top,bottom:bottom};
-        this.resize();
-    }
-
-    public setFixedOffset(left:number,right:number,top:number,bottom:number){
-        this.fixedOffset={left:left,right:right,top:top,bottom:bottom};
+    public setFixedOffset(obj:EdgesOpt){
+        this.fixedOffset=new Edges(obj);
         this.resize();
     }
 
@@ -124,11 +171,11 @@ export class Rect {
             }
         }
         else{
-            this.absEdges=EdgesNumber.screenEdges(this.canvas);
+            this.absEdges=Edges.screenEdges(this.canvas as Canvas);
         }
 
         //convert absolute edges to position and size
-        let arrays=EdgesNumber.getArrays(this.absEdges);
+        let arrays=Edges.getArrays(this.absEdges);
         for(var i =0;i<arrays.nameArray.length;i++){
             let name=arrays.nameArray[i];
             let value=arrays.numberArray[i];
@@ -149,12 +196,5 @@ export class Rect {
                     break;
             }
         }
-    }
-
-    public draw(){
-        this.canvas.ctx.beginPath();
-        this.canvas.ctx.rect(this.absPos.x, this.absPos.y, this.absSize.w, this.absSize.h);
-        this.canvas.ctx.fillStyle=this.color;
-        this.canvas.ctx.fill();
     }
 }

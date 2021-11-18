@@ -29,8 +29,8 @@ export class Canvas {
         //this.boundingRect.color="green";
         //this.updateContent();
 
-        this.boundingRect = new Rect();
-        this.boundingRect.color="black"
+        this.boundingRect = new Rect(null,this);
+        this.boundingRect.setColor("black");
         this.startDraw(this.boundingRect);
         this.updateContent();
     }
@@ -45,16 +45,14 @@ export class Canvas {
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 
         this.rects.forEach(rect => {
+            rect.resize();
 
-            this.ctx.beginPath();
-            this.ctx.rect(rect.absPos.x, rect.absPos.y, rect.absSize.w, rect.absSize.h);
-            this.ctx.fillStyle=rect.color;
-            this.ctx.fill();
+            rect.draw();
         });
     }
 
     public startDraw(rect:Rect){
-        rect.canvas=this;
+        rect.setCanvas(this);
         this.rects.push(rect);
         console.log(rect);
     }
