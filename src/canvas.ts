@@ -1,4 +1,5 @@
 import { Rect } from "./ui/rect.js";
+import {MouseState} from './mouse_state.js';
 
 export class Canvas {
     //right now, the canvas always takes the whole window space (might need to add options later)
@@ -10,6 +11,7 @@ export class Canvas {
         //create canvas in Dom and set value in class
         var canvas = document.createElement('canvas');
         document.body.appendChild(canvas);
+        MouseState.canvases.push(this);
         this.canvas = canvas;
 
         //set context in class
@@ -21,13 +23,6 @@ export class Canvas {
         //initialize resize events
         this.resizeWindow();
         window.addEventListener('resize', this.resizeWindow.bind(this));
-
-        //add Bounding Rect
-        //this.boundingRect=new Rect();
-        //this.startDraw(this.boundingRect);
-        //this.boundingRect.setMargin({left:10,right:20})
-        //this.boundingRect.color="green";
-        //this.updateContent();
 
         this.boundingRect = new Rect(null,this);
         this.boundingRect.setColor("black");
@@ -42,6 +37,7 @@ export class Canvas {
     }
 
     public updateContent(){
+
         this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
 
         this.rects.forEach(rect => {
@@ -54,10 +50,25 @@ export class Canvas {
     public startDraw(rect:Rect){
         rect.setCanvas(this);
         this.rects.push(rect);
-        console.log(rect);
     }
 
     public eraseShape(){
 
+    }
+
+    public getOverlapp(x:number,y:number){
+        var finalRect:Rect=this.rects[0];
+        var canChange=true;
+        this.rects.slice().reverse().forEach(rect => {
+            if(rect.isMouseOver(x,y)&&rect.parent!=null&&canChange==true){
+                finalRect=rect;
+                canChange=false;
+            }
+        });
+        return finalRect;
+    }
+
+    public logShapes(){
+        console.log(this.rects);
     }
 }

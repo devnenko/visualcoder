@@ -1,29 +1,31 @@
-import { Rect } from './rect.js';
+import { Rect, ResizeType } from './rect.js';
 export class Tabbar {
     constructor(canvas) {
         this.tabs = [];
         this.canvas = canvas;
         var tabbar = new Rect(canvas.boundingRect, canvas);
-        tabbar.setStretchTo(true, true, true, false);
-        tabbar.setFixedOffset(0, 0, 0, 45);
-        tabbar.setColor("green");
-        canvas.startDraw(tabbar);
-        canvas.updateContent();
+        tabbar.setStretchAndOffset({
+            left: { value: 0, resize: ResizeType.sr },
+            right: { value: 0, resize: ResizeType.sr },
+            top: { value: 0, resize: ResizeType.sr },
+            bottom: { value: 60, resize: ResizeType.px }
+        });
         this.tabbar = tabbar;
     }
     addTab() {
         var tab = new Rect(this.tabbar, this.canvas);
-        tab.setStretchTo(true, true, true, true);
-        var tabStart = this.tabs.length * 130;
-        tab.setFixedOffset(tabStart, tabStart + 130, 0, 0);
         var letters = '0123456789ABCDEF';
-        var color = '#';
+        var randomColor = '#';
         for (var i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
+            randomColor += letters[Math.floor(Math.random() * 16)];
         }
-        tab.setColor(color);
-        this.canvas.startDraw(tab);
-        this.canvas.updateContent();
+        tab.setColor(randomColor);
+        tab.setStretchAndOffset({
+            left: { value: this.tabs.length * 200, resize: ResizeType.sr },
+            right: { value: 200, resize: ResizeType.px },
+            top: { value: 0, resize: ResizeType.sr },
+            bottom: { value: 0, resize: ResizeType.sr }
+        });
         this.tabs.push(tab);
     }
 }

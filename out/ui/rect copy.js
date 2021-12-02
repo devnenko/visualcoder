@@ -35,7 +35,7 @@ class EdgesNumber {
         };
     }
 }
-export var ResizeType;
+var ResizeType;
 (function (ResizeType) {
     ResizeType[ResizeType["sr"] = 0] = "sr";
     ResizeType[ResizeType["px"] = 1] = "px";
@@ -54,11 +54,9 @@ export class Rect {
         this.stretchTo = { left: true, right: true, top: true, bottom: true };
         this.stretchToOffset = new EdgesNumber();
         this.fixedOffset = new EdgesNumber();
-        this.clickE = function () { };
         this.parent = parent;
         this.canvas = canvas;
         this.canvas.startDraw(this);
-        this.canvas.updateContent();
     }
     setParent(parent) {
         this.parent = parent;
@@ -70,51 +68,60 @@ export class Rect {
     }
     setColor(color) {
         this.color = color;
-        this.canvas.updateContent();
-    }
-    isMouseOver(x, y) {
-        return this.absEdges.left < x && this.absEdges.right > x && this.absEdges.top < y && this.absEdges.bottom > y;
     }
     setStretchAndOffset(obj) {
-        if (obj.left.resize == ResizeType.sr) {
-            this.stretchToOffset.left = obj.left.value;
+        var leftLast2 = obj.left.slice(-2);
+        if (leftLast2 == "sr") {
+            var numb = obj.left.replace(/\D/g, "");
+            this.stretchToOffset.left = parseInt(numb);
             this.stretchTo.left = true;
         }
-        else if (obj.left.resize == ResizeType.px) {
-            this.fixedOffset.left = obj.left.value;
+        else if (leftLast2 == "px") {
+            var numb = obj.left.replace(/\D/g, "");
+            this.fixedOffset.left = parseInt(numb);
             this.stretchTo.left = false;
         }
         else {
             console.log("error");
         }
-        if (obj.right.resize == ResizeType.sr) {
-            this.stretchToOffset.right = obj.right.value;
+        var rightLast2 = obj.right.slice(-2);
+        if (rightLast2 == "sr") {
+            var numb = obj.right.replace(/\D/g, "");
+            this.stretchToOffset.right = parseInt(numb);
             this.stretchTo.right = true;
         }
-        else if (obj.right.resize == ResizeType.px) {
-            this.fixedOffset.right = obj.right.value;
+        else if (rightLast2 == "px") {
+            var numb = obj.right.replace(/\D/g, "");
+            this.fixedOffset.right = parseInt(numb);
+            console.log(this);
             this.stretchTo.right = false;
         }
         else {
             console.log("error");
         }
-        if (obj.top.resize == ResizeType.sr) {
-            this.stretchToOffset.top = obj.top.value;
+        var topLast2 = obj.top.slice(-2);
+        if (topLast2 == "sr") {
+            var numb = obj.top.replace(/\D/g, "");
+            this.stretchToOffset.top = parseInt(numb);
             this.stretchTo.top = true;
         }
-        else if (obj.top.resize == ResizeType.px) {
-            this.fixedOffset.top = obj.top.value;
+        else if (topLast2 == "px") {
+            var numb = obj.top.replace(/\D/g, "");
+            this.fixedOffset.top = parseInt(numb);
             this.stretchTo.top = false;
         }
         else {
             console.log("error");
         }
-        if (obj.bottom.resize == ResizeType.sr) {
-            this.stretchToOffset.bottom = obj.bottom.value;
+        var bottomLast2 = obj.bottom.slice(-2);
+        if (bottomLast2 == "sr") {
+            var numb = obj.bottom.replace(/\D/g, "");
+            this.stretchToOffset.bottom = parseInt(numb);
             this.stretchTo.bottom = true;
         }
-        else if (obj.bottom.resize == ResizeType.px) {
-            this.fixedOffset.bottom = obj.bottom.value;
+        else if (bottomLast2 == "px") {
+            var numb = obj.bottom.replace(/\D/g, "");
+            this.fixedOffset.bottom = parseInt(numb);
             this.stretchTo.bottom = false;
         }
         else {
