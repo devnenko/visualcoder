@@ -12,8 +12,8 @@ import { instanceOfIMouseEvents } from "./ui/mouse_events.js";
 
 window.addEventListener("contextmenu", e => e.preventDefault());
 document.body.style.margin="0px";
-document.body.style.overflowX="hidden";
-document.body.style.overflowX="hidden";
+document.body.style.position="relative";
+document.body.style.overflow="hidden";
 
 ResizeHandler.init();
 MouseHandler.init();
