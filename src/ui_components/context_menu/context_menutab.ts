@@ -8,7 +8,7 @@ import { EConstraintsX,EConstraintsY } from '../../ui/types/constraints.js';
 import { BoundingRect} from "../../ui/bounding_rect.js";
 import { components } from "../../main.js";
 import { MouseHandler } from "../../ui/event_handlers/mouse.js";
-import { blocks, Block } from "../../block.js";
+import { blocks, Block, BlockType } from "../../block.js";
 import { IShape} from "../../ui/shape.js";
 import { EMouseType } from "../../ui/types/mouse.js";
 import { DeleteButton } from "../general/delete_button.js";
@@ -17,9 +17,9 @@ import { ContextMenu } from "./context_menu.js";
 
 export class ContextMenutab extends Button{
     public origColor:string;
-    public block:Block;
+    public block:BlockType;
     public parent:ContextMenu;
-    constructor(parent:ContextMenu,block:Block){
+    constructor(parent:ContextMenu,block:BlockType){
         super(parent,parent.canvas);
         this.parent=parent;
         this.setConstraints(EConstraintsX.scale,EConstraintsY.top)

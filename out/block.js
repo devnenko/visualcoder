@@ -6,6 +6,7 @@ export class Block {
     constructor(color, name) {
         this.pins = [];
         this.isLoaded = false;
+        this.isHidden = false;
         this.source = []; //source node setup
         this.color = color;
         this.name = name;

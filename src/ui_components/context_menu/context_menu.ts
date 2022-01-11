@@ -8,7 +8,7 @@ import { EConstraintsX,EConstraintsY } from '../../ui/types/constraints.js';
 import { BoundingRect} from "../../ui/bounding_rect.js";
 import { components } from "../../main.js";
 import { MouseHandler } from "../../ui/event_handlers/mouse.js";
-import { blockHandlers, Block, IBlockHandler, blocks } from "../../block.js";
+import { blockHandlers, Block, IBlockHandler, blocks, BlockType } from "../../block.js";
 import { EMouseType } from "../../ui/types/mouse.js";
 import { DeleteButton } from "../general/delete_button.js";
 import { View } from "../view/view.js";
@@ -23,7 +23,7 @@ export class ContextMenu extends VerticalBox implements IBlockHandler{
     constructor(parent:RectType,canvas:Canvas){
         super(parent,canvas);
         blockHandlers.push(this);
-        this.color="#4a4a4a";//darkergray "#262626"
+        this.color="darkgrey";//darkergray "#262626"
         this.setConstraints(EConstraintsX.left,EConstraintsY.top)
         this.setConstraintsInfo(undefined,{w:200,h:250});
         this.fixedPos=MouseHandler.currentPos;
@@ -31,11 +31,11 @@ export class ContextMenu extends VerticalBox implements IBlockHandler{
         //this.addTab=new SideBarAddTab(this);
     }
 
-    public updateBlocks(allBlocks:Block[]):void{
+    public updateBlocks(allBlocks:BlockType[]):void{
         this.children=[];
-        for(const elem of allBlocks){
-            if(elem.isLoaded==false){
-                const tab=new ContextMenutab(this,elem)
+        for(const block of allBlocks){
+            if(block.isLoaded==false&&block.isHidden==false){
+                const tab=new ContextMenutab(this,block)
             }
         }
         

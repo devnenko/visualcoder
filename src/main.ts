@@ -84,12 +84,12 @@ function logKey(e:any) {
                 for(const oldBlockViewBlock  of oldBlock.source){
                     for(const newNewBlock  of newBlocks){
                         if(newNewBlock.name==oldBlockViewBlock.block.name){
-                            newBlock.source.push(new ViewBlock(components.view,oldBlockViewBlock.fixedPos,newNewBlock))
+                            (newBlock as Block).source.push(new ViewBlock(components.view,oldBlockViewBlock.fixedPos,newNewBlock as Block))
                         }
                     }
                 }
             }
-            components.view.load(blocks[0]);
+            components.view.load(blocks[0] as Block);
 
             for (const BlockHandler of blockHandlers){
                 BlockHandler.updateBlocks(blocksOld)

@@ -2,9 +2,9 @@ import { components } from "./main.js";
 import { ViewBlock, PinType } from "./ui_components/view/view_block.js";
 import { IPos } from "./ui/types/pos.js";
 
+export type BlockType=Block;
 
-
-export let blocks:Block[]=[];
+export let blocks:BlockType[]=[];
 
 export function removeBlocks(){
     blocks.splice(0,blocks.length)
@@ -15,6 +15,7 @@ export class Block{
     public color:string;
     public pins:PinType[]=[];
     public isLoaded:boolean=false;
+    public isHidden:boolean=false;
     public source:ViewBlock[]=[]; //source node setup
     constructor(color:string,name:string){
         this.color=color;
@@ -30,7 +31,7 @@ export class Block{
 
 
 export interface IBlockHandler{
-    updateBlocks(allBlocks:Block[]):void
+    updateBlocks(allBlocks:BlockType[]):void
 }
 
 export let blockHandlers:IBlockHandler[]=[];

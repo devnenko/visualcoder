@@ -12,7 +12,8 @@ import { EMouseType } from "../../ui/types/mouse.js";
 import { IPos } from "../../ui/types/pos.js";
 import { View } from "./view.js";
 import {  Text } from "../../ui/text.js";
-import { Block, blocks } from "../../block.js";
+import { Block, blocks, BlockType } from "../../block.js";
+import { Line } from "../../ui/line.js";
 
 export enum PinType{
     in=0,
@@ -23,7 +24,7 @@ class Pin extends Button{
 
     public mouseEdge:Rect|null=null;
 
-    //public provLine:Line|null=null;
+    public provLine:Line|null=null;
 
     constructor(block:ViewBlock,pinType:PinType,amountPins:number){
         super(block,block.canvas);
@@ -42,25 +43,26 @@ class Pin extends Button{
     }
     
     onMouseDown(type:EMouseType){
-        this.mouseEdge=new Rect(BoundingRect,components.view.canvas);
-        this.mouseEdge.isVisible=false;
-        this.mouseEdge.fixedSize={w:0,h:0};
-        this.mouseEdge.fixedPos=MouseHandler.currentPos;
-        //this.provLine=new Line(components.view,components.view.canvas,this,this.mouseEdge)
+        this.provLine=new Line(BoundingRect,components.view.canvas)
+        this.provLine.obj1=this;
+        this.provLine.fixedPos2=MouseHandler.currentPos;
         BoundingRect.drawHierarchy()
     };
     onMouseMoveDown(type:EMouseType){
-        if(this.mouseEdge!=null){
-            this.mouseEdge.fixedPos=MouseHandler.currentPos;
+        if(this.provLine!=null){
+            this.provLine.fixedPos2=MouseHandler.currentPos;
             BoundingRect.drawHierarchy()
+            console.log("yes");
+            console.log(this.provLine)
         }
     };
     onMouseUp(type:EMouseType){
         console.log(BoundingRect.checkOverlapp(MouseHandler.currentPos));
         if(BoundingRect.checkOverlapp(MouseHandler.currentPos)[0] instanceof Pin){
-            //if(this.provLine!=null){
-            //    this.provLine.endParent=BoundingRect.checkOverlapp(MouseHandler.currentPos)[0];
-            //}
+            if(this.provLine!=null){
+                this.provLine.obj2=BoundingRect.checkOverlapp(MouseHandler.currentPos)[0];
+                BoundingRect.drawHierarchy()
+            }
         }
         else{
             //if(this.provLine!=null){
@@ -77,8 +79,8 @@ export class ViewBlock extends Button{
     public pins:Pin[]=[];
     public amountInPins:number=0;
     public amountOutPins:number=0;
-    public block:Block;
-    constructor(view:View,pos:IPos,block:Block){
+    public block:BlockType;
+    constructor(view:View,pos:IPos,block:BlockType){
         super(view,view.canvas);
         this.block=block;
         this.color=block.color
@@ -89,6 +91,9 @@ export class ViewBlock extends Button{
         text.color="black";
         text.text=block.name;
         this.children.push(text)
+        for (const pin of this.block.pins){
+            this.addPin(pin);
+        }
     }
 
 

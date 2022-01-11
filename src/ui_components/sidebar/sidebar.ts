@@ -33,7 +33,9 @@ export class SideBar extends VerticalBox implements IBlockHandler{
     public updateBlocks(allBlocks:Block[]):void{
         this.children=[];
         for(const elem of allBlocks){
-            const tab=new SideBarTab(this,elem)
+            if(elem.isHidden==false){
+                const tab=new SideBarTab(this,elem)
+            }
         }
         
         BoundingRect.drawHierarchy();

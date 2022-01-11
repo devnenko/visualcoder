@@ -2,20 +2,19 @@ import { components } from "../../main.js";
 import { BoundingRect } from "../../ui/bounding_rect.js";
 import { Button } from "../../ui/button.js";
 import { MouseHandler } from "../../ui/event_handlers/mouse.js";
-//import { Line } from "../ui/line.js";
-import { Rect } from "../../ui/rect.js";
 import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
 import { Text } from "../../ui/text.js";
+import { Line } from "../../ui/line.js";
 export var PinType;
 (function (PinType) {
     PinType[PinType["in"] = 0] = "in";
     PinType[PinType["out"] = 1] = "out";
 })(PinType || (PinType = {}));
 class Pin extends Button {
-    //public provLine:Line|null=null;
     constructor(block, pinType, amountPins) {
         super(block, block.canvas);
         this.mouseEdge = null;
+        this.provLine = null;
         this.color = "red";
         if (pinType == PinType.in) {
             this.setConstraints(EConstraintsX.left, EConstraintsY.top);
@@ -30,27 +29,28 @@ class Pin extends Button {
         this.fixedSize.h = 20;
     }
     onMouseDown(type) {
-        this.mouseEdge = new Rect(BoundingRect, components.view.canvas);
-        this.mouseEdge.isVisible = false;
-        this.mouseEdge.fixedSize = { w: 0, h: 0 };
-        this.mouseEdge.fixedPos = MouseHandler.currentPos;
-        //this.provLine=new Line(components.view,components.view.canvas,this,this.mouseEdge)
+        this.provLine = new Line(BoundingRect, components.view.canvas);
+        this.provLine.obj1 = this;
+        this.provLine.fixedPos2 = MouseHandler.currentPos;
         BoundingRect.drawHierarchy();
     }
     ;
     onMouseMoveDown(type) {
-        if (this.mouseEdge != null) {
-            this.mouseEdge.fixedPos = MouseHandler.currentPos;
+        if (this.provLine != null) {
+            this.provLine.fixedPos2 = MouseHandler.currentPos;
             BoundingRect.drawHierarchy();
+            console.log("yes");
+            console.log(this.provLine);
         }
     }
     ;
     onMouseUp(type) {
         console.log(BoundingRect.checkOverlapp(MouseHandler.currentPos));
         if (BoundingRect.checkOverlapp(MouseHandler.currentPos)[0] instanceof Pin) {
-            //if(this.provLine!=null){
-            //    this.provLine.endParent=BoundingRect.checkOverlapp(MouseHandler.currentPos)[0];
-            //}
+            if (this.provLine != null) {
+                this.provLine.obj2 = BoundingRect.checkOverlapp(MouseHandler.currentPos)[0];
+                BoundingRect.drawHierarchy();
+            }
         }
         else {
             //if(this.provLine!=null){
@@ -77,6 +77,9 @@ export class ViewBlock extends Button {
         text.color = "black";
         text.text = block.name;
         this.children.push(text);
+        for (const pin of this.block.pins) {
+            this.addPin(pin);
+        }
     }
     onMouseDown(type) {
         this.mouseOffset = { leftDist: MouseHandler.getMousePos().x - this.absEdges.left, topDist: MouseHandler.getMousePos().y - this.absEdges.top };

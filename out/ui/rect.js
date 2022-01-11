@@ -108,6 +108,18 @@ export class Rect {
                 this.absEdges.top = parentSize.top + this.snapOffset.top;
                 this.absEdges.bottom = parentSize.bottom - this.snapOffset.bottom;
             }
+            if (this.absEdges.left < parent.absEdges.left) {
+                this.absEdges.left = parent.absEdges.left;
+            }
+            if (this.absEdges.right > parent.absEdges.right) {
+                this.absEdges.right = parent.absEdges.right;
+            }
+            if (this.absEdges.top < parent.absEdges.top) {
+                this.absEdges.top = parent.absEdges.top;
+            }
+            if (this.absEdges.bottom > parent.absEdges.bottom) {
+                this.absEdges.bottom = parent.absEdges.bottom;
+            }
         }
         else if (parent.type == EObjectType.HzBox) {
             const indexInParent = parent.children.indexOf(this);

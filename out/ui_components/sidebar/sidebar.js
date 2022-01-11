@@ -17,7 +17,9 @@ export class SideBar extends VerticalBox {
     updateBlocks(allBlocks) {
         this.children = [];
         for (const elem of allBlocks) {
-            const tab = new SideBarTab(this, elem);
+            if (elem.isHidden == false) {
+                const tab = new SideBarTab(this, elem);
+            }
         }
         BoundingRect.drawHierarchy();
     }

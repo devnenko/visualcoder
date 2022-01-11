@@ -10,7 +10,7 @@ export class ContextMenu extends VerticalBox {
     constructor(parent, canvas) {
         super(parent, canvas);
         blockHandlers.push(this);
-        this.color = "#4a4a4a"; //darkergray "#262626"
+        this.color = "darkgrey"; //darkergray "#262626"
         this.setConstraints(EConstraintsX.left, EConstraintsY.top);
         this.setConstraintsInfo(undefined, { w: 200, h: 250 });
         this.fixedPos = MouseHandler.currentPos;
@@ -19,9 +19,9 @@ export class ContextMenu extends VerticalBox {
     }
     updateBlocks(allBlocks) {
         this.children = [];
-        for (const elem of allBlocks) {
-            if (elem.isLoaded == false) {
-                const tab = new ContextMenutab(this, elem);
+        for (const block of allBlocks) {
+            if (block.isLoaded == false && block.isHidden == false) {
+                const tab = new ContextMenutab(this, block);
             }
         }
         BoundingRect.drawHierarchy();
