@@ -17,6 +17,7 @@ export class WindowComponents{
     constructor(){
         const mainBlock=new Block(getDampedColor("cyan"),"main");
         this.view=new View(this.horizBox,this.canvas, mainBlock);
+        
         this.horizBox.setConstraints(EConstraintsX.scale,EConstraintsY.scale)
         this.horizBox.isVisible=false;
     }
