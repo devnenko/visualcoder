@@ -14,7 +14,8 @@ export class View extends Button{
     public children: ViewBlock[]=[];
     public loadedBlock: Block;
     public actifContextMenu:ContextMenu|null=null;
-    public inBlock;
+    public inBlock; //maybe in and out pin could be initialized in the block, when we decide on how many pins it has
+    //would make more sense, because the in and out pins are basically reflections of the pins on the block theyre contained in and should update the block on start accordingly
     public outBlock;
     constructor(parent:RectType,canvas:Canvas,firstLoadBlock:Block){
         super(parent,canvas);
