@@ -78,10 +78,6 @@ export class ViewBlock extends Button {
         text.text = block.name;
         this.children.push(text);
     }
-    destroy() {
-        console.log("doing");
-        //components.view.children.splice(components.view.children.indexOf(this),1);
-    }
     onMouseDown(type) {
         this.mouseOffset = { leftDist: MouseHandler.getMousePos().x - this.absEdges.left, topDist: MouseHandler.getMousePos().y - this.absEdges.top };
     }

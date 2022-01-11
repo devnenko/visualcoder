@@ -6,12 +6,14 @@ import { Canvas } from "../../ui/canvas.js";
 import { RectType } from "../../ui/rect.js";
 import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
 import { EMouseType } from "../../ui/types/mouse.js";
+import { ContextMenu } from "../context_menu/context_menu.js";
 import { ViewBlock } from "./view_block.js";
 
 
 export class View extends Button{
     public children: ViewBlock[]=[];
     public loadedBlock: Block;
+    public actifContextMenu:ContextMenu|null=null;
     constructor(parent:RectType,canvas:Canvas,firstLoadBlock:Block){
         super(parent,canvas);
         this.color="lightgrey"
@@ -54,5 +56,11 @@ export class View extends Button{
     }
 
     onMouseUp(type:EMouseType): void {
+        this.actifContextMenu?.destroy();
+        this.actifContextMenu=null;
+        if(type==EMouseType.left||type==EMouseType.touch){
+            this.actifContextMenu=new ContextMenu(BoundingRect,this.canvas);
+        }
+        BoundingRect.drawHierarchy();
     }
 }

@@ -43,7 +43,7 @@ function logKey(e) {
         new Block("purple", "out");
     }
     if (e.code == "KeyS") {
-        BlockSave = Array.from(components.view.children);
+        //BlockSave=Array.from(components.view.children);
         console.log(blocks);
         const res = JSON.stringify(blocks, replacer);
         console.log(res);

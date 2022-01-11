@@ -1,5 +1,6 @@
 import { BoundingRect } from "../bounding_rect.js";
 import { EMouseType } from "../types/mouse.js";
+import { components } from "../../main.js";
 export class MouseHandler {
     static init() {
         //window.addEventListener('click', this.mouseClick.bind(this));
@@ -16,22 +17,25 @@ export class MouseHandler {
         var obj = BoundingRect.checkOverlapp(this.currentPos);
         //console.log(obj);
         if (obj[0]) {
-            this.activeRect?.onMouseHoverEnd(EMouseType.left);
-            obj[0].onMouseDown(EMouseType.left);
+            this.activeRect?.onMouseHoverEnd(EMouseType.touch);
+            obj[0].onMouseDown(EMouseType.touch);
             this.activeRect = obj[0]; //make this better later
         }
+        components.view.actifContextMenu?.destroy();
+        components.view.actifContextMenu = null;
+        BoundingRect.drawHierarchy();
     }
     static touchMove(e) {
         this.currentPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         var obj = BoundingRect.checkOverlapp(this.currentPos);
         if (this.activeRect != null && this.isMouseDown == true) {
-            this.activeRect.onMouseMoveDown(EMouseType.left);
+            this.activeRect.onMouseMoveDown(EMouseType.touch);
         }
         else if (this.isMouseDown == false) {
             if (this.activeRect != obj[0]) {
-                this.activeRect?.onMouseHoverEnd(EMouseType.left);
+                this.activeRect?.onMouseHoverEnd(EMouseType.touch);
                 this.activeRect = obj[0];
-                this.activeRect?.onMouseHoverBegin(EMouseType.left);
+                this.activeRect?.onMouseHoverBegin(EMouseType.touch);
             }
             else {
             }
@@ -40,15 +44,16 @@ export class MouseHandler {
         //console.log(obj);
     }
     static touchUp(e) {
-        this.currentPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        //this.currentPos={x:e.touches[0].clientX,y:e.touches[0].clientY}
         this.isMouseDown = false;
         if (this.activeRect != null) {
-            this.activeRect.onMouseUp(EMouseType.left);
+            this.activeRect.onMouseUp(EMouseType.touch);
             this.activeRect = null;
         }
         //console.log(obj);
     }
     static mouseDown(e) {
+        console.log("down");
         this.currentPos = { x: e.x, y: e.y };
         this.isMouseDown = true;
         var obj = BoundingRect.checkOverlapp(this.currentPos);
@@ -58,6 +63,9 @@ export class MouseHandler {
             obj[0].onMouseDown(e.button);
             this.activeRect = obj[0]; //make this better later
         }
+        components.view.actifContextMenu?.destroy();
+        components.view.actifContextMenu = null;
+        BoundingRect.drawHierarchy();
     }
     static mouseMove(e) {
         this.currentPos = { x: e.x, y: e.y };

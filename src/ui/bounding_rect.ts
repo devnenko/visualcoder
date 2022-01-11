@@ -44,5 +44,9 @@ export const BoundingRect:IShape&IBoundingRect={
         }
         all=all.slice().reverse();
         return all;
+    },
+
+    destroy(){
+
     }
 } 

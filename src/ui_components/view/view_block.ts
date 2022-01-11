@@ -40,6 +40,7 @@ class Pin extends Button{
         this.fixedSize.w=20;
         this.fixedSize.h=20;
     }
+    
     onMouseDown(type:EMouseType){
         this.mouseEdge=new Rect(BoundingRect,components.view.canvas);
         this.mouseEdge.isVisible=false;
@@ -90,10 +91,6 @@ export class ViewBlock extends Button{
         this.children.push(text)
     }
 
-    destroy(){
-        console.log("doing");
-        //components.view.children.splice(components.view.children.indexOf(this),1);
-    }
 
     onMouseDown(type:EMouseType){
         this.mouseOffset={leftDist:MouseHandler.getMousePos().x-this.absEdges.left,topDist:MouseHandler.getMousePos().y-this.absEdges.top}

@@ -16,10 +16,10 @@ import { SideBar } from "./sidebar.js";
 
 export class SideBarAddTab extends Button{
     public origColor:string;
-    public parent:SideBar;
+    public parent2:SideBar;
     constructor(parent:SideBar){
         super(parent,parent.canvas);
-        this.parent=parent;
+        this.parent2=parent;
         this.setConstraints(EConstraintsX.scale,EConstraintsY.top)
         this.setConstraintsInfo(undefined,{w:0,h:50});
         this.color="blue";

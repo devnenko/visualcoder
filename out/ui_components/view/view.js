@@ -2,10 +2,13 @@ import { blockHandlers, blocks } from "../../block.js";
 import { BoundingRect } from "../../ui/bounding_rect.js";
 import { Button } from "../../ui/button.js";
 import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
+import { EMouseType } from "../../ui/types/mouse.js";
+import { ContextMenu } from "../context_menu/context_menu.js";
 export class View extends Button {
     constructor(parent, canvas, firstLoadBlock) {
         super(parent, canvas);
         this.children = [];
+        this.actifContextMenu = null;
         this.color = "lightgrey";
         this.loadedBlock = firstLoadBlock;
         this.load(firstLoadBlock);
@@ -40,5 +43,11 @@ export class View extends Button {
     onMouseMoveDown(type) {
     }
     onMouseUp(type) {
+        this.actifContextMenu?.destroy();
+        this.actifContextMenu = null;
+        if (type == EMouseType.left || type == EMouseType.touch) {
+            this.actifContextMenu = new ContextMenu(BoundingRect, this.canvas);
+        }
+        BoundingRect.drawHierarchy();
     }
 }

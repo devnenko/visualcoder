@@ -1,6 +1,6 @@
 import { Button } from "../../ui/button.js";
 import { Canvas } from "../../ui/canvas.js";
-import {  Rect, RectType } from "../../ui/rect.js";
+import {  instanceOfRectType, Rect, RectType } from "../../ui/rect.js";
 import {  Text } from "../../ui/text.js";
 import { VerticalBox } from "../../ui/vertical_box.js";
 import { ViewBlock, PinType } from "../view/view_block.js";
@@ -13,6 +13,7 @@ import { IShape} from "../../ui/shape.js";
 import { EMouseType } from "../../ui/types/mouse.js";
 import { DeleteButton } from "../general/delete_button.js";
 import { SideBar } from "./sidebar.js";
+import { View } from "../view/view.js";
 
 export class SideBarTab extends Button{
     public origColor:string;
@@ -28,10 +29,12 @@ export class SideBarTab extends Button{
             this.color=block.color;
         }
         else{
-            this.color="red";
+            this.color="#262626";
         }
         this.origColor=block.color;
         this.block=block;
+        console.log("now")
+        console.log(typeof(this))
         const text=new Text(this,this.canvas)
         text.color="black"
         text.text=block.name;
@@ -44,11 +47,11 @@ export class SideBarTab extends Button{
     }
 
 
-    destroy(parent:RectType){
-        (parent as SideBarTab).parent.children.splice((parent as SideBarTab).parent.children.indexOf(parent),1);
-        blocks.splice((parent as SideBarTab).parent.children.indexOf(parent),1);
-        BoundingRect.drawHierarchy();
-    }
+    //destroy(parent:RectType){
+    //    (parent as SideBarTab).parent.children.splice((parent as SideBarTab).parent.children.indexOf(parent),1);
+    //    blocks.splice((parent as SideBarTab).parent.children.indexOf(parent),1);
+    //    BoundingRect.drawHierarchy();
+    //}
 
     onMouseDown(type:EMouseType){
     }
@@ -57,16 +60,29 @@ export class SideBarTab extends Button{
         if(components.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(components.view)!=-1 && this.block.isLoaded==false){
             if(this.provBlock==null){
                 this.provBlock=new ViewBlock(components.view,MouseHandler.posOnRects(components.view),this.block);
+                this.provBlock.fixedPos.x=MouseHandler.posOnRects(components.view).x-this.provBlock.fixedSize.w/2;
+                this.provBlock.fixedPos.y=MouseHandler.posOnRects(components.view).y-this.provBlock.fixedSize.h/2;
             }
             else{
-                this.provBlock.fixedPos=MouseHandler.posOnRects(components.view);
+                this.provBlock.fixedPos.x=MouseHandler.posOnRects(components.view).x-this.provBlock.fixedSize.w/2;
+                this.provBlock.fixedPos.y=MouseHandler.posOnRects(components.view).y-this.provBlock.fixedSize.h/2;
             }
-            BoundingRect.drawHierarchy();
         }
+        else{
+            this.provBlock?.destroy();
+            this.provBlock=null;
+            console.log("dest")
+        }
+        BoundingRect.drawHierarchy();
     }
     onMouseUp(type:EMouseType){
-        console.log(this.provBlock)
-        this.provBlock?.destroy;
+
+        if(components.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(components.view)!=-1&& this.block.isLoaded==false&&this.provBlock!=null){
+            const viewBlock=new ViewBlock(components.view,
+                {x:MouseHandler.posOnRects(components.view).x-this.provBlock.fixedSize.w/2,y:MouseHandler.posOnRects(components.view).y-this.provBlock.fixedSize.h/2},this.block);
+        }
+
+        this.provBlock?.destroy();
         this.provBlock=null;
 
         if(BoundingRect.checkOverlapp(MouseHandler.currentPos)[0]==this){
@@ -91,7 +107,7 @@ export class SideBarTab extends Button{
 
     onMouseHoverBegin(type: EMouseType): void {
         if(this.block.isLoaded==false){
-            this.color="pink"
+            this.color="#4a4a4a"
         }
         BoundingRect.drawHierarchy();
     }

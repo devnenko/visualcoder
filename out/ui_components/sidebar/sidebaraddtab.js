@@ -7,7 +7,7 @@ import { EMouseType } from "../../ui/types/mouse.js";
 export class SideBarAddTab extends Button {
     constructor(parent) {
         super(parent, parent.canvas);
-        this.parent = parent;
+        this.parent2 = parent;
         this.setConstraints(EConstraintsX.scale, EConstraintsY.top);
         this.setConstraintsInfo(undefined, { w: 0, h: 50 });
         this.color = "blue";

@@ -21,6 +21,7 @@ export class Rect {
         this.parentSize = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = parent.absEdges;
         parent.children.push(this); //set this as a child of parent to create an object tree
+        this.parent = parent;
         this.canvas = canvas;
     }
     checkOverlapp(pos) {
@@ -29,6 +30,12 @@ export class Rect {
             all = all.concat(child.checkOverlapp(pos));
         }
         return all;
+    }
+    destroy() {
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        if (this.parent.children.indexOf(this) == -1) {
+            console.log("error");
+        }
     }
     setConstraints(constX, constY) {
         this.constX = constX;

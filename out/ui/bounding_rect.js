@@ -17,5 +17,7 @@ export const BoundingRect = {
         }
         all = all.slice().reverse();
         return all;
+    },
+    destroy() {
     }
 };

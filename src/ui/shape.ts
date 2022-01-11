@@ -20,6 +20,7 @@ export interface IShape{
     children:IShape[],//only children is passed (no parent)
     drawHierarchy:(parent:IShape)=>void, //draws shape and all children 
     checkOverlapp(pos:IPos): Button[]
+    destroy:()=>void
 }
 
 export function instanceOfShape(object: any): object is IShape {

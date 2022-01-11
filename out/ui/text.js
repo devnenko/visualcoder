@@ -11,8 +11,12 @@ export class Text {
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = parent.absEdges;
+        this.parent = parent;
         parent.children.push(this); //set this as a child of parent to create an object tree
         this.canvas = canvas;
+    }
+    destroy() {
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
     }
     checkOverlapp(pos) {
         let all = [];
