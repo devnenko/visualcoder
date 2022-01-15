@@ -41,7 +41,7 @@ export class WelcomePage {
         //distRect2.isVisible=false;
         this.engineButton = new WelcomeButton(this.sideBox, canvas, "Engine", () => {
             console.log("engine");
-            window.history.pushState('data to be passed', '', '/test');
+            window.history.pushState('data to be passed', '', '/visualcoder/test');
         });
         window.addEventListener('popstate', (event) => {
             console.log(event.state);
