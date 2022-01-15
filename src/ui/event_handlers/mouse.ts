@@ -5,7 +5,7 @@ import { Canvas } from "../canvas.js";
 import { Rect } from "../rect.js";
 import { IPos } from "../types/pos.js";
 import { EMouseType } from "../types/mouse.js";
-import { components } from "../../main.js";
+//import { components } from "../../main.js";
 
 
 export class MouseHandler{
@@ -34,8 +34,8 @@ export class MouseHandler{
             (obj[0] as Button).onMouseDown(EMouseType.touch);
             this.activeRect=obj[0] as Button; //make this better later
         }
-        components.view.actifContextMenu?.destroy();
-        components.view.actifContextMenu=null;
+        //components.view.actifContextMenu?.destroy();
+        //components.view.actifContextMenu=null;
         BoundingRect.drawHierarchy();
     }
 
@@ -72,7 +72,7 @@ export class MouseHandler{
     }
 
     private static mouseDown(e:MouseEvent) {
-        console.log("down")
+        //console.log("down")
         this.currentPos={x:e.x,y:e.y}
         this.isMouseDown=true;
 
@@ -83,8 +83,8 @@ export class MouseHandler{
             (obj[0] as Button).onMouseDown(e.button);
             this.activeRect=obj[0] as Button; //make this better later
         }
-        components.view.actifContextMenu?.destroy();
-        components.view.actifContextMenu=null;
+        //components.view.actifContextMenu?.destroy();
+        //components.view.actifContextMenu=null;
         BoundingRect.drawHierarchy();
 
     }
@@ -114,10 +114,16 @@ export class MouseHandler{
         this.currentPos={x:e.x,y:e.y}
         this.isMouseDown=false;
 
-        if(this.activeRect!=null){
+        var obj=BoundingRect.checkOverlapp(this.currentPos);
+        if(obj[0]==this.activeRect){
+            this.activeRect.onMouseUp(e.button);
+            this.activeRect?.onMouseHoverBegin(e.button);
+        }
+        else  if(this.activeRect!=null){
             this.activeRect.onMouseUp(e.button);
             this.activeRect=null;
         }
+
         //console.log(obj);
     }
 

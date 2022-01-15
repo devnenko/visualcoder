@@ -1,5 +1,5 @@
-import { PinType } from "./ui_components/view/view_block.js";
-import { BlockInstance } from "./ui_components/view/blockinstance.js";
+import { PinType } from "./view/view_block.js";
+import { BlockInstance } from "./view/blockinstance.js";
 export let blocks = [];
 export function removeBlocks() {
     blocks.splice(0, blocks.length);

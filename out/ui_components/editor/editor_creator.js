@@ -1,7 +1,7 @@
-import { BoundingRect } from '../ui/bounding_rect.js';
-import { Canvas } from '../ui/canvas.js';
-import { HorizontalBox } from '../ui/horizontal_box.js';
-import { EConstraintsX, EConstraintsY } from '../ui/types/constraints.js';
+import { BoundingRect } from '../../ui/bounding_rect.js';
+import { Canvas } from '../../ui/canvas.js';
+import { HorizontalBox } from '../../ui/horizontal_box.js';
+import { EConstraintsX, EConstraintsY } from '../../ui/types/constraints.js';
 import { SideBar } from './sidebar/sidebar.js';
 import { View } from './view/view.js';
 export class WindowComponents {

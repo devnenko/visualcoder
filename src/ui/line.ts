@@ -46,7 +46,6 @@ export class Line implements IShape{
 
     protected draw(){
         if(this.isVisible==true){
-            console.log("whyyyyyyyy")
 
             this.canvas.ctx.beginPath();
             this.canvas.ctx.lineWidth = 10;

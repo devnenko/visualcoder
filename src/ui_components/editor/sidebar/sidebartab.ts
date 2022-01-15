@@ -1,17 +1,16 @@
-import { Button } from "../../ui/button.js";
-import { Canvas } from "../../ui/canvas.js";
-import {  instanceOfRectType, Rect, RectType } from "../../ui/rect.js";
-import {  Text } from "../../ui/text.js";
-import { VerticalBox } from "../../ui/vertical_box.js";
+import { Button } from "../../../ui/button.js";
+import { Canvas } from "../../../ui/canvas.js";
+import {  instanceOfRectType, Rect, RectType } from "../../../ui/rect.js";
+import {  Text } from "../../../ui/text.js";
+import { VerticalBox } from "../../../ui/vertical_box.js";
 import { ViewBlock, PinType } from "../view/view_block.js";
-import { EConstraintsX,EConstraintsY } from '../../ui/types/constraints.js';
-import { BoundingRect} from "../../ui/bounding_rect.js";
-import { components } from "../../main.js";
-import { MouseHandler } from "../../ui/event_handlers/mouse.js";
-import { blocks, Block } from "../../block.js";
-import { IShape} from "../../ui/shape.js";
-import { EMouseType } from "../../ui/types/mouse.js";
-import { DeleteButton } from "../general/delete_button.js";
+import { EConstraintsX,EConstraintsY } from '../../../ui/types/constraints.js';
+import { BoundingRect} from "../../../ui/bounding_rect.js";
+import { components } from "../../../main.js";
+import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
+import { blocks, Block } from "../view/block.js";
+import { IShape} from "../../../ui/shape.js";
+import { EMouseType } from "../../../ui/types/mouse.js";
 import { SideBar } from "./sidebar.js";
 import { View } from "../view/view.js";
 
@@ -33,8 +32,6 @@ export class SideBarTab extends Button{
         }
         this.origColor=block.color;
         this.block=block;
-        console.log("now")
-        console.log(typeof(this))
         const text=new Text(this,this.canvas)
         text.color="black"
         text.text=block.name;
@@ -59,7 +56,7 @@ export class SideBarTab extends Button{
     onMouseMoveDown(type:EMouseType){
         if(components.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(components.view)!=-1 && this.block.isLoaded==false){
             if(this.provBlock==null){
-                this.provBlock=new ViewBlock(components.view,MouseHandler.posOnRects(components.view),this.block);
+                this.provBlock=new ViewBlock(MouseHandler.posOnRects(components.view),this.block);
                 this.provBlock.fixedPos.x=MouseHandler.posOnRects(components.view).x-this.provBlock.fixedSize.w/2;
                 this.provBlock.fixedPos.y=MouseHandler.posOnRects(components.view).y-this.provBlock.fixedSize.h/2;
             }
@@ -71,14 +68,13 @@ export class SideBarTab extends Button{
         else{
             this.provBlock?.destroy();
             this.provBlock=null;
-            console.log("dest")
         }
         BoundingRect.drawHierarchy();
     }
     onMouseUp(type:EMouseType){
 
         if(components.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(components.view)!=-1&& this.block.isLoaded==false&&this.provBlock!=null){
-            const viewBlock=new ViewBlock(components.view,
+            const viewBlock=new ViewBlock(
                 {x:MouseHandler.posOnRects(components.view).x-this.provBlock.fixedSize.w/2,y:MouseHandler.posOnRects(components.view).y-this.provBlock.fixedSize.h/2},this.block);
         }
 

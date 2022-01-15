@@ -1,11 +1,11 @@
-import { components } from "../../main.js";
-import { BoundingRect } from "../../ui/bounding_rect.js";
-import { Button } from "../../ui/button.js";
-import { MouseHandler } from "../../ui/event_handlers/mouse.js";
-import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
-import { Text } from "../../ui/text.js";
-import { Block, PrimitiveBlock } from "../../block.js";
-import { Line } from "../../ui/line.js";
+import { components } from "../../../main.js";
+import { BoundingRect } from "../../../ui/bounding_rect.js";
+import { Button } from "../../../ui/button.js";
+import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
+import { EConstraintsX, EConstraintsY } from "../../../ui/types/constraints.js";
+import { Text } from "../../../ui/text.js";
+import { Block, PrimitiveBlock } from "./block.js";
+import { Line } from "../../../ui/line.js";
 export var PinType;
 (function (PinType) {
     PinType[PinType["in"] = 0] = "in";
@@ -45,7 +45,6 @@ class Pin extends Button {
     }
     ;
     onMouseUp(type) {
-        console.log(BoundingRect.checkOverlapp(MouseHandler.currentPos));
         this.provLine?.destroy();
         this.provLine = null;
         if (BoundingRect.checkOverlapp(MouseHandler.currentPos)[0] instanceof Pin) {

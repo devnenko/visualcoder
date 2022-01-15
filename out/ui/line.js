@@ -24,7 +24,6 @@ export class Line {
     }
     draw() {
         if (this.isVisible == true) {
-            console.log("whyyyyyyyy");
             this.canvas.ctx.beginPath();
             this.canvas.ctx.lineWidth = 10;
             this.canvas.ctx.strokeStyle = this.color;

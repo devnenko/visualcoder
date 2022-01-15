@@ -17,6 +17,7 @@ export class Rect {
         this.fixedSize = { w: 100, h: 100 };
         this.fixedPos = { x: 0, y: 0 };
         this.snapOffset = { left: 0, right: 0, top: 0, bottom: 0 };
+        this.margin = 0;
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = parent.absEdges;
@@ -34,7 +35,7 @@ export class Rect {
     destroy() {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
         if (this.parent.children.indexOf(this) == -1) {
-            console.log("error");
+            //console.log("error")
         }
     }
     setConstraints(constX, constY) {
@@ -157,6 +158,10 @@ export class Rect {
                 this.absEdges.bottom = this.absEdges.top + this.fixedSize.h;
             }
         }
+        this.absEdges.left += this.margin;
+        this.absEdges.right -= this.margin;
+        this.absEdges.top += this.margin;
+        this.absEdges.bottom -= this.margin;
     }
     edgesToDrawdimensions(edges) {
         //convert absolute edges to position and size

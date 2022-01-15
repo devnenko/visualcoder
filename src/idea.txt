@@ -1,0 +1,6 @@
+name:main
+type:main
+
+in:somevalues
+
+out:somevalues

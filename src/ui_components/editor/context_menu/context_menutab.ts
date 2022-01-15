@@ -1,17 +1,16 @@
-import { Button } from "../../ui/button.js";
-import { Canvas } from "../../ui/canvas.js";
-import {  instanceOfRectType, Rect, RectType } from "../../ui/rect.js";
-import {  Text } from "../../ui/text.js";
-import { VerticalBox } from "../../ui/vertical_box.js";
+import { Button } from "../../../ui/button.js";
+import { Canvas } from "../../../ui/canvas.js";
+import {  instanceOfRectType, Rect, RectType } from "../../../ui/rect.js";
+import {  Text } from "../../../ui/text.js";
+import { VerticalBox } from "../../../ui/vertical_box.js";
 import { ViewBlock, PinType } from "../view/view_block.js";
-import { EConstraintsX,EConstraintsY } from '../../ui/types/constraints.js';
-import { BoundingRect} from "../../ui/bounding_rect.js";
-import { components } from "../../main.js";
-import { MouseHandler } from "../../ui/event_handlers/mouse.js";
-import { blocks, Block, BlockType } from "../../block.js";
-import { IShape} from "../../ui/shape.js";
-import { EMouseType } from "../../ui/types/mouse.js";
-import { DeleteButton } from "../general/delete_button.js";
+import { EConstraintsX,EConstraintsY } from '../../../ui/types/constraints.js';
+import { BoundingRect} from "../../../ui/bounding_rect.js";
+import { components } from "../../../main.js";
+import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
+import { blocks, Block, BlockType } from "../view/block.js";
+import { IShape} from "../../../ui/shape.js";
+import { EMouseType } from "../../../ui/types/mouse.js";
 import { View } from "../view/view.js";
 import { ContextMenu } from "./context_menu.js";
 
@@ -32,8 +31,6 @@ export class ContextMenutab extends Button{
         }
         this.origColor=block.color;
         this.block=block;
-        console.log("now")
-        console.log(typeof(this))
         const text=new Text(this,this.canvas)
         text.color="black"
         text.text=block.name;
@@ -47,7 +44,7 @@ export class ContextMenutab extends Button{
 
 
     onMouseDown(type:EMouseType){
-        const provBlock=new ViewBlock(components.view,MouseHandler.posOnRects(components.view),this.block);
+        const provBlock=new ViewBlock(MouseHandler.posOnRects(components.view),this.block);
         provBlock.fixedPos.x=MouseHandler.posOnRects(components.view).x-provBlock.fixedSize.w/2;
         provBlock.fixedPos.y=MouseHandler.posOnRects(components.view).y-provBlock.fixedSize.h/2;
         BoundingRect.drawHierarchy();

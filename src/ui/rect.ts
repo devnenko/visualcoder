@@ -35,6 +35,7 @@ export class Rect implements IShape{
     public fixedSize:ISize={w:100,h:100};
     public fixedPos:IPos={x:0,y:0};
     public snapOffset:IEdges={left:0,right:0,top:0,bottom:0};
+    public margin:number=0;
 
     public absEdges={left:0,right:0,top:0,bottom:0};
 
@@ -62,7 +63,7 @@ export class Rect implements IShape{
     destroy(){
         this.parent.children.splice(this.parent.children.indexOf(this),1);
         if(this.parent.children.indexOf(this)==-1){
-            console.log("error")
+            //console.log("error")
         }
     }
 
@@ -194,6 +195,10 @@ export class Rect implements IShape{
                 this.absEdges.bottom=this.absEdges.top+this.fixedSize.h;
             }
         }
+        this.absEdges.left+=this.margin;
+        this.absEdges.right-=this.margin;
+        this.absEdges.top+=this.margin;
+        this.absEdges.bottom-=this.margin;
     }
     
     private edgesToDrawdimensions(edges:IEdges){

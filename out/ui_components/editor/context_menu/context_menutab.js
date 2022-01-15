@@ -1,10 +1,10 @@
-import { Button } from "../../ui/button.js";
-import { Text } from "../../ui/text.js";
+import { Button } from "../../../ui/button.js";
+import { Text } from "../../../ui/text.js";
 import { ViewBlock } from "../view/view_block.js";
-import { EConstraintsX, EConstraintsY } from '../../ui/types/constraints.js';
-import { BoundingRect } from "../../ui/bounding_rect.js";
-import { components } from "../../main.js";
-import { MouseHandler } from "../../ui/event_handlers/mouse.js";
+import { EConstraintsX, EConstraintsY } from '../../../ui/types/constraints.js';
+import { BoundingRect } from "../../../ui/bounding_rect.js";
+import { components } from "../../../main.js";
+import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
 export class ContextMenutab extends Button {
     constructor(parent, block) {
         super(parent, parent.canvas);

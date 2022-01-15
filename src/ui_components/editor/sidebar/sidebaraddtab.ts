@@ -1,16 +1,15 @@
-import { Button } from "../../ui/button.js";
-import { Canvas } from "../../ui/canvas.js";
-import {  Rect } from "../../ui/rect.js";
-import {  Text } from "../../ui/text.js";
-import { VerticalBox } from "../../ui/vertical_box.js";
+import { Button } from "../../../ui/button.js";
+import { Canvas } from "../../../ui/canvas.js";
+import {  Rect } from "../../../ui/rect.js";
+import {  Text } from "../../../ui/text.js";
+import { VerticalBox } from "../../../ui/vertical_box.js";
 import { ViewBlock, PinType } from "../view/view_block.js";
-import { EConstraintsX,EConstraintsY } from '../../ui/types/constraints.js';
-import { BoundingRect} from "../../ui/bounding_rect.js";
-import { components } from "../../main.js";
-import { MouseHandler } from "../../ui/event_handlers/mouse.js";
-import { Block } from "../../block.js";
-import { EMouseType } from "../../ui/types/mouse.js";
-import { DeleteButton } from "../general/delete_button.js";
+import { EConstraintsX,EConstraintsY } from '../../../ui/types/constraints.js';
+import { BoundingRect} from "../../../ui/bounding_rect.js";
+import { components } from "../../../main.js";
+import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
+import { Block } from "../view/block.js";
+import { EMouseType } from "../../../ui/types/mouse.js";
 import { SideBarTab } from "./sidebartab.js";
 import { SideBar } from "./sidebar.js";
 
