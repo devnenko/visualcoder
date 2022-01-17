@@ -8,7 +8,7 @@ import { IPos } from "./types/pos.js";
 
 export class Button extends Rect implements IMouseEvents{
     public discIMouseEvents: 'IMouseEvents'='IMouseEvents';
-    constructor(parent:RectType,canvas:Canvas){
+    constructor(parent:IShape,canvas:Canvas){
         super(parent,canvas);
     }
 

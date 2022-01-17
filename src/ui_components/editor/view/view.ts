@@ -1,5 +1,4 @@
 import { Block, blockHandlers, blocks } from "./block.js";
-import { components } from "../../../main.js";
 import { BoundingRect } from "../../../ui/bounding_rect.js";
 import { Button } from "../../../ui/button.js";
 import { Canvas } from "../../../ui/canvas.js";

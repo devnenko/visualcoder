@@ -7,6 +7,7 @@ import { HorizontalBox } from "./horizontal_box.js";
 import { Line } from "./line.js";
 import { Rect } from "./rect.js";
 import { Text } from "./text.js";
+import { Shape } from "./shape.js";
 import { EConstraintsX, EConstraintsY } from "./types/constraints.js";
 import { VerticalBox } from "./vertical_box.js";
-export { BoundingRect, Button, Canvas, HorizontalBox, Line, Rect, Text, VerticalBox, ResizeHandler, MouseHandler, EConstraintsX, EConstraintsY };
+export { BoundingRect, Button, Canvas, HorizontalBox, Line, Rect, Text, VerticalBox, ResizeHandler, MouseHandler, EConstraintsX, EConstraintsY, Shape };

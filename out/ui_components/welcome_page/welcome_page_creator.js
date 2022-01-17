@@ -1,4 +1,5 @@
 import { BoundingRect, HorizontalBox, Rect, VerticalBox, EConstraintsX, EConstraintsY } from "../../ui/ui.js";
+import { EnginePage } from "./engine_page.js";
 import { NewButton } from "./newbutton.js";
 function colorByBrightness(value) {
     return "rgb(" + value + "," + value + "," + value + ")";
@@ -34,17 +35,65 @@ export class WelcomePage {
         this.contentArea = new Rect(this.windowBox, canvas);
         this.contentArea.setConstraints(EConstraintsX.scale, EConstraintsY.scale);
         this.contentArea.color = colorByBrightness(80);
-        this.browseButton = new WelcomeButton(this.sideBox, canvas, "Browse", () => { console.log("browse"); });
+        this.browseButton = new WelcomeButton(this.sideBox, canvas, "Browse", () => {
+            window.location.hash = "1";
+            this.loadState(parseInt(window.location.hash.substring(1)));
+        });
         //this.libraryButton=new WelcomeButton(this.sideBox,canvas,"Library",()=>{console.log("library")});
         //const distRect2=new Rect(this.sideBox,canvas);
         //distRect2.fixedSize.h=100;
         //distRect2.isVisible=false;
         this.engineButton = new WelcomeButton(this.sideBox, canvas, "Engine", () => {
-            console.log("engine");
-            window.history.pushState('data to be passed', '', '/visualcoder/test');
+            window.location.hash = "2";
+            this.loadState(parseInt(window.location.hash.substring(1)));
         });
-        window.addEventListener('popstate', (event) => {
-            console.log(event.state);
-        });
+        if (window.location.hash != "") {
+            console.log(parseInt(window.location.hash.substring(1)));
+            this.loadState(parseInt(window.location.hash.substring(1)));
+        }
+        else {
+            window.location.hash = "1";
+            this.loadState(parseInt(window.location.hash.substring(1)));
+        }
+        window.addEventListener("hashchange", (event) => {
+            this.loadState(parseInt(window.location.hash.substring(1)));
+        }, false);
+    }
+    static loadState(state) {
+        console.log("state is: " + state);
+        switch (state) {
+            case 1:
+                this.loadBrowse();
+                break;
+            case 2:
+                this.loadEngine();
+                break;
+            case null:
+                this.loadMainPage();
+                break;
+        }
+    }
+    static loadBrowse() {
+        console.log("browse");
+        this.contentArea.children.forEach(child => child.destroy());
+        this.contentArea.children = [];
+        this.contentArea.color = "blue";
+        BoundingRect.drawHierarchy();
+    }
+    static loadEngine() {
+        console.log("engine");
+        this.contentArea.children.forEach(child => child.destroy());
+        this.contentArea.children = [];
+        this.contentArea.color = "red";
+        const ePage = new EnginePage(this.contentArea, this.contentArea.canvas);
+        ePage.addProject();
+        BoundingRect.drawHierarchy();
+    }
+    static loadMainPage() {
+        console.log("mainPage");
+        this.contentArea.children.forEach(child => child.destroy());
+        this.contentArea.children = [];
+        this.contentArea.color = colorByBrightness(80);
+        BoundingRect.drawHierarchy();
     }
 }

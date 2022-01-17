@@ -6,7 +6,6 @@ import { VerticalBox } from "../../../ui/vertical_box.js";
 import { ViewBlock, PinType } from "../view/view_block.js";
 import { EConstraintsX,EConstraintsY } from '../../../ui/types/constraints.js';
 import { BoundingRect} from "../../../ui/bounding_rect.js";
-import { components } from "../../../main.js";
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
 import { blockHandlers, Block, IBlockHandler } from "../view/block.js";
 import { EMouseType } from "../../../ui/types/mouse.js";

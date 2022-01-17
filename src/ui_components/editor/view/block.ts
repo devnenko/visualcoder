@@ -1,4 +1,4 @@
-import { components } from "../../../main.js";
+
 import { ViewBlock, PinType } from "./view_block.js";
 import { IPos } from "../../../ui/types/pos.js";
 import { BlockInstance } from "./blockinstance.js";

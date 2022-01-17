@@ -20,7 +20,9 @@ export class Rect {
         this.margin = 0;
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = { left: 0, right: 0, top: 0, bottom: 0 };
-        this.parentSize = parent.absEdges;
+        if (instanceOfRectType(parent)) {
+            this.parentSize = parent.absEdges;
+        }
         parent.children.push(this); //set this as a child of parent to create an object tree
         this.parent = parent;
         this.canvas = canvas;
@@ -71,7 +73,12 @@ export class Rect {
             }
         }
         else {
-            throw new Error('Shape cannot be parent of Rect.');
+            this.resize(parent.parent);
+            this.draw();
+            for (const child of this.children) {
+                child.drawHierarchy(this);
+            }
+            console.log("unhandeled case for now");
         }
     }
     resize(parent) {

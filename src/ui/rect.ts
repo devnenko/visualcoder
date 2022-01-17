@@ -42,8 +42,10 @@ export class Rect implements IShape{
     public parentSize:IEdges={left:0,right:0,top:0,bottom:0};
     public parent:IShape;
 
-    constructor(parent:RectType,canvas:Canvas){
-        this.parentSize=parent.absEdges;
+    constructor(parent:IShape,canvas:Canvas){
+        if(instanceOfRectType(parent)){
+            this.parentSize=parent.absEdges;
+        }
 
         parent.children.push(this); //set this as a child of parent to create an object tree
         this.parent=parent;
@@ -105,7 +107,13 @@ export class Rect implements IShape{
             }
         }
         else{
-            throw new Error('Shape cannot be parent of Rect.');
+            this.resize(parent.parent as RectType);
+            this.draw();
+    
+            for (const child of this.children){
+                child.drawHierarchy(this);
+            }
+            console.log("unhandeled case for now")
         }
     }
 

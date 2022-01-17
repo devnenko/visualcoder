@@ -29,7 +29,7 @@ export class Text implements IShape{
 
     public parentSize:IEdges={left:0,right:0,top:0,bottom:0};
 
-    private parent:IShape;
+    public parent:IShape;
 
     constructor(parent:RectType,canvas:Canvas){
         this.parentSize=parent.absEdges;

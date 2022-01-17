@@ -1,4 +1,4 @@
-import { WelcomePage } from "./ui_components/welcome_page/welcome_page_creator.js";
+import { WelcomePage } from "./ui_components/welcome_page/welcome_page.js";
 import {ResizeHandler,MouseHandler,Canvas,BoundingRect} from "./ui/ui.js";
 
 window.addEventListener("contextmenu", e => e.preventDefault());
@@ -10,7 +10,9 @@ ResizeHandler.init();
 MouseHandler.init();
 
 const canvas=new Canvas();
+BoundingRect.canvas=canvas;
 
-WelcomePage.init(canvas);
+export const welcomePageObj=new WelcomePage(BoundingRect,canvas)
 
 BoundingRect.drawHierarchy();
+console.log(BoundingRect)

@@ -7,9 +7,10 @@ import { HorizontalBox } from "./horizontal_box.js";
 import { Line } from "./line.js";
 import { Rect } from "./rect.js";
 import { Text } from "./text.js";
-import { IShape } from "./shape.js";
+import { IShape, Shape } from "./shape.js";
 import { IMouseEvents } from "./mouse_events.js";
 import { EConstraintsX, EConstraintsY } from "./types/constraints.js";
 import { VerticalBox } from "./vertical_box.js";
 
-export {BoundingRect,Button,Canvas,HorizontalBox,Line,Rect,Text,VerticalBox,ResizeHandler,MouseHandler,EConstraintsX,EConstraintsY,IShape,IMouseEvents};
+
+export {BoundingRect,Button,Canvas,HorizontalBox,Line,Rect,Text,VerticalBox,ResizeHandler,MouseHandler,EConstraintsX,EConstraintsY,IShape,IMouseEvents,Shape};

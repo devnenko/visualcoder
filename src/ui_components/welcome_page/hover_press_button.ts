@@ -5,7 +5,7 @@ import {BoundingRect,Button,Canvas,HorizontalBox,Line,Rect,Text,VerticalBox,ECon
 
 
 
-export class NewButton extends Button{
+export class HoverPressButton extends Button{
     public hoverColor:string;
     public pressColor:string;
     private origColor:string="";

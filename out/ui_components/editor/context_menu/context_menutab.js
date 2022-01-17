@@ -3,8 +3,8 @@ import { Text } from "../../../ui/text.js";
 import { ViewBlock } from "../view/view_block.js";
 import { EConstraintsX, EConstraintsY } from '../../../ui/types/constraints.js';
 import { BoundingRect } from "../../../ui/bounding_rect.js";
-import { components } from "../../../main.js";
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
+import { EditorPage } from "../editor_page.js";
 export class ContextMenutab extends Button {
     constructor(parent, block) {
         super(parent, parent.canvas);
@@ -28,9 +28,9 @@ export class ContextMenutab extends Button {
         //parent.addTab.arraymove(parent.children,parent.children.indexOf(this),parent.children.indexOf(this)-1);
     }
     onMouseDown(type) {
-        const provBlock = new ViewBlock(MouseHandler.posOnRects(components.view), this.block);
-        provBlock.fixedPos.x = MouseHandler.posOnRects(components.view).x - provBlock.fixedSize.w / 2;
-        provBlock.fixedPos.y = MouseHandler.posOnRects(components.view).y - provBlock.fixedSize.h / 2;
+        const provBlock = new ViewBlock(MouseHandler.posOnRects(EditorPage.self.view), this.block);
+        provBlock.fixedPos.x = MouseHandler.posOnRects(EditorPage.self.view).x - provBlock.fixedSize.w / 2;
+        provBlock.fixedPos.y = MouseHandler.posOnRects(EditorPage.self.view).y - provBlock.fixedSize.h / 2;
         BoundingRect.drawHierarchy();
     }
     onMouseMoveDown(type) {

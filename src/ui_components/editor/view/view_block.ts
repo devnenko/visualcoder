@@ -1,5 +1,4 @@
 
-import { components } from "../../../main.js";
 import { IMouseEvents } from "../../../ui/mouse_events.js";
 import { BoundingRect } from "../../../ui/bounding_rect.js";
 import { Button } from "../../../ui/button.js";
@@ -14,6 +13,7 @@ import { View } from "./view.js";
 import {  Text } from "../../../ui/text.js";
 import { Block, blocks, BlockType, PrimitiveBlock} from "./block.js";
 import { Line } from "../../../ui/line.js";
+import { EditorPage } from "../editor_page.js";
 
 export enum PinType{
     in=0,
@@ -45,7 +45,7 @@ class Pin extends Button{
     }
     
     onMouseDown(type:EMouseType){
-        this.provLine=new Line(components.view,components.view.canvas)
+        this.provLine=new Line(EditorPage.self.view,EditorPage.self.view.canvas)
         this.provLine.obj1=this;
         this.provLine.fixedPos2=MouseHandler.currentPos;
         BoundingRect.drawHierarchy()
@@ -60,7 +60,7 @@ class Pin extends Button{
         this.provLine?.destroy();
         this.provLine=null;
         if(BoundingRect.checkOverlapp(MouseHandler.currentPos)[0] instanceof Pin){
-            this.nextLine=new Line(components.view,components.view.canvas);
+            this.nextLine=new Line(EditorPage.self.view,EditorPage.self.view.canvas);
             this.nextLine.obj1=this;
             this.nextLine.obj2=BoundingRect.checkOverlapp(MouseHandler.currentPos)[0];
             //if(this.provLine!=null){
@@ -86,7 +86,7 @@ export class ViewBlock extends Button{
     public amountOutPins:number=0;
     public block:BlockType;
     constructor(pos:IPos,block:BlockType){
-        super(components.view,components.view.canvas);
+        super(EditorPage.self.view,EditorPage.self.view.canvas);
         this.block=block;
         this.color=block.color
         this.setConstraints(EConstraintsX.left,EConstraintsY.top);
@@ -116,8 +116,8 @@ export class ViewBlock extends Button{
         this.mouseOffset={leftDist:MouseHandler.getMousePos().x-this.absEdges.left,topDist:MouseHandler.getMousePos().y-this.absEdges.top}
     };
     onMouseMoveDown(type:EMouseType){
-        this.fixedPos.x=MouseHandler.getRelativeMousePos(components.view).x-this.mouseOffset.leftDist;
-        this.fixedPos.y=MouseHandler.getRelativeMousePos(components.view).y-this.mouseOffset.topDist;
+        this.fixedPos.x=MouseHandler.getRelativeMousePos(EditorPage.self.view).x-this.mouseOffset.leftDist;
+        this.fixedPos.y=MouseHandler.getRelativeMousePos(EditorPage.self.view).y-this.mouseOffset.topDist;
         BoundingRect.drawHierarchy();
     };
     onMouseUp(type:EMouseType){

@@ -6,6 +6,7 @@ export const BoundingRect = {
     absEdges: { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight },
     drawHierarchy() {
         this.absEdges = { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight };
+        this.canvas?.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
         for (const child of this.children) {
             child.drawHierarchy(this);
         }

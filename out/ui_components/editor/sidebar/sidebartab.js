@@ -3,8 +3,8 @@ import { Text } from "../../../ui/text.js";
 import { ViewBlock } from "../view/view_block.js";
 import { EConstraintsX, EConstraintsY } from '../../../ui/types/constraints.js';
 import { BoundingRect } from "../../../ui/bounding_rect.js";
-import { components } from "../../../main.js";
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
+import { EditorPage } from "../editor_page.js";
 export class SideBarTab extends Button {
     constructor(parent, block) {
         super(parent, parent.canvas);
@@ -36,15 +36,15 @@ export class SideBarTab extends Button {
     onMouseDown(type) {
     }
     onMouseMoveDown(type) {
-        if (components.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(components.view) != -1 && this.block.isLoaded == false) {
+        if (EditorPage.self.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(EditorPage.self.view) != -1 && this.block.isLoaded == false) {
             if (this.provBlock == null) {
-                this.provBlock = new ViewBlock(MouseHandler.posOnRects(components.view), this.block);
-                this.provBlock.fixedPos.x = MouseHandler.posOnRects(components.view).x - this.provBlock.fixedSize.w / 2;
-                this.provBlock.fixedPos.y = MouseHandler.posOnRects(components.view).y - this.provBlock.fixedSize.h / 2;
+                this.provBlock = new ViewBlock(MouseHandler.posOnRects(EditorPage.self.view), this.block);
+                this.provBlock.fixedPos.x = MouseHandler.posOnRects(EditorPage.self.view).x - this.provBlock.fixedSize.w / 2;
+                this.provBlock.fixedPos.y = MouseHandler.posOnRects(EditorPage.self.view).y - this.provBlock.fixedSize.h / 2;
             }
             else {
-                this.provBlock.fixedPos.x = MouseHandler.posOnRects(components.view).x - this.provBlock.fixedSize.w / 2;
-                this.provBlock.fixedPos.y = MouseHandler.posOnRects(components.view).y - this.provBlock.fixedSize.h / 2;
+                this.provBlock.fixedPos.x = MouseHandler.posOnRects(EditorPage.self.view).x - this.provBlock.fixedSize.w / 2;
+                this.provBlock.fixedPos.y = MouseHandler.posOnRects(EditorPage.self.view).y - this.provBlock.fixedSize.h / 2;
             }
         }
         else {
@@ -54,13 +54,13 @@ export class SideBarTab extends Button {
         BoundingRect.drawHierarchy();
     }
     onMouseUp(type) {
-        if (components.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(components.view) != -1 && this.block.isLoaded == false && this.provBlock != null) {
-            const viewBlock = new ViewBlock({ x: MouseHandler.posOnRects(components.view).x - this.provBlock.fixedSize.w / 2, y: MouseHandler.posOnRects(components.view).y - this.provBlock.fixedSize.h / 2 }, this.block);
+        if (EditorPage.self.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(EditorPage.self.view) != -1 && this.block.isLoaded == false && this.provBlock != null) {
+            const viewBlock = new ViewBlock({ x: MouseHandler.posOnRects(EditorPage.self.view).x - this.provBlock.fixedSize.w / 2, y: MouseHandler.posOnRects(EditorPage.self.view).y - this.provBlock.fixedSize.h / 2 }, this.block);
         }
         this.provBlock?.destroy();
         this.provBlock = null;
         if (BoundingRect.checkOverlapp(MouseHandler.currentPos)[0] == this) {
-            components.view.changeActiveBlock(this.block);
+            EditorPage.self.view.changeActiveBlock(this.block);
         }
         BoundingRect.drawHierarchy();
         //if(type==EMouseType.right&&this.block.isLoaded==false){

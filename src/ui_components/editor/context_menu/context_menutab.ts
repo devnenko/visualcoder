@@ -6,13 +6,13 @@ import { VerticalBox } from "../../../ui/vertical_box.js";
 import { ViewBlock, PinType } from "../view/view_block.js";
 import { EConstraintsX,EConstraintsY } from '../../../ui/types/constraints.js';
 import { BoundingRect} from "../../../ui/bounding_rect.js";
-import { components } from "../../../main.js";
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
 import { blocks, Block, BlockType } from "../view/block.js";
 import { IShape} from "../../../ui/shape.js";
 import { EMouseType } from "../../../ui/types/mouse.js";
 import { View } from "../view/view.js";
 import { ContextMenu } from "./context_menu.js";
+import { EditorPage } from "../editor_page.js";
 
 export class ContextMenutab extends Button{
     public origColor:string;
@@ -44,9 +44,9 @@ export class ContextMenutab extends Button{
 
 
     onMouseDown(type:EMouseType){
-        const provBlock=new ViewBlock(MouseHandler.posOnRects(components.view),this.block);
-        provBlock.fixedPos.x=MouseHandler.posOnRects(components.view).x-provBlock.fixedSize.w/2;
-        provBlock.fixedPos.y=MouseHandler.posOnRects(components.view).y-provBlock.fixedSize.h/2;
+        const provBlock=new ViewBlock(MouseHandler.posOnRects(EditorPage.self.view),this.block);
+        provBlock.fixedPos.x=MouseHandler.posOnRects(EditorPage.self.view).x-provBlock.fixedSize.w/2;
+        provBlock.fixedPos.y=MouseHandler.posOnRects(EditorPage.self.view).y-provBlock.fixedSize.h/2;
         BoundingRect.drawHierarchy();
     }
 
