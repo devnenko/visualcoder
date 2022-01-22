@@ -1,7 +1,10 @@
-import { IMouseEvents } from "../../ui/mouse_events.js";
+import { BoundingRect } from "../../ui/bounding_shape.js";
+import { Button } from "../../ui/button.js";
+import { Canvas } from "../../ui/canvas.js";
+import { IMouseEvents } from "../../ui/clickable.js";
 import { RectType } from "../../ui/rect.js";
+import { Text } from "../../ui/text.js";
 import { EMouseType } from "../../ui/types/mouse.js";
-import {BoundingRect,Button,Canvas,HorizontalBox,Line,Rect,Text,VerticalBox,EConstraintsX,EConstraintsY, MouseHandler} from "../../ui/ui.js";
 
 
 

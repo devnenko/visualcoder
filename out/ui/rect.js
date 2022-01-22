@@ -1,13 +1,12 @@
-import { EObjectType } from "./shape.js";
+import { EObjectType, Shape, boundingShape } from "./shape.js";
 import { EConstraintsX, EConstraintsY } from "./types/constraints.js";
-export function instanceOfRectType(object) {
-    return object.hasOwnProperty('absEdges');
-}
-export class Rect {
+//export function instanceOfRectType(object: any): object is RectType {
+//    return object.hasOwnProperty('absEdges');
+//}
+export class Rect extends Shape {
     constructor(parent, canvas) {
-        this.discriminator1 = 'IShape';
+        super(parent, canvas);
         this.type = EObjectType.Normal;
-        this.children = [];
         //additional display options 
         this.isVisible = true;
         this.color = "pink";
@@ -20,24 +19,8 @@ export class Rect {
         this.margin = 0;
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = { left: 0, right: 0, top: 0, bottom: 0 };
-        if (instanceOfRectType(parent)) {
+        if (parent instanceof Rect) {
             this.parentSize = parent.absEdges;
-        }
-        parent.children.push(this); //set this as a child of parent to create an object tree
-        this.parent = parent;
-        this.canvas = canvas;
-    }
-    checkOverlapp(pos) {
-        let all = [];
-        for (const child of this.children) {
-            all = all.concat(child.checkOverlapp(pos));
-        }
-        return all;
-    }
-    destroy() {
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        if (this.parent.children.indexOf(this) == -1) {
-            //console.log("error")
         }
     }
     setConstraints(constX, constY) {
@@ -55,17 +38,8 @@ export class Rect {
             this.snapOffset = snapOffset;
         }
     }
-    draw() {
-        if (this.isVisible == true) {
-            const transform = this.edgesToDrawdimensions(this.absEdges);
-            this.canvas.ctx.beginPath();
-            this.canvas.ctx.rect(transform.pos.x, transform.pos.y, transform.size.w, transform.size.h);
-            this.canvas.ctx.fillStyle = this.color;
-            this.canvas.ctx.fill();
-        }
-    }
     drawHierarchy(parent) {
-        if (instanceOfRectType(parent)) {
+        if (parent instanceof Rect || typeof boundingShape) {
             this.resize(parent);
             this.draw();
             for (const child of this.children) {
@@ -73,12 +47,11 @@ export class Rect {
             }
         }
         else {
-            this.resize(parent.parent);
-            this.draw();
+            //this.resize(parent.parent as Rect);
+            //this.draw();
             for (const child of this.children) {
                 child.drawHierarchy(this);
             }
-            console.log("unhandeled case for now");
         }
     }
     resize(parent) {
@@ -169,6 +142,15 @@ export class Rect {
         this.absEdges.right -= this.margin;
         this.absEdges.top += this.margin;
         this.absEdges.bottom -= this.margin;
+    }
+    draw() {
+        if (this.isVisible == true) {
+            const transform = this.edgesToDrawdimensions(this.absEdges);
+            this.canvas.ctx.beginPath();
+            this.canvas.ctx.rect(Math.floor(transform.pos.x), Math.floor(transform.pos.y), Math.floor(transform.size.w), Math.floor(transform.size.h));
+            this.canvas.ctx.fillStyle = this.color;
+            this.canvas.ctx.fill();
+        }
     }
     edgesToDrawdimensions(edges) {
         //convert absolute edges to position and size

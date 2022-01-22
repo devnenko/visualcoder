@@ -13,7 +13,7 @@ export class Line {
         this.parent = drawParent;
         this.canvas = canvas;
     }
-    checkOverlapp(pos) {
+    overlappHierarchy(pos) {
         return [];
     }
     destroy() {

@@ -1,5 +1,5 @@
-import { BoundingRect } from "../bounding_rect.js";
 import { EMouseType } from "../types/mouse.js";
+import { boundingShape } from "../shape.js";
 //import { components } from "../../main.js";
 export class MouseHandler {
     static init() {
@@ -12,92 +12,63 @@ export class MouseHandler {
         window.addEventListener('mouseup', MouseHandler.mouseUp.bind(this));
     }
     static touchDown(e) {
-        this.currentPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        this.isMouseDown = true;
-        var obj = BoundingRect.checkOverlapp(this.currentPos);
-        //console.log(obj);
-        if (obj[0]) {
-            this.activeRect?.onMouseHoverEnd(EMouseType.touch);
-            obj[0].onMouseDown(EMouseType.touch);
-            this.activeRect = obj[0]; //make this better later
-        }
-        //components.view.actifContextMenu?.destroy();
-        //components.view.actifContextMenu=null;
-        BoundingRect.drawHierarchy();
-    }
-    static touchMove(e) {
-        this.currentPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        var obj = BoundingRect.checkOverlapp(this.currentPos);
-        if (this.activeRect != null && this.isMouseDown == true) {
-            this.activeRect.onMouseMoveDown(EMouseType.touch);
-        }
-        else if (this.isMouseDown == false) {
-            if (this.activeRect != obj[0]) {
-                this.activeRect?.onMouseHoverEnd(EMouseType.touch);
-                this.activeRect = obj[0];
-                this.activeRect?.onMouseHoverBegin(EMouseType.touch);
-            }
-            else {
-            }
-            //hover logic
-        }
-        //console.log(obj);
-    }
-    static touchUp(e) {
-        //this.currentPos={x:e.touches[0].clientX,y:e.touches[0].clientY}
-        this.isMouseDown = false;
-        if (this.activeRect != null) {
-            this.activeRect.onMouseUp(EMouseType.touch);
-            this.activeRect = null;
-        }
-        //console.log(obj);
+        this.down(EMouseType.touch, { x: e.touches[0].clientX, y: e.touches[0].clientY });
     }
     static mouseDown(e) {
-        //console.log("down")
-        this.currentPos = { x: e.x, y: e.y };
-        this.isMouseDown = true;
-        var obj = BoundingRect.checkOverlapp(this.currentPos);
-        //console.log(obj);
-        if (obj[0]) {
-            this.activeRect?.onMouseHoverEnd(e.button);
-            obj[0].onMouseDown(e.button);
-            this.activeRect = obj[0]; //make this better later
-        }
-        //components.view.actifContextMenu?.destroy();
-        //components.view.actifContextMenu=null;
-        BoundingRect.drawHierarchy();
+        this.down(e.button, { x: e.x, y: e.y });
+    }
+    static touchMove(e) {
+        this.move(EMouseType.touch, { x: e.touches[0].clientX, y: e.touches[0].clientY });
     }
     static mouseMove(e) {
-        this.currentPos = { x: e.x, y: e.y };
-        var obj = BoundingRect.checkOverlapp(this.currentPos);
+        this.move(e.button, { x: e.x, y: e.y });
+    }
+    static touchUp(e) {
+        this.up(EMouseType.touch, { x: e.touches[0].clientX, y: e.touches[0].clientY });
+    }
+    static mouseUp(e) {
+        this.up(e.button, { x: e.x, y: e.y });
+    }
+    static down(e, pos) {
+        this.isMouseDown = true;
+        var overlapping = boundingShape.overlappHierarchy(pos);
+        if (overlapping[0]) {
+            this.activeRect?.onMouseHoverEnd(e, pos);
+            overlapping[0].onMouseDown(e, pos);
+            this.activeRect = overlapping[0]; //make this better later
+        }
+        boundingShape.drawHierarchy();
+    }
+    static move(e, pos) {
+        var overlapping = boundingShape.overlappHierarchy(pos);
         if (this.activeRect != null && this.isMouseDown == true) {
-            this.activeRect.onMouseMoveDown(e.button);
+            this.activeRect.onMouseMoveDown(e, pos);
         }
         else if (this.isMouseDown == false) {
-            if (this.activeRect != obj[0]) {
-                this.activeRect?.onMouseHoverEnd(e.button);
-                this.activeRect = obj[0];
-                this.activeRect?.onMouseHoverBegin(e.button);
+            if (this.activeRect != overlapping[0]) {
+                this.activeRect?.onMouseHoverEnd(e, pos);
+                this.activeRect = overlapping[0];
+                this.activeRect?.onMouseHoverBegin(e, pos);
             }
             else {
             }
             //hover logic
         }
         //console.log(obj);
+        boundingShape.drawHierarchy();
     }
-    static mouseUp(e) {
-        this.currentPos = { x: e.x, y: e.y };
+    static up(e, pos) {
         this.isMouseDown = false;
-        var obj = BoundingRect.checkOverlapp(this.currentPos);
-        if (obj[0] == this.activeRect) {
-            this.activeRect.onMouseUp(e.button);
-            this.activeRect?.onMouseHoverBegin(e.button);
+        var overlapping = boundingShape.overlappHierarchy(pos);
+        if (overlapping[0] == this.activeRect) {
+            this.activeRect?.onMouseUp(e, pos);
+            this.activeRect?.onMouseHoverBegin(e, pos);
         }
         else if (this.activeRect != null) {
-            this.activeRect.onMouseUp(e.button);
+            this.activeRect.onMouseUp(e, pos);
             this.activeRect = null;
         }
-        //console.log(obj);
+        boundingShape.drawHierarchy();
     }
     static getMousePos() {
         return this.currentPos;
@@ -107,6 +78,9 @@ export class MouseHandler {
     }
     static posOnRects(rect) {
         return { x: this.currentPos.x - rect.absEdges.left, y: this.currentPos.y - rect.absEdges.top };
+    }
+    static getOverlapping(pos) {
+        return boundingShape.overlappHierarchy(pos);
     }
 }
 MouseHandler.canvases = [];

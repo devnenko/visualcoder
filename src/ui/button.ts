@@ -1,47 +1,48 @@
-import { IMouseEvents, instanceOfIMouseEvents } from "./mouse_events.js";
+
 import { Canvas } from "./canvas.js";
 import { IShape} from "./shape.js";
-import {  Rect, RectType} from "./rect.js";
+import {  Rect} from "./rect.js";
 import { EMouseType } from "./types/mouse.js";
 import { IPos } from "./types/pos.js";
+import { IClickable } from "./clickable.js";
 
 
-export class Button extends Rect implements IMouseEvents{
-    public discIMouseEvents: 'IMouseEvents'='IMouseEvents';
+export class Button extends Rect implements IClickable{
+    public discriminator2: 'IMouseEvents'='IMouseEvents';
     constructor(parent:IShape,canvas:Canvas){
         super(parent,canvas);
     }
 
-    checkOverlapp(pos:IPos): Button[] {
+    overlappHierarchy(pos:IPos): Button[] {
         let all:Button[]=[];
         
         if(this.absEdges.left<pos.x&&this.absEdges.right>pos.x&&this.absEdges.top<pos.y&&this.absEdges.bottom>pos.y){
             all.push(this);
         }
         for (const child of this.children){
-            all=all.concat((child as IShape).checkOverlapp(pos) as Button[])
+            all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
         }
         //all=all.slice().reverse();
         return all;
     }
 
-    onMouseDown(type:EMouseType): void {
+    onMouseDown(type:EMouseType,pos:IPos): void {
         //throw new Error('Method not implemented.');
     }
 
-    onMouseMoveDown(type:EMouseType): void {
+    onMouseMoveDown(type:EMouseType,pos:IPos): void {
         //throw new Error('Method not implemented.');
     }
 
-    onMouseUp(type:EMouseType): void {
+    onMouseUp(type:EMouseType,pos:IPos): void {
         //throw new Error('Method not implemented.');
     }
 
-    onMouseHoverBegin(type: EMouseType): void {
+    onMouseHoverBegin(type: EMouseType,pos:IPos): void {
         //throw new Error('Method not implemented.');
     }
 
-    onMouseHoverEnd(type:EMouseType): void {
+    onMouseHoverEnd(type:EMouseType,pos:IPos): void {
         //throw new Error('Method not implemented.');
     }
 }

@@ -1,5 +1,5 @@
 import { Block} from './view/block.js';
-import { BoundingRect } from '../../ui/bounding_rect.js';
+import { BoundingRect } from '../../ui/bounding_shape.js';
 import { Canvas } from '../../ui/canvas.js';
 import { HorizontalBox } from '../../ui/horizontal_box.js';
 import { EConstraintsX, EConstraintsY } from '../../ui/types/constraints.js';

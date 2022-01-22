@@ -1,9 +1,14 @@
-import { RectType } from "../../ui/rect.js";
+import { BoundingRect } from "../../ui/bounding_shape.js";
+import { Canvas } from "../../ui/canvas.js";
+import { HorizontalBox } from "../../ui/horizontal_box.js";
+import { Rect, RectType } from "../../ui/rect.js";
 import { Shape } from "../../ui/shape.js";
+import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
 import { EMouseType } from "../../ui/types/mouse.js";
-import {BoundingRect,Button,Canvas,HorizontalBox,Line,Rect,Text,VerticalBox,EConstraintsX,EConstraintsY} from "../../ui/ui.js";
+import { VerticalBox } from "../../ui/vertical_box.js";
 import { EnginePage } from "./engine_page.js";
 import { HoverPressButton } from "./hover_press_button.js";
+
 
 
 function colorByBrightness(value:number){

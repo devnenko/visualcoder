@@ -1,7 +1,6 @@
 
 // @ts-ignore
 import Stats from './../../node_modules/stats.js/src/Stats.js'
-import { BoundingRect } from './bounding_rect.js';
 import { ResizeHandler } from './event_handlers/resize.js';
 import { Rect } from './rect.js';
 
@@ -17,7 +16,7 @@ export class Canvas{
     public canvas:HTMLCanvasElement;
     public ctx:CanvasRenderingContext2D;
 
-    public boundingRect=BoundingRect;
+
 
 
     constructor() {

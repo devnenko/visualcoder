@@ -1,5 +1,6 @@
-import { welcomePageObj } from "../../main.js";
-import { BoundingRect, HorizontalBox, EConstraintsX, EConstraintsY } from "../../ui/ui.js";
+import { BoundingRect } from "../../ui/bounding_shape.js";
+import { HorizontalBox } from "../../ui/horizontal_box.js";
+import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
 import { EditorPage } from "../editor/editor_page.js";
 import { HoverPressButton } from "./hover_press_button.js";
 function colorByBrightness(value) {
@@ -21,7 +22,7 @@ export class ProjectButton extends HoverPressButton {
     }
     onMouseUp(type) {
         super.onMouseUp(type);
-        welcomePageObj.destroy();
+        //welcomePageObj.destroy();
         //set new hash
         window.location.hash = "3";
         //load engine

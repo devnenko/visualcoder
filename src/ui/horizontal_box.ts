@@ -1,6 +1,6 @@
 import { Canvas } from "./canvas.js";
 import {  EObjectType, IShape} from "./shape.js";
-import { Rect, RectType } from "./rect.js";
+import { Rect} from "./rect.js";
 import { EConstraintsX } from "./types/constraints.js";
 import { IEdges } from "./types/edges.js";
 

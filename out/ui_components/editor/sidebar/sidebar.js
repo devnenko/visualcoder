@@ -1,6 +1,6 @@
 import { VerticalBox } from "../../../ui/vertical_box.js";
 import { EConstraintsX, EConstraintsY } from '../../../ui/types/constraints.js';
-import { BoundingRect } from "../../../ui/bounding_rect.js";
+import { BoundingRect } from "../../../ui/bounding_shape.js";
 import { blockHandlers } from "../view/block.js";
 import { SideBarTab } from "./sidebartab.js";
 export class SideBar extends VerticalBox {

@@ -1,4 +1,4 @@
-import { BoundingRect } from "../../../ui/bounding_rect.js";
+import { BoundingRect } from "../../../ui/bounding_shape.js";
 import { Button } from "../../../ui/button.js";
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
 import { EConstraintsX, EConstraintsY } from "../../../ui/types/constraints.js";

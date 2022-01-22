@@ -5,7 +5,7 @@ import {  Text } from "../../../ui/text.js";
 import { VerticalBox } from "../../../ui/vertical_box.js";
 import { ViewBlock, PinType } from "../view/view_block.js";
 import { EConstraintsX,EConstraintsY } from '../../../ui/types/constraints.js';
-import { BoundingRect} from "../../../ui/bounding_rect.js";
+import { BoundingRect} from "../../../ui/bounding_shape.js";
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
 import { blocks, Block, BlockType } from "../view/block.js";
 import { IShape} from "../../../ui/shape.js";

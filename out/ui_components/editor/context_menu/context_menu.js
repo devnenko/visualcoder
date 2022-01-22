@@ -1,7 +1,7 @@
 import "../../../ui/ui.js";
 import { VerticalBox } from "../../../ui/vertical_box.js";
 import { EConstraintsX, EConstraintsY } from '../../../ui/types/constraints.js';
-import { BoundingRect } from "../../../ui/bounding_rect.js";
+import { BoundingRect } from "../../../ui/bounding_shape.js";
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
 import { blockHandlers, blocks } from "../view/block.js";
 import { ContextMenutab } from "./context_menutab.js";

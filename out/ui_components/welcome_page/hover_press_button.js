@@ -1,4 +1,6 @@
-import { BoundingRect, Button, Text } from "../../ui/ui.js";
+import { BoundingRect } from "../../ui/bounding_shape.js";
+import { Button } from "../../ui/button.js";
+import { Text } from "../../ui/text.js";
 export class HoverPressButton extends Button {
     constructor(parent, canvas) {
         super(parent, canvas);

@@ -1,29 +1,22 @@
-import { IMouseEvents, instanceOfIMouseEvents } from "./mouse_events.js";
-import { Button } from "./button.js";
 import { Canvas } from "./canvas.js";
-import { BoundingRect } from "./bounding_rect.js";
 import { HorizontalBox } from "./horizontal_box.js";
-import { IShape, EObjectType} from "./shape.js";
+import { IShape, EObjectType, Shape, boundingShape} from "./shape.js";
 import { EConstraintsX, EConstraintsY } from "./types/constraints.js";
 import { IEdges } from "./types/edges.js";
 import { IPos } from "./types/pos.js";
 import { ISize } from "./types/size.js";
 import { ITransform } from "./types/transform.js";
 
-export type RectType=Rect|typeof BoundingRect;
 
-export function instanceOfRectType(object: any): object is RectType {
-    return object.hasOwnProperty('absEdges');
-}
+//export function instanceOfRectType(object: any): object is RectType {
+//    return object.hasOwnProperty('absEdges');
+//}
 
 
-export class Rect implements IShape{
+export class Rect extends Shape{
 
-    discriminator1: 'IShape'='IShape';
     type:EObjectType=EObjectType.Normal;
 
-    public canvas:Canvas;
-    public children:IShape[]=[];
 
     //additional display options 
     public isVisible:boolean=true;
@@ -40,32 +33,11 @@ export class Rect implements IShape{
     public absEdges={left:0,right:0,top:0,bottom:0};
 
     public parentSize:IEdges={left:0,right:0,top:0,bottom:0};
-    public parent:IShape;
 
     constructor(parent:IShape,canvas:Canvas){
-        if(instanceOfRectType(parent)){
+        super(parent,canvas)
+        if(parent instanceof Rect){
             this.parentSize=parent.absEdges;
-        }
-
-        parent.children.push(this); //set this as a child of parent to create an object tree
-        this.parent=parent;
-        this.canvas=canvas;
-    }
-
-    checkOverlapp(pos:IPos): Button[] {
-        let all:Button[]=[];
-        
-
-        for (const child of this.children){
-            all=all.concat((child as IShape).checkOverlapp(pos) as Button[])
-        }
-        return all;
-    }
-
-    destroy(){
-        this.parent.children.splice(this.parent.children.indexOf(this),1);
-        if(this.parent.children.indexOf(this)==-1){
-            //console.log("error")
         }
     }
 
@@ -74,7 +46,7 @@ export class Rect implements IShape{
         this.constY=constY;
     }
 
-    public setConstraintsInfo(fixedPos?:IPos,fixedSize?:ISize,snapOffset?:IEdges){
+    public setConstraintsInfo(fixedPos:IPos,fixedSize:ISize,snapOffset:IEdges){
         if(fixedPos){
             this.fixedPos=fixedPos;
         }
@@ -86,19 +58,8 @@ export class Rect implements IShape{
         }
     }
 
-    protected draw(){
-        if(this.isVisible==true){
-            const transform=this.edgesToDrawdimensions(this.absEdges);
-    
-            this.canvas.ctx.beginPath();
-            this.canvas.ctx.rect(transform.pos.x, transform.pos.y,transform.size.w,transform.size.h);
-            this.canvas.ctx.fillStyle=this.color;
-            this.canvas.ctx.fill();
-        }
-    }
-
     public drawHierarchy(parent:IShape){
-        if(instanceOfRectType(parent)){
+        if(parent instanceof Rect|| typeof boundingShape){
             this.resize(parent);
             this.draw();
     
@@ -107,17 +68,16 @@ export class Rect implements IShape{
             }
         }
         else{
-            this.resize(parent.parent as RectType);
-            this.draw();
+            //this.resize(parent.parent as Rect);
+            //this.draw();
     
             for (const child of this.children){
                 child.drawHierarchy(this);
             }
-            console.log("unhandeled case for now")
         }
     }
 
-    protected resize(parent:RectType){
+    protected resize(parent:any){
         if(parent.type==EObjectType.Normal){
             const parentSize=parent.absEdges;
             if(this.constX==EConstraintsX.left){
@@ -207,6 +167,17 @@ export class Rect implements IShape{
         this.absEdges.right-=this.margin;
         this.absEdges.top+=this.margin;
         this.absEdges.bottom-=this.margin;
+    }
+
+    protected draw(){
+        if(this.isVisible==true){
+            const transform=this.edgesToDrawdimensions(this.absEdges);
+    
+            this.canvas.ctx.beginPath();
+            this.canvas.ctx.rect(Math.floor(transform.pos.x), Math.floor(transform.pos.y),Math.floor(transform.size.w),Math.floor(transform.size.h));
+            this.canvas.ctx.fillStyle=this.color;
+            this.canvas.ctx.fill();
+        }
     }
     
     private edgesToDrawdimensions(edges:IEdges){

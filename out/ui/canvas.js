@@ -1,4 +1,3 @@
-import { BoundingRect } from './bounding_rect.js';
 import { ResizeHandler } from './event_handlers/resize.js';
 //var stats = new Stats();
 //stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -7,7 +6,6 @@ import { ResizeHandler } from './event_handlers/resize.js';
 //it also handles the resize events (maybe this should be changed later to be handled in a single location)
 export class Canvas {
     constructor() {
-        this.boundingRect = BoundingRect;
         //create canvas in Dom
         var canvas = document.createElement('canvas');
         canvas.style.position = "absolute";

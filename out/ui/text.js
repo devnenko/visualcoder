@@ -1,4 +1,4 @@
-import { instanceOfRectType } from "./rect.js";
+import { Rect } from "./rect.js";
 export class Text {
     constructor(parent, canvas) {
         this.discriminator1 = 'IShape';
@@ -18,10 +18,10 @@ export class Text {
     destroy() {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
     }
-    checkOverlapp(pos) {
+    overlappHierarchy(pos) {
         let all = [];
         for (const child of this.children) {
-            all = all.concat(child.checkOverlapp(pos));
+            all = all.concat(child.overlappHierarchy(pos));
         }
         return all;
     }
@@ -43,16 +43,13 @@ export class Text {
         }
     }
     drawHierarchy(parent) {
-        if (instanceOfRectType(parent)) {
+        if (parent instanceof Rect) {
             this.resize(parent);
             this.draw();
         }
     }
     resize(parent) {
         this.absEdges = parent.absEdges;
-        //for (const child of this.children){
-        //    child.resize(this.absEdges);
-        //}
     }
     edgesToDrawdimensions(edges) {
         //convert absolute edges to position and size

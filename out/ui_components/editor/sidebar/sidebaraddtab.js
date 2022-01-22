@@ -1,7 +1,7 @@
 import { Button } from "../../../ui/button.js";
 import { Text } from "../../../ui/text.js";
 import { EConstraintsX, EConstraintsY } from '../../../ui/types/constraints.js';
-import { BoundingRect } from "../../../ui/bounding_rect.js";
+import { BoundingRect } from "../../../ui/bounding_shape.js";
 import { Block } from "../view/block.js";
 import { EMouseType } from "../../../ui/types/mouse.js";
 export class SideBarAddTab extends Button {

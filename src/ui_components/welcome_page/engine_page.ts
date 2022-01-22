@@ -1,8 +1,11 @@
-import { welcomePageObj } from "../../main.js";
-import { IMouseEvents } from "../../ui/mouse_events.js";
+
+import { BoundingRect } from "../../ui/bounding_shape.js";
+import { Canvas } from "../../ui/canvas.js";
+import { HorizontalBox } from "../../ui/horizontal_box.js";
+import { IMouseEvents } from "../../ui/clickable.js";
 import { RectType } from "../../ui/rect.js";
+import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
 import { EMouseType } from "../../ui/types/mouse.js";
-import {BoundingRect,Button,Canvas,HorizontalBox,Line,Rect,Text,VerticalBox,EConstraintsX,EConstraintsY, MouseHandler} from "../../ui/ui.js";
 import { EditorPage } from "../editor/editor_page.js";
 import { HoverPressButton } from "./hover_press_button.js";
 import { WelcomePage } from "./welcome_page.js";
@@ -28,7 +31,7 @@ export class ProjectButton extends HoverPressButton{
 
     onMouseUp(type: EMouseType): void {
         super.onMouseUp(type);
-        welcomePageObj.destroy();
+        //welcomePageObj.destroy();
         //set new hash
         window.location.hash = "3";
         //load engine

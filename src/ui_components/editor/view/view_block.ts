@@ -1,6 +1,6 @@
 
-import { IMouseEvents } from "../../../ui/mouse_events.js";
-import { BoundingRect } from "../../../ui/bounding_rect.js";
+import { IMouseEvents } from "../../../ui/clickable.js";
+import { BoundingRect } from "../../../ui/bounding_shape.js";
 import { Button } from "../../../ui/button.js";
 import { Canvas } from "../../../ui/canvas.js";
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";

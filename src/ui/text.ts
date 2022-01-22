@@ -1,4 +1,4 @@
-import { IMouseEvents, instanceOfIMouseEvents } from "./mouse_events.js";
+
 import { Button } from "./button.js";
 import { Canvas } from "./canvas.js";
 import { HorizontalBox } from "./horizontal_box.js";
@@ -8,7 +8,7 @@ import { IEdges } from "./types/edges.js";
 import { IPos } from "./types/pos.js";
 import { ISize } from "./types/size.js";
 import { ITransform } from "./types/transform.js";
-import { instanceOfRectType, RectType } from "./rect.js";
+import { Rect } from "./rect.js";
 
 
 export class Text implements IShape{
@@ -31,7 +31,7 @@ export class Text implements IShape{
 
     public parent:IShape;
 
-    constructor(parent:RectType,canvas:Canvas){
+    constructor(parent:Rect,canvas:Canvas){
         this.parentSize=parent.absEdges;
         this.parent=parent;
 
@@ -43,12 +43,12 @@ export class Text implements IShape{
         this.parent.children.splice(this.parent.children.indexOf(this),1);
     }
 
-    checkOverlapp(pos:IPos): Button[] {
+    overlappHierarchy(pos:IPos): Button[] {
         let all:Button[]=[];
         
 
         for (const child of this.children){
-            all=all.concat((child as IShape).checkOverlapp(pos) as Button[])
+            all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
         }
         return all;
     }
@@ -74,21 +74,14 @@ export class Text implements IShape{
     }
 
     public drawHierarchy(parent:IShape){
-        if(instanceOfRectType(parent)){
+        if(parent instanceof Rect){
             this.resize(parent);
             this.draw();
         }
     }
 
-    protected resize(parent:RectType){
+    protected resize(parent:Rect){
         this.absEdges=parent.absEdges;
-
-
-
-
-        //for (const child of this.children){
-        //    child.resize(this.absEdges);
-        //}
     }
 
     private edgesToDrawdimensions(edges:IEdges){

@@ -1,6 +1,6 @@
 import { Button } from "./button.js";
 import { Canvas } from "./canvas.js";
-import { Rect, RectType } from "./rect.js";
+import { Rect} from "./rect.js";
 import { IShape } from "./shape.js";
 import { IEdges } from "./types/edges.js";
 import { IPos } from "./types/pos.js";
@@ -15,8 +15,8 @@ export class Line implements IShape{
     public fixedPos1:IPos={x:0,y:0};
     public fixedPos2:IPos={x:0,y:0};
 
-    public obj1:RectType|null=null;
-    public obj2:RectType|null=null;
+    public obj1:Rect|null=null;
+    public obj2:Rect|null=null;
 
     //additional display options 
     public isVisible:boolean=true;
@@ -24,7 +24,7 @@ export class Line implements IShape{
 
     public parent:IShape;
 
-    constructor(drawParent:RectType,canvas:Canvas){
+    constructor(drawParent:IShape,canvas:Canvas){
 
         drawParent.children.push(this); //set this as a child of parent to create an object tree
         this.parent=drawParent;
@@ -33,7 +33,7 @@ export class Line implements IShape{
 
 
 
-    checkOverlapp(pos:IPos): Button[] {
+    overlappHierarchy(pos:IPos): Button[] {
         return [];
     }
 

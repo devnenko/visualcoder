@@ -1,5 +1,5 @@
 import { blockHandlers, blocks } from "./block.js";
-import { BoundingRect } from "../../../ui/bounding_rect.js";
+import { BoundingRect } from "../../../ui/bounding_shape.js";
 import { Button } from "../../../ui/button.js";
 import { EConstraintsX, EConstraintsY } from "../../../ui/types/constraints.js";
 import { EMouseType } from "../../../ui/types/mouse.js";

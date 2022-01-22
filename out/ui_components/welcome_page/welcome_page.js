@@ -1,5 +1,9 @@
+import { BoundingRect } from "../../ui/bounding_shape.js";
+import { HorizontalBox } from "../../ui/horizontal_box.js";
+import { Rect } from "../../ui/rect.js";
 import { Shape } from "../../ui/shape.js";
-import { BoundingRect, HorizontalBox, Rect, VerticalBox, EConstraintsX, EConstraintsY } from "../../ui/ui.js";
+import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
+import { VerticalBox } from "../../ui/vertical_box.js";
 import { EnginePage } from "./engine_page.js";
 import { HoverPressButton } from "./hover_press_button.js";
 function colorByBrightness(value) {

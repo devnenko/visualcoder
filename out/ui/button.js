@@ -2,32 +2,32 @@ import { Rect } from "./rect.js";
 export class Button extends Rect {
     constructor(parent, canvas) {
         super(parent, canvas);
-        this.discIMouseEvents = 'IMouseEvents';
+        this.discriminator2 = 'IMouseEvents';
     }
-    checkOverlapp(pos) {
+    overlappHierarchy(pos) {
         let all = [];
         if (this.absEdges.left < pos.x && this.absEdges.right > pos.x && this.absEdges.top < pos.y && this.absEdges.bottom > pos.y) {
             all.push(this);
         }
         for (const child of this.children) {
-            all = all.concat(child.checkOverlapp(pos));
+            all = all.concat(child.overlappHierarchy(pos));
         }
         //all=all.slice().reverse();
         return all;
     }
-    onMouseDown(type) {
+    onMouseDown(type, pos) {
         //throw new Error('Method not implemented.');
     }
-    onMouseMoveDown(type) {
+    onMouseMoveDown(type, pos) {
         //throw new Error('Method not implemented.');
     }
-    onMouseUp(type) {
+    onMouseUp(type, pos) {
         //throw new Error('Method not implemented.');
     }
-    onMouseHoverBegin(type) {
+    onMouseHoverBegin(type, pos) {
         //throw new Error('Method not implemented.');
     }
-    onMouseHoverEnd(type) {
+    onMouseHoverEnd(type, pos) {
         //throw new Error('Method not implemented.');
     }
 }

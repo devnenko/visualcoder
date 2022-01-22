@@ -5,7 +5,7 @@ import {  Text } from "../../../ui/text.js";
 import { VerticalBox } from "../../../ui/vertical_box.js";
 import { ViewBlock, PinType } from "../view/view_block.js";
 import { EConstraintsX,EConstraintsY } from '../../../ui/types/constraints.js';
-import { BoundingRect} from "../../../ui/bounding_rect.js";
+import { BoundingRect} from "../../../ui/bounding_shape.js";
 
 import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
 import { blocks, Block } from "../view/block.js";
@@ -55,7 +55,7 @@ export class SideBarTab extends Button{
     }
 
     onMouseMoveDown(type:EMouseType){
-        if(EditorPage.self.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(EditorPage.self.view)!=-1 && this.block.isLoaded==false){
+        if(EditorPage.self.view.overlappHierarchy(MouseHandler.currentPos)?.indexOf(EditorPage.self.view)!=-1 && this.block.isLoaded==false){
             if(this.provBlock==null){
                 this.provBlock=new ViewBlock(MouseHandler.posOnRects(EditorPage.self.view),this.block);
                 this.provBlock.fixedPos.x=MouseHandler.posOnRects(EditorPage.self.view).x-this.provBlock.fixedSize.w/2;
@@ -74,7 +74,7 @@ export class SideBarTab extends Button{
     }
     onMouseUp(type:EMouseType){
 
-        if(EditorPage.self.view.checkOverlapp(MouseHandler.currentPos)?.indexOf(EditorPage.self.view)!=-1&& this.block.isLoaded==false&&this.provBlock!=null){
+        if(EditorPage.self.view.overlappHierarchy(MouseHandler.currentPos)?.indexOf(EditorPage.self.view)!=-1&& this.block.isLoaded==false&&this.provBlock!=null){
             const viewBlock=new ViewBlock(
                 {x:MouseHandler.posOnRects(EditorPage.self.view).x-this.provBlock.fixedSize.w/2,y:MouseHandler.posOnRects(EditorPage.self.view).y-this.provBlock.fixedSize.h/2},this.block);
         }

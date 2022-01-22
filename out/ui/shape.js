@@ -4,6 +4,9 @@ export var EObjectType;
     EObjectType[EObjectType["HzBox"] = 1] = "HzBox";
     EObjectType[EObjectType["VtBox"] = 2] = "VtBox";
 })(EObjectType || (EObjectType = {}));
+export function instanceOfShape(arg) {
+    return arg.discriminator1 === 'IShape';
+}
 export class Shape {
     constructor(parent, canvas) {
         this.discriminator1 = 'IShape';
@@ -12,26 +15,52 @@ export class Shape {
         this.parent = parent;
         this.canvas = canvas;
     }
+    drawHierarchy(parent) {
+        for (const child of this.children) {
+            child.drawHierarchy(parent);
+        }
+    }
+    overlappHierarchy(pos) {
+        let all = [];
+        for (const child of this.children) {
+            all = all.concat(child.overlappHierarchy(pos));
+        }
+        return all;
+    }
     destroy() {
-        console.log("dest");
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
         if (this.parent.children.indexOf(this) == -1) {
             //console.log("error")
         }
     }
-    drawHierarchy(parent) {
+}
+class BoundingShape {
+    constructor() {
+        this.discriminator1 = 'IShape';
+        this.children = [];
+        this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
+        this.type = EObjectType.Normal;
+    }
+    drawHierarchy() {
+        this.absEdges = { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight };
         for (const child of this.children) {
             child.drawHierarchy(this);
         }
     }
-    checkOverlapp(pos) {
+    overlappHierarchy(pos) {
         let all = [];
         for (const child of this.children) {
-            all = all.concat(child.checkOverlapp(pos));
+            all = all.concat(child.overlappHierarchy(pos));
         }
+        all = all.slice().reverse();
         return all;
     }
+    destroy() {
+        for (const child of this.children) {
+            child.destroy();
+        }
+    }
 }
-export function instanceOfShape(object) {
-    return object.discriminator1 === 'IShape';
-}
+const boundingShape = new BoundingShape();
+//Object.freeze(boundingShape);
+export { boundingShape };
