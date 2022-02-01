@@ -31,6 +31,8 @@ export class Text implements IShape{
 
     public parent:IShape;
 
+    public fixedOffset:IPos={x:0,y:0};
+
     constructor(parent:Rect,canvas:Canvas){
         this.parentSize=parent.absEdges;
         this.parent=parent;
@@ -69,7 +71,7 @@ export class Text implements IShape{
             this.canvas.ctx.textAlign = "start";
             this.canvas.ctx.fillStyle=this.color;
             this.canvas.ctx.font = this.size+"px Arial";
-            this.canvas.ctx.fillText(this.text, transform.pos.x, transform.pos.y+this.size);
+            this.canvas.ctx.fillText(this.text, transform.pos.x+this.fixedOffset.x, transform.pos.y+this.size+this.fixedOffset.y);
         }
     }
 

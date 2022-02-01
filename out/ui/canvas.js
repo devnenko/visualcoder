@@ -23,6 +23,9 @@ export class Canvas {
         //window.addEventListener('resize', this.update.bind(this));
     }
     resize() {
+        let ratio = window.devicePixelRatio;
+        let style_width = +getComputedStyle(this.canvas).getPropertyValue("width").slice(0, -2); //+ makes to integer, slice removes px at end
+        let style_height = +getComputedStyle(this.canvas).getPropertyValue("height").slice(0, -2); //+ makes to integer, slice removes px at end
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
     }

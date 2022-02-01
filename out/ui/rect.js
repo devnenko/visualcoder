@@ -17,6 +17,7 @@ export class Rect extends Shape {
         this.fixedPos = { x: 0, y: 0 };
         this.snapOffset = { left: 0, right: 0, top: 0, bottom: 0 };
         this.margin = 0;
+        this.fixedProportion = { x: 100, y: 100 }; //number between 0 and 100 for fixed proportions
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = { left: 0, right: 0, top: 0, bottom: 0 };
         if (parent instanceof Rect) {
@@ -53,6 +54,16 @@ export class Rect extends Shape {
                 child.drawHierarchy(this);
             }
         }
+    }
+    setParent(parent, index) {
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        if (index) {
+            parent.children.splice(index, 0, this);
+        }
+        else {
+            parent.children.push(this);
+        }
+        this.parent = parent;
     }
     resize(parent) {
         if (parent.type == EObjectType.Normal) {
@@ -107,14 +118,19 @@ export class Rect extends Shape {
             //console.log(indexInParent)
             this.absEdges.top = parent.absEdges.top;
             this.absEdges.bottom = parent.absEdges.bottom;
-            if (parent.children[indexInParent - 1]) {
+            if (parent.children[indexInParent - 1]) //is not first element
+             {
                 this.absEdges.left = parent.children[indexInParent - 1].absEdges.right;
             }
-            else {
+            else //is first element
+             {
                 this.absEdges.left = parent.absEdges.left;
             }
-            if (parent.children[indexInParent + 1] == null && this.constX == EConstraintsX.scale) {
+            if (this.constX == EConstraintsX.scale && parent.children[indexInParent + 1] == null) {
                 this.absEdges.right = parent.absEdges.right;
+            }
+            else if (this.constX == EConstraintsX.scale) {
+                this.absEdges.right = this.absEdges.left + (parent.getAbsSize().w) * this.fixedProportion.x / 100;
             }
             else {
                 this.absEdges.right = this.absEdges.left + this.fixedSize.w;
@@ -125,14 +141,19 @@ export class Rect extends Shape {
             //console.log(indexInParent)
             this.absEdges.left = parent.absEdges.left;
             this.absEdges.right = parent.absEdges.right;
-            if (parent.children[indexInParent - 1]) {
+            if (parent.children[indexInParent - 1]) //is not first element
+             {
                 this.absEdges.top = parent.children[indexInParent - 1].absEdges.bottom;
             }
-            else {
+            else //is first element
+             {
                 this.absEdges.top = parent.absEdges.top;
             }
-            if (parent.children[indexInParent + 1] == null && this.constY == EConstraintsY.scale) {
+            if (this.constY == EConstraintsY.scale && parent.children[indexInParent + 1] == null) {
                 this.absEdges.bottom = parent.absEdges.bottom;
+            }
+            else if (this.constY == EConstraintsY.scale) {
+                this.absEdges.bottom = this.absEdges.top + (parent.getAbsSize().h) * this.fixedProportion.y / 100;
             }
             else {
                 this.absEdges.bottom = this.absEdges.top + this.fixedSize.h;
@@ -160,5 +181,8 @@ export class Rect extends Shape {
         res.size.w = edges.right - edges.left;
         res.size.h = edges.bottom - edges.top;
         return res;
+    }
+    getAbsSize() {
+        return { w: this.absEdges.right - this.absEdges.left, h: this.absEdges.bottom - this.absEdges.top };
     }
 }

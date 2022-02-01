@@ -4,27 +4,30 @@ import { boundingShape } from "../shape.js";
 export class MouseHandler {
     static init() {
         //window.addEventListener('click', this.mouseClick.bind(this));
-        window.addEventListener('touchstart', MouseHandler.touchDown.bind(this));
-        window.addEventListener('touchmove', MouseHandler.touchMove.bind(this));
-        window.addEventListener('touchend', MouseHandler.touchUp.bind(this));
+        window.addEventListener('touchstart', MouseHandler.touchDown.bind(this), { passive: false });
+        window.addEventListener('touchmove', MouseHandler.touchMove.bind(this), { passive: false });
+        window.addEventListener('touchend', MouseHandler.touchUp.bind(this), { passive: false });
         window.addEventListener('mousedown', MouseHandler.mouseDown.bind(this));
         window.addEventListener('mousemove', MouseHandler.mouseMove.bind(this));
         window.addEventListener('mouseup', MouseHandler.mouseUp.bind(this));
     }
     static touchDown(e) {
+        e.preventDefault();
         this.down(EMouseType.touch, { x: e.touches[0].clientX, y: e.touches[0].clientY });
     }
     static mouseDown(e) {
         this.down(e.button, { x: e.x, y: e.y });
     }
     static touchMove(e) {
+        e.preventDefault();
         this.move(EMouseType.touch, { x: e.touches[0].clientX, y: e.touches[0].clientY });
     }
     static mouseMove(e) {
         this.move(e.button, { x: e.x, y: e.y });
     }
     static touchUp(e) {
-        this.up(EMouseType.touch, { x: e.touches[0].clientX, y: e.touches[0].clientY });
+        e.preventDefault();
+        this.up(EMouseType.touch, this.currentPos);
     }
     static mouseUp(e) {
         this.up(e.button, { x: e.x, y: e.y });
@@ -37,7 +40,11 @@ export class MouseHandler {
             overlapping[0].onMouseDown(e, pos);
             this.activeRect = overlapping[0]; //make this better later
         }
+        else {
+            this.activeRect = null;
+        }
         boundingShape.drawHierarchy();
+        this.currentPos = pos;
     }
     static move(e, pos) {
         var overlapping = boundingShape.overlappHierarchy(pos);
@@ -56,13 +63,17 @@ export class MouseHandler {
         }
         //console.log(obj);
         boundingShape.drawHierarchy();
+        this.currentPos = pos;
     }
     static up(e, pos) {
         this.isMouseDown = false;
         var overlapping = boundingShape.overlappHierarchy(pos);
         if (overlapping[0] == this.activeRect) {
             this.activeRect?.onMouseUp(e, pos);
-            this.activeRect?.onMouseHoverBegin(e, pos);
+            if (e != EMouseType.touch) //check if not mobile
+             {
+                this.activeRect?.onMouseHoverBegin(e, pos);
+            }
         }
         else if (this.activeRect != null) {
             this.activeRect.onMouseUp(e, pos);

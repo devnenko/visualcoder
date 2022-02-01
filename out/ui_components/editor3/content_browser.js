@@ -1,4 +1,3 @@
-import { editor } from "../../main.js";
 import { Button } from "../../ui/button.js";
 import { colorCreator } from "../../ui/color.js";
 import { MouseHandler } from "../../ui/event_handlers/mouse.js";
@@ -9,7 +8,7 @@ export class ContentBrowser extends VerticalBox {
     constructor(parent, canvas) {
         super(parent, canvas);
         this.fixedSize.w = 200;
-        this.setConstraints(EConstraintsX.left, EConstraintsY.scale);
+        this.setConstraints(EConstraintsX.scale, EConstraintsY.scale);
         this.color = colorCreator.colorByBrightness(20);
         const b1 = new CBButton(this, this.canvas);
         b1.title.text = "file1";
@@ -53,15 +52,15 @@ export class CBButton extends Button {
         this.color = colorCreator.colorByBrightness(25);
     }
     onMouseMoveDown(type, pos) {
-        editor.updateViewPreview(pos);
+        //editor.updateViewPreview(pos);
     }
     onMouseUp(type, pos) {
-        editor.convertToView(pos, this);
+        //editor.convertToView(pos,this);
         this.color = colorCreator.colorByBrightness(10);
         const overlapping = MouseHandler.getOverlapping(pos)[0];
         if (overlapping == this) {
             console.log("yeye");
-            editor.selectedView.load(this);
+            //editor.selectedView.load(this);
         }
     }
 }

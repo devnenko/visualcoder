@@ -23,6 +23,7 @@ export class Canvas{
         //create canvas in Dom
         var canvas = document.createElement('canvas');
         canvas.style.position="absolute";
+    
         document.body.appendChild(canvas);
         this.canvas = canvas;
 
@@ -40,8 +41,11 @@ export class Canvas{
     }
 
     public resize(){
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+        let ratio = window.devicePixelRatio;
+        let style_width = +getComputedStyle(this.canvas).getPropertyValue("width").slice(0, -2);//+ makes to integer, slice removes px at end
+        let style_height = +getComputedStyle(this.canvas).getPropertyValue("height").slice(0, -2);//+ makes to integer, slice removes px at end
+        this.canvas.width= window.innerWidth;
+        this.canvas.height= window.innerHeight;
     }
 
     private update(){

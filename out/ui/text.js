@@ -10,6 +10,7 @@ export class Text {
         this.size = 25;
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
         this.parentSize = { left: 0, right: 0, top: 0, bottom: 0 };
+        this.fixedOffset = { x: 0, y: 0 };
         this.parentSize = parent.absEdges;
         this.parent = parent;
         parent.children.push(this); //set this as a child of parent to create an object tree
@@ -39,7 +40,7 @@ export class Text {
             this.canvas.ctx.textAlign = "start";
             this.canvas.ctx.fillStyle = this.color;
             this.canvas.ctx.font = this.size + "px Arial";
-            this.canvas.ctx.fillText(this.text, transform.pos.x, transform.pos.y + this.size);
+            this.canvas.ctx.fillText(this.text, transform.pos.x + this.fixedOffset.x, transform.pos.y + this.size + this.fixedOffset.y);
         }
     }
     drawHierarchy(parent) {
