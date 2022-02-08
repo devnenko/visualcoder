@@ -7,6 +7,7 @@ import { VerticalBox } from "../../ui/vertical_box.js";
 export class ContentBrowser extends VerticalBox {
     constructor(parent, canvas) {
         super(parent, canvas);
+        this.isVisible = false;
         this.fixedSize.w = 200;
         this.setConstraints(EConstraintsX.scale, EConstraintsY.scale);
         this.color = colorCreator.colorByBrightness(20);

@@ -1,5 +1,4 @@
 import { editor } from "../../main.js";
-import { CBButton } from "../../ui_components/editor2/content_browser.js";
 import { boundingShape } from "../shape.js";
 //add info here
 //
@@ -18,7 +17,7 @@ export class DragFileHandler {
     static dragOverScreen(e) {
         console.log('File(s) over screen');
         const pos = { x: e.clientX, y: e.clientY };
-        editor.updateViewPreview(pos);
+        //editor.updateViewPreview(pos)
         e.stopPropagation();
         e.preventDefault();
         boundingShape.drawHierarchy();
@@ -26,7 +25,7 @@ export class DragFileHandler {
     static dropOverScreen(e) {
         console.log('File(s) dropped');
         console.log("drop");
-        const bnew = new CBButton(editor.contentBrowser, editor.contentBrowser.canvas);
+        //const bnew=new CBButton(editor.contentBrowser,editor.contentBrowser.canvas);
         e.stopPropagation();
         e.preventDefault();
         //console.log(e.dataTransfer?.items[0].getAsFile())

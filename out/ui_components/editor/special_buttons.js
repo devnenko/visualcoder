@@ -4,7 +4,7 @@ export class HoverPressButton extends Button {
     constructor(parent, canvas) {
         super(parent, canvas);
         this.origColor = "";
-        this.onPress = () => { };
+        this.onCLick = () => { };
         this.hoverColor = this.color;
         this.pressColor = this.color;
         this.text = new Text(this, this.canvas);
@@ -26,7 +26,7 @@ export class HoverPressButton extends Button {
     }
     onMouseUp(type, pos) {
         this.color = this.origColor;
-        this.onPress();
+        this.onCLick();
     }
 }
 export class ToggleButton extends Button {

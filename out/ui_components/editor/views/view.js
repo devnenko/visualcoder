@@ -1,11 +1,10 @@
-import { editor } from "../../main.js";
-import { Button } from "../../ui/button.js";
-import { colorCreator } from "../../ui/color.js";
-import { Rect } from "../../ui/rect.js";
-import { Text } from "../../ui/text.js";
-import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
-import { VerticalBox } from "../../ui/vertical_box.js";
-import { HoverPressButton } from "./hover_press_button.js";
+import { Button } from "../../../ui/button.js";
+import { colorCreator } from "../../../ui/color.js";
+import { Rect } from "../../../ui/rect.js";
+import { Text } from "../../../ui/text.js";
+import { EConstraintsX, EConstraintsY } from "../../../ui/types/constraints.js";
+import { VerticalBox } from "../../../ui/vertical_box.js";
+import { HoverPressButton } from "../special_buttons.js";
 class TopBar extends Button {
     constructor(parent, canvas, view) {
         super(parent, canvas);
@@ -23,9 +22,6 @@ class TopBar extends Button {
         this.deleteButton.onMouseUp = (type, pos) => {
             //super.onMouseUp(type,pos);
             view.destroy();
-            if (editor.topbar.playButton.isOn == true) {
-                editor.topbar.playButton.toggle(false);
-            }
         };
     }
     onMouseDown(type, pos) {
@@ -43,9 +39,6 @@ export class View extends Button {
         this.contentArea = new Rect(this.vtBox, canvas);
         this.contentArea.setConstraints(EConstraintsX.scale, EConstraintsY.scale);
         this.contentArea.color = colorCreator.colorByBrightness(55);
-        this.source = new Text(this.contentArea, canvas);
-        this.source.text = "no source found";
-        this.source.color = "white";
     }
     load(item) {
         item.setParent(this.contentArea);

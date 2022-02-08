@@ -64,6 +64,7 @@ export class Rect extends Shape {
             parent.children.push(this);
         }
         this.parent = parent;
+        boundingShape.drawHierarchy();
     }
     resize(parent) {
         if (parent.type == EObjectType.Normal) {

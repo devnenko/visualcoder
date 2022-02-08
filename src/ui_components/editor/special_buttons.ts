@@ -14,6 +14,7 @@ export class HoverPressButton extends Button{
     public pressColor:string;
     private origColor:string="";
     public text:Text;
+    public onCLick:()=>void=()=>{};
     constructor(parent:IShape,canvas:Canvas){
         super(parent,canvas)
         this.hoverColor=this.color;
@@ -21,6 +22,10 @@ export class HoverPressButton extends Button{
         this.text=new Text(this,this.canvas);
         this.text.text="";
 
+    }
+    setOrigColor(origColor:string){
+        this.color=origColor;
+        this.origColor=this.color
     }
     onMouseHoverBegin(type: EMouseType,pos:IPos): void {
         this.origColor=this.color;
@@ -34,6 +39,7 @@ export class HoverPressButton extends Button{
     }
     onMouseUp(type: EMouseType,pos:IPos): void {
         this.color=this.origColor;
+        this.onCLick();
     }
 }
 

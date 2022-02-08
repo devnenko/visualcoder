@@ -2,11 +2,13 @@ import { editor } from "../../main.js";
 import { colorCreator } from "../../ui/color.js";
 import { HorizontalBox } from "../../ui/horizontal_box.js";
 import { Rect } from "../../ui/rect.js";
+import { boundingShape } from "../../ui/shape.js";
 import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
 import { VerticalBox } from "../../ui/vertical_box.js";
-import { ContentBrowser } from "./content_browser.js";
+import { ContentBrowser } from "./views/content_browser.js";
+import { Scene } from "./views/scene.js";
 import { HoverPressButton } from "./special_buttons.js";
-import { View } from "./view.js";
+import { View } from "./views/view.js";
 // problem: how do we create views so that they are usefull and dont cause confusion? 
 //what are the usefull and useless usecases and how could you implement that in an intuitive way 
 //maybe phones should have completely different system with individual tabs like the close button for shortcuts on shortcuts app
@@ -25,38 +27,38 @@ class TopBar extends HorizontalBox //will have play button, options for adding v
         this.fixedSize.w = 60;
         this.fixedSize.h = 60;
         this.color = colorCreator.colorByBrightness(10);
-        this.playButton = new ReloadButton(this, this.canvas);
+        new ReloadButton(this, this.canvas);
         new ContentBrowserButton(this, this.canvas);
     }
 }
-class ReloadButton extends HoverPressButton {
+class TopBarButton extends HoverPressButton {
     constructor(parent, canvas) {
         super(parent, canvas);
+        this.margin = 5;
         this.fixedSize.w = 60;
         this.fixedSize.h = 60;
         this.setConstraints(EConstraintsX.left, EConstraintsY.scale);
         this.setOrigColor(colorCreator.colorByBrightness(30));
         this.hoverColor = colorCreator.colorByBrightness(45);
         this.pressColor = colorCreator.colorByBrightness(80);
-        this.onPress = () => {
-            editor.addViewGeneric(new View(editor.contentArea, this.canvas), "scene");
+    }
+}
+class ReloadButton extends TopBarButton {
+    constructor(parent, canvas) {
+        super(parent, canvas);
+        this.onCLick = () => {
+            const scene = new Scene(boundingShape, this.canvas);
+            editor.addViewGeneric(scene, "Scene");
+            scene.reload();
         };
     }
 }
-class ContentBrowserButton extends HoverPressButton {
+class ContentBrowserButton extends TopBarButton {
     constructor(parent, canvas) {
         super(parent, canvas);
-        this.fixedSize.w = 60;
-        this.fixedSize.h = 60;
-        this.setConstraints(EConstraintsX.left, EConstraintsY.scale);
-        this.setOrigColor(colorCreator.colorByBrightness(30));
-        this.hoverColor = colorCreator.colorByBrightness(45);
-        this.pressColor = colorCreator.colorByBrightness(80);
-        this.onPress = () => //implement loading script also for drag and drop and multi tab. also implement for click add at best location
+        this.onCLick = () => //implement loading script also for drag and drop and multi tab. also implement for click add at best location
          {
-            const v = new View(editor.contentArea, this.canvas);
-            editor.addViewGeneric(v, "ContentBrowser");
-            new ContentBrowser(v.contentArea, v.canvas);
+            editor.addViewGeneric(new ContentBrowser(boundingShape, this.canvas), "ContentBrowser");
         };
     }
 }
@@ -76,7 +78,7 @@ export class Editor extends VerticalBox {
         //const v=new View(this.contentArea,this.canvas);
         //v.topBar.title.text="scene"
     }
-    addViewGeneric(view, title) {
+    addViewGeneric(content, title) {
         for (const child of this.contentArea.children) {
             if (child instanceof View) {
                 console.log("is");
@@ -85,7 +87,12 @@ export class Editor extends VerticalBox {
                 break;
             }
         }
-        view.setParent(this.contentArea);
+        const view = new View(editor.contentArea, this.canvas);
         view.topBar.title.text = title;
+        content.setParent(view.contentArea);
+    }
+    drawViewPreview(pos) {
+    }
+    addViewPreview() {
     }
 }

@@ -87,6 +87,7 @@ export class Rect extends Shape{
             parent.children.push(this);
         }
         this.parent=parent;
+        boundingShape.drawHierarchy();
     }
 
     protected resize(parent:Rect){
