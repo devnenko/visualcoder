@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { editor } from "../../main.js";
 import { boundingShape } from "../shape.js";
 //add info here

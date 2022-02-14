@@ -1,5 +1,4 @@
 
-import { Button } from "./button.js";
 import { Canvas } from "./canvas.js";
 import { HorizontalBox } from "./horizontal_box.js";
 import {IShape, EObjectType} from "./shape.js";
@@ -41,19 +40,19 @@ export class Text implements IShape{
         this.canvas=canvas;
     }
 
-    destroy(){
+    destroyHierarchy(){
         this.parent.children.splice(this.parent.children.indexOf(this),1);
     }
 
-    overlappHierarchy(pos:IPos): Button[] {
-        let all:Button[]=[];
-        
-
-        for (const child of this.children){
-            all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
-        }
-        return all;
-    }
+    //overlappHierarchy(pos:IPos): Button[] {
+    //    let all:Button[]=[];
+    //    
+//
+    //    for (const child of this.children){
+    //        all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
+    //    }
+    //    return all;
+    //}
 
     //public checkOverlapp(pos:IPos):Button[] {
     //    let all:Button[]=[];

@@ -1,23 +1,25 @@
-import { editor } from "../../../main.js";
-import { Button } from "../../../ui/button.js";
-import { Canvas } from "../../../ui/canvas.js";
-import { colorCreator } from "../../../ui/color.js";
-import { HorizontalBox } from "../../../ui/horizontal_box.js";
-import { Rect } from "../../../ui/rect.js";
-import { boundingShape, IShape, Shape } from "../../../ui/shape.js";
-import { Text } from "../../../ui/text.js";
-import { EConstraintsX, EConstraintsY } from "../../../ui/types/constraints.js";
-import { EMouseType } from "../../../ui/types/mouse.js";
-import { IPos } from "../../../ui/types/pos.js";
-import { VerticalBox } from "../../../ui/vertical_box.js";
+import { editor } from "../../main.js";
+import { Canvas } from "../../ui/canvas.js";
+import { colorCreator } from "../../ui/color.js";
+import { IMouseHandler, MouseHandler } from "../../ui/event_handlers/mouse.js";
+import { HorizontalBox } from "../../ui/horizontal_box.js";
+import { Rect } from "../../ui/rect.js";
+import { boundingShape, IShape, Shape } from "../../ui/shape.js";
+import { Text } from "../../ui/text.js";
+import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
+import { EMouseType } from "../../ui/types/mouse.js";
+import { IPos } from "../../ui/types/pos.js";
+import { VerticalBox } from "../../ui/vertical_box.js";
 import { HoverPressButton } from "../special_buttons.js";
 
-class TopBar extends Button{
+class TopBar extends Rect{
     title;
     deleteButton;
+    view;
     constructor(parent:IShape,canvas:Canvas,view:View){
         super(parent,canvas)
-        this.color=colorCreator.colorByBrightness(80);
+        this.view=view;
+        this.color=colorCreator.colorByBrightness(25);
         this.fixedSize.h=50;
 
         this.title=new Text(this,canvas);
@@ -30,17 +32,13 @@ class TopBar extends Button{
         this.deleteButton.color=colorCreator.colorByBrightness(60);
         this.deleteButton.hoverColor=colorCreator.colorByBrightness(85);
         this.deleteButton.pressColor=colorCreator.colorByBrightness(90);
-        this.deleteButton.onMouseUp=(type: EMouseType,pos:IPos)=>{
-            //super.onMouseUp(type,pos);
-            view.destroy();
+        this.deleteButton.onCLick=()=>{
+            this.view.destroyHierarchy();
         }
-    }
-    onMouseDown(type: EMouseType, pos: IPos): void {
-        
     }
 }
 
-export class View extends Button{
+export class View extends Rect{
     vtBox;
     topBar;
     contentArea;

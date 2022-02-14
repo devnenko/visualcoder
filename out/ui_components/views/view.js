@@ -1,14 +1,14 @@
-import { colorCreator } from "../../../ui/color.js";
-import { Rect } from "../../../ui/rect.js";
-import { Text } from "../../../ui/text.js";
-import { EConstraintsX, EConstraintsY } from "../../../ui/types/constraints.js";
-import { VerticalBox } from "../../../ui/vertical_box.js";
+import { colorCreator } from "../../ui/color.js";
+import { Rect } from "../../ui/rect.js";
+import { Text } from "../../ui/text.js";
+import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
+import { VerticalBox } from "../../ui/vertical_box.js";
 import { HoverPressButton } from "../special_buttons.js";
 class TopBar extends Rect {
     constructor(parent, canvas, view) {
         super(parent, canvas);
         this.view = view;
-        this.color = colorCreator.colorByBrightness(80);
+        this.color = colorCreator.colorByBrightness(25);
         this.fixedSize.h = 50;
         this.title = new Text(this, canvas);
         this.title.text = "nothing loaded";
@@ -20,10 +20,8 @@ class TopBar extends Rect {
         this.deleteButton.hoverColor = colorCreator.colorByBrightness(85);
         this.deleteButton.pressColor = colorCreator.colorByBrightness(90);
         this.deleteButton.onCLick = () => {
-            this.view.destroy();
+            this.view.destroyHierarchy();
         };
-    }
-    onMouseDown(type, pos) {
     }
 }
 export class View extends Rect {

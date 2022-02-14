@@ -17,7 +17,6 @@ export class ResizeHandler {
         boundingShape.drawHierarchy();
     }
     static visibilityChange(event) {
-        console.log(event);
         this.resizeWindow();
     }
 }

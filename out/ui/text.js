@@ -16,16 +16,18 @@ export class Text {
         parent.children.push(this); //set this as a child of parent to create an object tree
         this.canvas = canvas;
     }
-    destroy() {
+    destroyHierarchy() {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
     }
-    overlappHierarchy(pos) {
-        let all = [];
-        for (const child of this.children) {
-            all = all.concat(child.overlappHierarchy(pos));
-        }
-        return all;
-    }
+    //overlappHierarchy(pos:IPos): Button[] {
+    //    let all:Button[]=[];
+    //    
+    //
+    //    for (const child of this.children){
+    //        all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
+    //    }
+    //    return all;
+    //}
     //public checkOverlapp(pos:IPos):Button[] {
     //    let all:Button[]=[];
     //    for (const child of this.children){

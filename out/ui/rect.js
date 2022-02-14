@@ -1,3 +1,4 @@
+import { isIMouseHandler, MouseHandler } from "./event_handlers/mouse.js";
 import { EObjectType, Shape, boundingShape } from "./shape.js";
 import { EConstraintsX, EConstraintsY } from "./types/constraints.js";
 //export function instanceOfRectType(object: any): object is RectType {
@@ -65,6 +66,15 @@ export class Rect extends Shape {
         }
         this.parent = parent;
         boundingShape.drawHierarchy();
+    }
+    destroyHierarchy() {
+        //console.log(this)
+        if (isIMouseHandler(this)) {
+            //console.log("unsub")
+            //console.log(this)
+            MouseHandler.unsubscribe(this);
+        }
+        super.destroyHierarchy();
     }
     resize(parent) {
         if (parent.type == EObjectType.Normal) {

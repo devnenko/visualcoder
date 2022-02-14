@@ -1,18 +1,17 @@
-import { editor } from "../../../main.js";
-import { Button } from "../../../ui/button.js";
-import { Canvas } from "../../../ui/canvas.js";
-import { colorCreator } from "../../../ui/color.js";
-import { MouseHandler } from "../../../ui/event_handlers/mouse.js";
-import { Rect } from "../../../ui/rect.js";
-import { boundingShape, IShape } from "../../../ui/shape.js";
-import { Text } from "../../../ui/text.js";
-import { EConstraintsX, EConstraintsY } from "../../../ui/types/constraints.js";
-import { EMouseType } from "../../../ui/types/mouse.js";
-import { IPos } from "../../../ui/types/pos.js";
-import { VerticalBox } from "../../../ui/vertical_box.js";
+import { editor } from "../../main.js";
+import { Canvas } from "../../ui/canvas.js";
+import { colorCreator } from "../../ui/color.js";
+import { IMouseHandler, MouseHandler } from "../../ui/event_handlers/mouse.js";
+import { HorizontalBox } from "../../ui/horizontal_box.js";
+import { Rect } from "../../ui/rect.js";
+import { boundingShape, IShape, Shape } from "../../ui/shape.js";
+import { Text } from "../../ui/text.js";
+import { EConstraintsX, EConstraintsY } from "../../ui/types/constraints.js";
+import { EMouseType } from "../../ui/types/mouse.js";
+import { IPos } from "../../ui/types/pos.js";
+import { VerticalBox } from "../../ui/vertical_box.js";
 import { HoverPressButton } from "../special_buttons.js";
 import { TextEditor } from "./text_editor.js";
-import { View } from "./view.js";
 
 export class File{
     name:string;
@@ -26,8 +25,6 @@ export class File{
 }
 
 export let allFiles:File[]=[];
-allFiles.push(new File("example","exp","hi"));
-allFiles.push(new File("script","src","log this script for the moment"));
 
 export class ContentBrowser extends VerticalBox{
     constructor(parent:IShape,canvas:Canvas){
@@ -36,9 +33,43 @@ export class ContentBrowser extends VerticalBox{
         this.fixedSize.w=200;
         this.setConstraints(EConstraintsX.scale,EConstraintsY.scale);
         this.color=colorCreator.colorByBrightness(20);
+
+        this.refresh();
+    }
+    refresh(){
+        const length=this.children.length;
+        for(var i =0;i<length;i++){
+            this.children[0].destroyHierarchy();
+        }
         for(const file of allFiles){
             const b1=new CBButton(this,this.canvas,file)
         }
+        new FileAddButton(this,this.canvas)
+    }
+}
+
+export class FileAddButton extends HoverPressButton{
+    previewRect:Rect|null=null;
+    text:Text;
+
+    constructor(parent:ContentBrowser,canvas:Canvas){
+        super(parent,canvas)
+        this.fixedSize.h=60;
+        this.setConstraints(EConstraintsX.center,EConstraintsY.top);
+        this.color=colorCreator.colorByBrightness(70);
+        this.hoverColor=colorCreator.colorByBrightness(60);
+        this.pressColor=colorCreator.colorByBrightness(60);
+
+        this.text=new Text(this,this.canvas);
+        this.text.color="white";
+        this.text.text="new file"
+        
+
+
+        this.onCLick=()=>{
+            allFiles.push(new File("new","src","src"));
+            parent.refresh();
+        };
     }
 }
 
@@ -72,7 +103,6 @@ export class CBButton extends HoverPressButton{
         this.file=file;
 
         this.onCLick=()=>{
-            console.log(this.source)
             if(this.file.type=="src"){
                 editor.addViewGeneric(new TextEditor(boundingShape,this.canvas,this.file),"Script");
             }

@@ -1,15 +1,22 @@
+import { editor } from "../main.js";
+import { Canvas } from "../ui/canvas.js";
+import { colorCreator } from "../ui/color.js";
+import { IMouseHandler, MouseHandler } from "../ui/event_handlers/mouse.js";
+import { HorizontalBox } from "../ui/horizontal_box.js";
+import { Rect } from "../ui/rect.js";
+import { boundingShape, IShape } from "../ui/shape.js";
+import { Text } from "../ui/text.js";
+import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
+import { EMouseType } from "../ui/types/mouse.js";
+import { IPos } from "../ui/types/pos.js";
+import { VerticalBox } from "../ui/vertical_box.js";
+import { Scene } from "./views/scene.js";
+import { allFiles, ContentBrowser } from "./views/content_browser.js";
+import { View } from "./views/view.js";
 
-import { Button } from "../../ui/button.js";
-import { Canvas } from "../../ui/canvas.js";
-import { IShape } from "../../ui/shape.js";
-
-import { Text } from "../../ui/text.js";
-import { EMouseType } from "../../ui/types/mouse.js";
-import { IPos } from "../../ui/types/pos.js";
 
 
-
-export class HoverPressButton extends Button{
+export class HoverPressButton extends Rect implements IMouseHandler{
     public hoverColor:string;
     public pressColor:string;
     private origColor:string="";
@@ -17,6 +24,7 @@ export class HoverPressButton extends Button{
     public onCLick:()=>void=()=>{};
     constructor(parent:IShape,canvas:Canvas){
         super(parent,canvas)
+        MouseHandler.subscribe(this);
         this.hoverColor=this.color;
         this.pressColor=this.color;
         this.text=new Text(this,this.canvas);
@@ -43,7 +51,7 @@ export class HoverPressButton extends Button{
     }
 }
 
-export class ToggleButton extends Button{
+export class ToggleButton extends Rect implements IMouseHandler{
     public hoverColor:string;
     public pressColor:string;
     private origColor:string="";
@@ -52,6 +60,7 @@ export class ToggleButton extends Button{
     public onToggle:()=>void=()=>{};
     constructor(parent:IShape,canvas:Canvas){
         super(parent,canvas)
+        MouseHandler.subscribe(this);
         this.hoverColor=this.color;
         this.pressColor=this.color;
         this.text=new Text(this,this.canvas);

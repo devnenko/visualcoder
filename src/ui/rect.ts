@@ -1,4 +1,6 @@
 import { Canvas } from "./canvas.js";
+import { KeypressHandler } from "./event_handlers/keypress.js";
+import { isIMouseHandler, MouseHandler } from "./event_handlers/mouse.js";
 import { HorizontalBox } from "./horizontal_box.js";
 import { IShape, EObjectType, Shape, boundingShape} from "./shape.js";
 import { EConstraintsX, EConstraintsY } from "./types/constraints.js";
@@ -88,6 +90,17 @@ export class Rect extends Shape{
         }
         this.parent=parent;
         boundingShape.drawHierarchy();
+    }
+
+    destroyHierarchy(){
+        //console.log(this)
+        if(isIMouseHandler(this)){
+            //console.log("unsub")
+            //console.log(this)
+            MouseHandler.unsubscribe(this);
+        }
+        super.destroyHierarchy();
+
     }
 
     protected resize(parent:Rect){

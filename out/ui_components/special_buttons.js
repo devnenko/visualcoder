@@ -1,6 +1,6 @@
-import { MouseHandler } from "../../ui/event_handlers/mouse.js";
-import { Rect } from "../../ui/rect.js";
-import { Text } from "../../ui/text.js";
+import { MouseHandler } from "../ui/event_handlers/mouse.js";
+import { Rect } from "../ui/rect.js";
+import { Text } from "../ui/text.js";
 export class HoverPressButton extends Rect {
     constructor(parent, canvas) {
         super(parent, canvas);

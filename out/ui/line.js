@@ -13,10 +13,10 @@ export class Line {
         this.parent = drawParent;
         this.canvas = canvas;
     }
-    overlappHierarchy(pos) {
-        return [];
-    }
-    destroy() {
+    //overlappHierarchy(pos:IPos): Button[] {
+    //    return [];
+    //}
+    destroyHierarchy() {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
         if (this.parent.children.indexOf(this) == -1) {
             console.log("error");

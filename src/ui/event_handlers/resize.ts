@@ -26,7 +26,6 @@ export class ResizeHandler{
     }
 
     static visibilityChange(event:ResizeHandler){
-        console.log(event)
         this.resizeWindow();
     }
 }

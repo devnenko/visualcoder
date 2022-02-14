@@ -1,4 +1,4 @@
-import { Button } from "./button.js";
+
 import { Canvas } from "./canvas.js";
 import { Rect} from "./rect.js";
 import { IShape } from "./shape.js";
@@ -33,11 +33,11 @@ export class Line implements IShape{
 
 
 
-    overlappHierarchy(pos:IPos): Button[] {
-        return [];
-    }
+    //overlappHierarchy(pos:IPos): Button[] {
+    //    return [];
+    //}
 
-    destroy(){
+    destroyHierarchy(){
         this.parent.children.splice(this.parent.children.indexOf(this),1);
         if(this.parent.children.indexOf(this)==-1){
             console.log("error")

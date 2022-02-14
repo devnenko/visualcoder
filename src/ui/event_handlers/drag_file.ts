@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 
 import { editor } from "../../main.js";
 import { Canvas } from "../canvas.js";

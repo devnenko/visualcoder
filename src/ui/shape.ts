@@ -1,6 +1,8 @@
 
-import { Button } from "./button.js";
+
 import { Canvas } from "./canvas.js";
+import { KeypressHandler } from "./event_handlers/keypress.js";
+import { MouseHandler } from "./event_handlers/mouse.js";
 import { HorizontalBox } from "./horizontal_box.js";
 import { Rect} from "./rect.js";
 import { IEdges } from "./types/edges.js";
@@ -20,8 +22,8 @@ export interface IShape{
     parent?:IShape;
     children:IShape[],//only children is passed (no parent)
     drawHierarchy:(parent:IShape)=>void, //draws shape and all children 
-    overlappHierarchy(pos:IPos): Button[]
-    destroy:()=>void
+    //overlappHierarchy(pos:IPos): Button[]
+    destroyHierarchy:()=>void
 }
 
 export function instanceOfShape(arg: any): arg is IShape {
@@ -45,19 +47,25 @@ export class Shape implements IShape{
         }
     }
 
-    public overlappHierarchy(pos:IPos): Button[] {
-        let all:Button[]=[];
-        for (const child of this.children){
-            all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
-        }
-        return all;
-    }
+    //public overlappHierarchy(pos:IPos): Button[] {
+    //    let all:Button[]=[];
+    //    for (const child of this.children){
+    //        all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
+    //    }
+    //    return all;
+    //}
 
-    public destroy(){
-        this.parent.children.splice(this.parent.children.indexOf(this),1);
-        if(this.parent.children.indexOf(this)==-1){
-            //console.log("error")
+    public destroyHierarchy(){
+        //this.parent.children.splice(this.parent.children.indexOf(this),1);
+        //console.log("dest")
+
+        const len=this.children.length
+
+        for(let i=0;i<len;i++){
+            this.children[0].destroyHierarchy();
         }
+        this.parent.children.splice(this.parent.children.indexOf(this),1);
+        //this.parent.children.splice(this.parent.children.indexOf(this),1);
     }
 }
 
@@ -76,18 +84,18 @@ class BoundingShape implements IShape{
         }
     }
 
-    public overlappHierarchy(pos:IPos): Button[] {
-        let all:Button[]=[];
-        for (const child of this.children){
-            all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
-        }
-        all=all.slice().reverse();
-        return all;
-    }
+    //public overlappHierarchy(pos:IPos): Button[] {
+    //    let all:Button[]=[];
+    //    for (const child of this.children){
+    //        all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
+    //    }
+    //    all=all.slice().reverse();
+    //    return all;
+    //}
 
-    public destroy(){
+    public destroyHierarchy(){
         for (const child of this.children){
-            child.destroy();
+            child.destroyHierarchy();
         }
     }
 }

@@ -20,18 +20,22 @@ export class Shape {
             child.drawHierarchy(parent);
         }
     }
-    overlappHierarchy(pos) {
-        let all = [];
-        for (const child of this.children) {
-            all = all.concat(child.overlappHierarchy(pos));
+    //public overlappHierarchy(pos:IPos): Button[] {
+    //    let all:Button[]=[];
+    //    for (const child of this.children){
+    //        all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
+    //    }
+    //    return all;
+    //}
+    destroyHierarchy() {
+        //this.parent.children.splice(this.parent.children.indexOf(this),1);
+        //console.log("dest")
+        const len = this.children.length;
+        for (let i = 0; i < len; i++) {
+            this.children[0].destroyHierarchy();
         }
-        return all;
-    }
-    destroy() {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        if (this.parent.children.indexOf(this) == -1) {
-            //console.log("error")
-        }
+        //this.parent.children.splice(this.parent.children.indexOf(this),1);
     }
 }
 class BoundingShape {
@@ -47,17 +51,17 @@ class BoundingShape {
             child.drawHierarchy(this);
         }
     }
-    overlappHierarchy(pos) {
-        let all = [];
+    //public overlappHierarchy(pos:IPos): Button[] {
+    //    let all:Button[]=[];
+    //    for (const child of this.children){
+    //        all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
+    //    }
+    //    all=all.slice().reverse();
+    //    return all;
+    //}
+    destroyHierarchy() {
         for (const child of this.children) {
-            all = all.concat(child.overlappHierarchy(pos));
-        }
-        all = all.slice().reverse();
-        return all;
-    }
-    destroy() {
-        for (const child of this.children) {
-            child.destroy();
+            child.destroyHierarchy();
         }
     }
 }
