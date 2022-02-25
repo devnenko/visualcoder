@@ -11,7 +11,6 @@ export class KeypressHandler {
         }
     }
     static logKey(e) {
-        console.log(e);
         for (const obj of this.callbackObjects) {
             obj.onKeyPress(e.key);
         }

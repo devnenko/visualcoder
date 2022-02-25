@@ -1,33 +1,22 @@
-import { Rect } from "./rect.js";
+import { MouseHandler } from "./event_handlers/event_handlers.js";
+import { Rect } from "./ui.js";
 export class Button extends Rect {
-    constructor(parent, canvas) {
-        super(parent, canvas);
-        this.discriminator2 = 'IMouseEvents';
+    constructor(opts) {
+        super({});
+        //use texture atlas in future
+        this.onMouseDown = (type, pos, isTopMost) => { };
+        this.onMouseMoveDown = (type, pos, isTopMost) => { };
+        this.onMouseUp = (type, pos, isTopMost) => { };
+        this.onMouseHoverBegin = (type, pos, isTopMost) => { };
+        this.onMouseHoverEnd = (type, pos, isTopMost) => { };
+        this.addConfig(opts);
+        MouseHandler.subscribe(this);
     }
-    overlappHierarchy(pos) {
-        let all = [];
-        if (this.absEdges.left < pos.x && this.absEdges.right > pos.x && this.absEdges.top < pos.y && this.absEdges.bottom > pos.y) {
-            all.push(this);
-        }
-        for (const child of this.children) {
-            all = all.concat(child.overlappHierarchy(pos));
-        }
-        //all=all.slice().reverse();
-        return all;
+    createConfig(opts) {
+        this.addConfig(opts);
     }
-    onMouseDown(type, pos) {
-        //throw new Error('Method not implemented.');
-    }
-    onMouseMoveDown(type, pos) {
-        //throw new Error('Method not implemented.');
-    }
-    onMouseUp(type, pos) {
-        //throw new Error('Method not implemented.');
-    }
-    onMouseHoverBegin(type, pos) {
-        //throw new Error('Method not implemented.');
-    }
-    onMouseHoverEnd(type, pos) {
-        //throw new Error('Method not implemented.');
+    destroy() {
+        MouseHandler.unsubscribe(this);
+        super.destroy();
     }
 }

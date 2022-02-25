@@ -1,0 +1,70 @@
+-isOnTop should be able to be enabled or disabled on a per object basis and should be on by default for each object
+
+
+-new project folder structure (find way to bundle exports in a good way maybe per folder one file imports everything) (idea in bookmarks bar)
+-new structure that is better and faster for creating objects (maybe something with constructor using f.e. shapeopts interface with lots of optional arguments, 
+    so only one line for object creation) (ui creation needs to be able to take less long in any case, cause now its to slow and to many lines of code)
+
+-add file rename system (asset creation with type ability)
+-add file in file usage system and figure out good system
+-add scene editor
+-script for now automatically loads all deps before running
+-add file usage option in scripts (f.e. image or material) (longterm)
+-make view splitscreen option back (longterm)
+-figure out a package system to extend functionality(longterm)
+=>maybe treat packages by the owners and editors of it and else call it a fork (still ask when updating from others)
+
+Project Structure
+
+
+
+--compiler (has compiler and shipped lib)
+
+--ui (primitive ui elements)
+----eventhandlers
+----types
+
+--uicomponents (specific ui elements)
+----buttons
+----textbox
+----scrollbar
+----selectfrommultipleobjects
+
+--editor (editor class and topbar class)
+
+----views (view class and maybe utility)
+------scene (different views)
+------contentbrowser
+--------vertical (specific view imlementations)
+--------tiles
+------image
+------script (later maybe class,function,interface,main)
+--------block
+--------toptobottom
+--------text
+
+
+
+  setAttrs(config: any) {
+    this._batchTransformChanges(() => {
+      var key, method;
+      if (!config) {
+        return this;
+      }
+      for (key in config) {
+        if (key === CHILDREN) {
+          continue;
+        }
+        method = SET + Util._capitalize(key);
+        // use setter if available
+        if (Util._isFunction(this[method])) {
+          this[method](config[key]);
+        } else {
+          // otherwise set directly
+          this._setAttr(key, config[key]);
+        }
+      }
+    });
+
+    return this;
+  }

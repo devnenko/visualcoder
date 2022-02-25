@@ -1,5 +1,5 @@
 import { EMouseType } from "../types/mouse.js";
-import { boundingShape } from "../shape.js";
+import { boundingShape } from "../ui.js";
 export function isIMouseHandler(arg) {
     if (typeof arg.onMouseDown == 'function') {
         return true;
@@ -15,24 +15,33 @@ export class MouseHandler {
         window.addEventListener('mousedown', MouseHandler.mouseDown.bind(this));
         window.addEventListener('mousemove', MouseHandler.mouseMove.bind(this));
         window.addEventListener('mouseup', MouseHandler.mouseUp.bind(this));
+        document.getElementById("keyboardHack")?.addEventListener('focusout', MouseHandler.focuseOut.bind(this));
     }
     static subscribe(object) {
         this.callbackObjects.push(object);
+        //create dom here stuff for later optimization with collision checking
     }
     static unsubscribe(object) {
         if (this.callbackObjects.indexOf(object) != -1) {
             this.callbackObjects.splice(this.callbackObjects.indexOf(object), 1);
         }
+        else {
+            console.log("unsubscription failed");
+        }
+    }
+    static focuseOut() {
+        MouseHandler.actifInputField?.toggle(false);
     }
     static getOverlapp(pos) {
         const mousePos = pos;
+        let objs = [];
         for (const obj of this.callbackObjects) {
             if (obj.absEdges.left < mousePos.x && obj.absEdges.right > mousePos.x && obj.absEdges.top < mousePos.y && obj.absEdges.bottom > mousePos.y) {
                 //is overlapping$
-                return obj;
+                objs.push(obj);
             }
         }
-        return null;
+        return objs;
     }
     static touchDown(e) {
         e.preventDefault();
@@ -50,7 +59,7 @@ export class MouseHandler {
     }
     static touchUp(e) {
         e.preventDefault();
-        this.up(EMouseType.touch, this.currentPos);
+        this.up(EMouseType.touch, { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY });
     }
     static mouseUp(e) {
         this.up(e.button, { x: e.x, y: e.y });
@@ -61,16 +70,21 @@ export class MouseHandler {
     }
     static down(e, pos) {
         this.isMouseDown = true;
-        const overlapp = this.getOverlapp(pos);
-        if (overlapp != null) {
-            if (typeof overlapp.onMouseDown == 'function') {
-                overlapp.onMouseDown(e, pos);
+        const overlObjs = this.getOverlapp(pos);
+        const topMost = this.getTopMost(overlObjs);
+        this.topMostSave = topMost;
+        for (const overlObj of overlObjs) {
+            if (typeof overlObj.onMouseDown == 'function') {
+                overlObj.onMouseDown(e, pos, topMost.includes(overlObj));
             }
-            this.activeRect = overlapp;
+            this.mouseDownRects.push(overlObj);
         }
-        else {
-            this.activeRect = null;
+        if (this.actifInputField != null) {
+            if (!overlObjs.includes(this.actifInputField)) {
+                this.actifInputField.toggle(false);
+            }
         }
+        boundingShape.draw();
         //var overlapping=boundingShape.overlappHierarchy(pos);
         //if(overlapping[0]){
         //    this.activeRect?.onMouseHoverEnd(e,pos);
@@ -81,62 +95,146 @@ export class MouseHandler {
         //    this.activeRect=null;
         //}
         //
-        //boundingShape.drawHierarchy();
+        //boundingShape.draw();
         //this.currentPos=pos;
     }
     static move(e, pos) {
+        //this runs to slowly (probably topmost is to power intensive function or smething else)
         this.currentPos = pos;
-        const overlapp = this.getOverlapp(pos);
-        if (this.isMouseDown == true && this.activeRect != null) {
-            if (typeof this.activeRect.onMouseMoveDown == 'function') {
-                this.activeRect.onMouseMoveDown(e, pos);
-            }
-        }
-        else if (this.isMouseDown == false && this.activeRect != overlapp) {
-            if (typeof this.activeRect?.onMouseHoverEnd == 'function') {
-                this.activeRect.onMouseHoverEnd(e, pos);
-            }
-            if (typeof overlapp?.onMouseHoverBegin == 'function') {
-                overlapp.onMouseHoverBegin(e, pos);
-            }
-            this.activeRect = overlapp;
-        }
-        boundingShape.drawHierarchy();
-    }
-    static up(e, pos) {
-        this.isMouseDown = false;
-        const overlapp = this.getOverlapp(pos);
-        if (overlapp == this.activeRect) {
-            if (typeof this.activeRect?.onMouseUp == 'function') {
-                this.activeRect?.onMouseUp(e, pos);
-            }
-            if (e != EMouseType.touch) //check if not mobile
-             {
-                if (typeof this.activeRect?.onMouseHoverBegin == 'function') {
-                    this.activeRect?.onMouseHoverBegin(e, pos);
+        const overlObjs = this.getOverlapp(pos);
+        let topMost = [];
+        let topMostDone = false;
+        if (this.isMouseDown == true) {
+            for (const downRect of this.mouseDownRects) {
+                if (typeof downRect.onMouseMoveDown == 'function') {
+                    if (topMostDone == false) {
+                        topMost = this.getTopMost(overlObjs);
+                        topMostDone = true;
+                    }
+                    downRect.onMouseMoveDown(e, pos, this.topMostSave.includes(downRect));
                 }
             }
         }
-        else if (this.activeRect != null) {
-            if (typeof this.activeRect.onMouseUp == 'function') {
-                this.activeRect.onMouseUp(e, pos);
+        else {
+            for (const overlObj of overlObjs) {
+                if (this.mouseHoverRects.includes(overlObj) == false) {
+                    if (typeof overlObj.onMouseHoverBegin == 'function') {
+                        if (topMostDone == false) {
+                            topMost = this.getTopMost(overlObjs);
+                            topMostDone = true;
+                        }
+                        overlObj.onMouseHoverBegin(e, pos, topMost.includes(overlObj));
+                    }
+                    this.mouseHoverRects.push(overlObj);
+                }
             }
-            this.activeRect = null;
+            for (const hoverObj of this.mouseHoverRects) {
+                if (overlObjs.includes(hoverObj) == false) {
+                    if (typeof hoverObj.onMouseHoverEnd == 'function') {
+                        if (topMostDone == false) {
+                            topMost = this.getTopMost(overlObjs);
+                            topMostDone = true;
+                        }
+                        hoverObj.onMouseHoverEnd(e, pos, topMost.includes(hoverObj));
+                    }
+                    this.mouseHoverRects.splice(this.mouseHoverRects.indexOf(hoverObj), 1);
+                }
+            }
         }
-        boundingShape.drawHierarchy();
+        boundingShape.draw();
+    }
+    static up(e, pos) {
+        this.currentPos = pos;
+        this.isMouseDown = false;
+        const overlObjs = this.getOverlapp(pos);
+        const topMost = this.getTopMost(overlObjs);
+        //for(const overlObj of overlObjs){
+        //
+        //    if(this.mouseDownRects.includes(overlObj)==true){
+        //        if (typeof overlObj.onMouseUp == 'function') { 
+        //            overlObj.onMouseUp(e,pos,topMost.includes(overlObj));
+        //        }
+        //        if(e!=EMouseType.touch)//check if not mobile
+        //        {
+        //            if (typeof overlObj.onMouseHoverBegin == 'function') { 
+        //                overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
+        //            }
+        //        }
+        //
+        //        this.mouseDownRects.splice(this.mouseDownRects.indexOf(overlObj),1);
+        //
+        //    }
+        //    else  if(this.mouseDownRects.includes(overlObj)==false){
+        //        if (typeof overlObj.onMouseUp == 'function') { 
+        //            overlObj.onMouseUp(e,pos,topMost.includes(overlObj));
+        //        }
+        //    }
+        //}
+        for (const mouseDownRect of this.mouseDownRects) {
+            if (typeof mouseDownRect.onMouseUp == 'function') {
+                mouseDownRect.onMouseUp(e, pos, topMost.includes(mouseDownRect));
+            }
+            if (e != EMouseType.touch) //check if not mobile
+             {
+                if (typeof mouseDownRect.onMouseHoverBegin == 'function') {
+                    mouseDownRect.onMouseHoverBegin(e, pos, topMost.includes(mouseDownRect));
+                }
+            }
+        }
+        this.mouseDownRects.splice(0, this.mouseDownRects.length);
+        boundingShape.draw();
     }
     static getMousePos() {
         return this.currentPos;
     }
-    static getRelativeMousePos(rect) {
-        return { x: this.currentPos.x - rect.absEdges.left, y: this.currentPos.y - rect.absEdges.top };
+    static getRelativeMousePos(rect, pos) {
+        return { x: pos.x - rect.absEdges.left, y: pos.y - rect.absEdges.top };
     }
     static posOnRects(rect) {
         return { x: this.currentPos.x - rect.absEdges.left, y: this.currentPos.y - rect.absEdges.top };
     }
+    static getTopMostObject(pos) {
+        let overlapp = this.getOverlapp(pos);
+        let topMost;
+        for (const over of overlapp) {
+        }
+    }
+    static distanceFromBoundingShape(shape) {
+        let distanceFound = false;
+        let distance = 0;
+        let currentShape = shape;
+        while (distanceFound == false) {
+            distance++;
+            if (currentShape.parent != undefined) {
+                currentShape = currentShape.parent;
+            }
+            else {
+                distanceFound = true;
+            }
+        }
+        return distance - 1;
+    }
+    static getTopMost(rects) {
+        let previousWinner = 0;
+        let winnerRects = [];
+        for (const rect of rects) {
+            if (this.distanceFromBoundingShape(rect) > previousWinner) {
+                previousWinner = this.distanceFromBoundingShape(rect);
+                winnerRects.splice(0, winnerRects.length);
+                winnerRects.push(rect);
+            }
+            else if (this.distanceFromBoundingShape(rect) == previousWinner) {
+                winnerRects.push(rect);
+            }
+        }
+        return winnerRects;
+    }
 }
+MouseHandler.actifInputField = null;
 MouseHandler.canvases = [];
 MouseHandler.currentPos = { x: 0, y: 0 };
-MouseHandler.activeRect = null;
+MouseHandler.mouseDownRects = [];
+MouseHandler.mouseHoverRects = [];
 MouseHandler.isMouseDown = false;
+MouseHandler.topMostSave = [];
 MouseHandler.callbackObjects = [];

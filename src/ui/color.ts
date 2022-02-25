@@ -1,4 +1,7 @@
 class ColorCreator{
+    public darkColorDef=this.colorByBrightness(20);
+    public midColorDef=this.colorByBrightness(40);
+    public brightColorDef=this.colorByBrightness(60);
     public colorByBrightness(brightness:number){//number between 0 and 100
         const value=brightness/100*255;
         return "rgb("+value+","+value+","+value+")";

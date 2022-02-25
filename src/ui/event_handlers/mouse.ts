@@ -4,15 +4,18 @@ import { Canvas } from "../canvas.js";
 import { Rect } from "../rect.js";
 import { IPos } from "../types/pos.js";
 import { EMouseType } from "../types/mouse.js";
-import { boundingShape, instanceOfShape, IShape } from "../shape.js";
+import { boundingShape, IShape } from "../ui.js";
+import { ToggleButton } from "../../ui_components/button.js";
 //import { components } from "../../main.js";
 
+//need to rework the mouse logic in a more readable way and better structure with more static classes for usefull functions
+
 export interface IMouseHandler{
-    onMouseDown?(type:EMouseType,pos:IPos):void;
-    onMouseMoveDown?(type:EMouseType,pos:IPos):void;
-    onMouseUp?(type:EMouseType,pos:IPos):void;
-    onMouseHoverBegin?(type:EMouseType,pos:IPos):void;
-    onMouseHoverEnd?(type:EMouseType,pos:IPos):void;
+    onMouseDown?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
+    onMouseMoveDown?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
+    onMouseUp?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
+    onMouseHoverBegin?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
+    onMouseHoverEnd?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
 }
 
 export function isIMouseHandler(arg:any):arg is IMouseHandler{
@@ -23,10 +26,13 @@ export function isIMouseHandler(arg:any):arg is IMouseHandler{
 }
 
 export class MouseHandler{
+    public static actifInputField:ToggleButton|null=null;
     public static canvases:Canvas[]=[];
     public static currentPos:IPos={x:0,y:0};
-    public static activeRect:(IMouseHandler&Rect)|null=null;
+    public static mouseDownRects:(IMouseHandler&Rect)[]=[];
+    public static mouseHoverRects:(IMouseHandler&Rect)[]=[];
     public static isMouseDown=false;
+    public static topMostSave:Rect[]=[];
 
     static callbackObjects:(IMouseHandler&Rect)[]=[];
 
@@ -38,28 +44,39 @@ export class MouseHandler{
         window.addEventListener('mousedown', MouseHandler.mouseDown.bind(this));
         window.addEventListener('mousemove', MouseHandler.mouseMove.bind(this));
         window.addEventListener('mouseup', MouseHandler.mouseUp.bind(this));
+        document.getElementById("keyboardHack")?.addEventListener('focusout', MouseHandler.focuseOut.bind(this));
     }
+    
 
     static subscribe(object:(IMouseHandler&Rect)){
         this.callbackObjects.push(object);
+        //create dom here stuff for later optimization with collision checking
     }
 
     static unsubscribe(object:(IMouseHandler&Rect)){
         if(this.callbackObjects.indexOf(object)!=-1){
             this.callbackObjects.splice(this.callbackObjects.indexOf(object), 1);
+
+        }
+        else{
+            console.log("unsubscription failed")
         }
     }
+    static focuseOut(){
+        MouseHandler.actifInputField?.toggle(false);
+    }
 
-    private static getOverlapp(pos:IPos){
+    public static getOverlapp(pos:IPos){
         const mousePos=pos;
+        let objs:(IMouseHandler&Rect)[]=[];
         
         for(const obj of this.callbackObjects){
             if(obj.absEdges.left<mousePos.x&&obj.absEdges.right>mousePos.x&&obj.absEdges.top<mousePos.y&&obj.absEdges.bottom>mousePos.y){
                 //is overlapping$
-                return obj;
+                objs.push(obj);
             }
         }
-        return null;
+        return objs;
     }
 
     private static touchDown(e:TouchEvent){
@@ -78,7 +95,7 @@ export class MouseHandler{
     }
     private static touchUp(e:TouchEvent){
         e.preventDefault();
-        this.up(EMouseType.touch,this.currentPos);
+        this.up(EMouseType.touch,{x:e.changedTouches[0].clientX,y:e.changedTouches[0].clientY});
     }
     private static mouseUp(e:MouseEvent) {
         this.up(e.button,{x:e.x,y:e.y});
@@ -93,17 +110,23 @@ export class MouseHandler{
 
     private static down(e:EMouseType,pos:IPos){
         this.isMouseDown=true;
-        const overlapp=this.getOverlapp(pos);
 
-        if(overlapp!=null){
-            if (typeof overlapp.onMouseDown == 'function') { 
-                overlapp.onMouseDown(e,pos);
+        const overlObjs=this.getOverlapp(pos);
+        const topMost=this.getTopMost(overlObjs);
+        this.topMostSave=topMost;
+
+        for(const overlObj of overlObjs){
+            if (typeof overlObj.onMouseDown == 'function') { 
+                overlObj.onMouseDown(e,pos,topMost.includes(overlObj));
             }
-            this.activeRect=overlapp;
+            this.mouseDownRects.push(overlObj);
         }
-        else{
-            this.activeRect=null;
+        if(this.actifInputField!=null){
+            if(!overlObjs.includes(this.actifInputField)){
+                this.actifInputField.toggle(false);
+            }
         }
+        boundingShape.draw();
         //var overlapping=boundingShape.overlappHierarchy(pos);
 
         //if(overlapping[0]){
@@ -115,56 +138,111 @@ export class MouseHandler{
         //    this.activeRect=null;
         //}
 //
-        //boundingShape.drawHierarchy();
+        //boundingShape.draw();
         //this.currentPos=pos;
+
     }
     private static move(e:EMouseType,pos:IPos){
+        //this runs to slowly (probably topmost is to power intensive function or smething else)
         this.currentPos=pos;
-        const overlapp=this.getOverlapp(pos);
+        const overlObjs=this.getOverlapp(pos);
+        let topMost:(IMouseHandler&Rect)[]=[];
+        let topMostDone:boolean=false;
 
-        if(this.isMouseDown==true&&this.activeRect!=null){
-            if (typeof this.activeRect.onMouseMoveDown == 'function') { 
-                this.activeRect.onMouseMoveDown(e,pos);
-            }
-        }
-        else if(this.isMouseDown==false&&this.activeRect!=overlapp){
+        if(this.isMouseDown==true){
 
-            if (typeof this.activeRect?.onMouseHoverEnd == 'function') { 
-                this.activeRect.onMouseHoverEnd(e,pos);
-            }
-            if (typeof overlapp?.onMouseHoverBegin == 'function') { 
-                overlapp.onMouseHoverBegin(e,pos);
-            }
-
-            this.activeRect=overlapp;
-        }
-
-        boundingShape.drawHierarchy();
-    }
-    private static up(e:EMouseType,pos:IPos){
-        this.isMouseDown=false;
-        const overlapp=this.getOverlapp(pos);
-
-        if(overlapp==this.activeRect){
-            if (typeof this.activeRect?.onMouseUp == 'function') { 
-                this.activeRect?.onMouseUp(e,pos);
-            }
-            if(e!=EMouseType.touch)//check if not mobile
-            {
-                if (typeof this.activeRect?.onMouseHoverBegin == 'function') { 
-                    this.activeRect?.onMouseHoverBegin(e,pos);
+            for(const downRect of this.mouseDownRects){
+                if (typeof downRect.onMouseMoveDown == 'function') { 
+                    if(topMostDone==false){
+                        topMost=this.getTopMost(overlObjs);
+                        topMostDone=true;
+                    }
+                    downRect.onMouseMoveDown(e,pos,this.topMostSave.includes(downRect));
                 }
             }
 
         }
-        else  if(this.activeRect!=null){
-            if (typeof this.activeRect.onMouseUp == 'function') { 
-                this.activeRect.onMouseUp(e,pos);
+        else{
+
+            for(const overlObj of overlObjs){
+                if(this.mouseHoverRects.includes(overlObj)==false){   
+                    if (typeof overlObj.onMouseHoverBegin == 'function') { 
+                        if(topMostDone==false){
+                            topMost=this.getTopMost(overlObjs);
+                            topMostDone=true;
+                        }
+                        overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
+                    }
+    
+                    this.mouseHoverRects.push(overlObj);
+                }
             }
-            this.activeRect=null;
+
+            for(const hoverObj of this.mouseHoverRects){
+                if(overlObjs.includes(hoverObj)==false){
+    
+                    if (typeof hoverObj.onMouseHoverEnd == 'function') { 
+                        if(topMostDone==false){
+                            topMost=this.getTopMost(overlObjs);
+                            topMostDone=true;
+                        }
+                        hoverObj.onMouseHoverEnd(e,pos,topMost.includes(hoverObj));
+                    }
+    
+                    this.mouseHoverRects.splice(this.mouseHoverRects.indexOf(hoverObj),1);
+                }
+            }
         }
 
-        boundingShape.drawHierarchy();
+        boundingShape.draw();
+    }
+    private static up(e:EMouseType,pos:IPos){
+        this.currentPos=pos;
+        this.isMouseDown=false;
+        const overlObjs=this.getOverlapp(pos);
+        const topMost=this.getTopMost(overlObjs);
+
+        //for(const overlObj of overlObjs){
+//
+        //    if(this.mouseDownRects.includes(overlObj)==true){
+        //        if (typeof overlObj.onMouseUp == 'function') { 
+        //            overlObj.onMouseUp(e,pos,topMost.includes(overlObj));
+        //        }
+        //        if(e!=EMouseType.touch)//check if not mobile
+        //        {
+        //            if (typeof overlObj.onMouseHoverBegin == 'function') { 
+        //                overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
+        //            }
+        //        }
+//
+        //        this.mouseDownRects.splice(this.mouseDownRects.indexOf(overlObj),1);
+    //
+        //    }
+        //    else  if(this.mouseDownRects.includes(overlObj)==false){
+        //        if (typeof overlObj.onMouseUp == 'function') { 
+        //            overlObj.onMouseUp(e,pos,topMost.includes(overlObj));
+        //        }
+        //    }
+        //}
+        for(const mouseDownRect of this.mouseDownRects){
+
+
+            if (typeof mouseDownRect.onMouseUp == 'function') { 
+                mouseDownRect.onMouseUp(e,pos,topMost.includes(mouseDownRect));
+            }
+            if(e!=EMouseType.touch)//check if not mobile
+            {
+                if (typeof mouseDownRect.onMouseHoverBegin == 'function') { 
+                    mouseDownRect.onMouseHoverBegin(e,pos,topMost.includes(mouseDownRect));
+                }
+            }
+
+
+        }
+        this.mouseDownRects.splice(0,this.mouseDownRects.length);
+
+
+        boundingShape.draw();
     }
 
 
@@ -172,12 +250,52 @@ export class MouseHandler{
         return this.currentPos;
     }
 
-    public static getRelativeMousePos(rect:Rect){
-        return {x:this.currentPos.x-rect.absEdges.left,y:this.currentPos.y-rect.absEdges.top};
+    public static getRelativeMousePos(rect:Rect,pos:IPos){
+        return {x:pos.x-rect.absEdges.left,y:pos.y-rect.absEdges.top};
     }
 
     public static posOnRects(rect:Rect){
         return {x:this.currentPos.x-rect.absEdges.left,y:this.currentPos.y-rect.absEdges.top}
+    }
+
+    public static getTopMostObject(pos:IPos){
+        let overlapp=this.getOverlapp(pos);
+        let topMost:(IMouseHandler&Rect);
+        for (const over of overlapp){
+        }
+    }
+
+    public static distanceFromBoundingShape(shape:IShape){
+        let distanceFound=false;
+        let distance:number=0;
+        let currentShape:IShape=shape
+        while(distanceFound==false){
+            distance ++;
+            if(currentShape.parent!=undefined){
+                currentShape=currentShape.parent;
+            }
+            else{
+                distanceFound=true;
+            }
+        }
+        return distance-1;
+    }
+    public static getTopMost(rects:Rect[]){
+
+        let previousWinner=0;
+        let winnerRects:Rect[]=[];
+        for(const rect of rects){
+            if(this.distanceFromBoundingShape(rect)>previousWinner){
+                previousWinner=this.distanceFromBoundingShape(rect);
+                winnerRects.splice(0,winnerRects.length)
+                winnerRects.push(rect);
+            }
+            else if(this.distanceFromBoundingShape(rect)==previousWinner){
+                winnerRects.push(rect);
+            }
+        }
+
+        return winnerRects;
     }
 
     //public static getOverlapping(pos:IPos){

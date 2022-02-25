@@ -2,7 +2,9 @@
 // @ts-ignore
 import Stats from './../../node_modules/stats.js/src/Stats.js'
 import { ResizeHandler } from './event_handlers/resize.js';
+
 import { Rect } from './rect.js';
+import { TextBox } from './text_box.js';
 
 
 //var stats = new Stats();

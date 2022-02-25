@@ -1,106 +1,83 @@
+import { boundingShape ,Canvas} from "./ui.js";
 
+export enum EObjectType {
+    Normal = 0,
+    HzBox = 1,
+    VtBox = 2
+}
 
-import { Canvas } from "./canvas.js";
-import { KeypressHandler } from "./event_handlers/keypress.js";
-import { MouseHandler } from "./event_handlers/mouse.js";
-import { HorizontalBox } from "./horizontal_box.js";
-import { Rect} from "./rect.js";
-import { IEdges } from "./types/edges.js";
-import { IPos } from "./types/pos.js";
-import { ITransform } from "./types/transform.js";
-
-export enum EObjectType{
-    Normal=0,
-    HzBox=1,
-    VtBox=2
+export interface IShapeOpts {
+    parent?: IShape,
+    canvas?: Canvas
 }
 
 
-export interface IShape{
-    discriminator1: 'IShape',
-    canvas?:Canvas,
-    parent?:IShape;
-    children:IShape[],//only children is passed (no parent)
-    drawHierarchy:(parent:IShape)=>void, //draws shape and all children 
+export interface IShape {
+    canvas?: Canvas,
+    parent?: IShape;
+    children: IShape[],//only children is passed (no parent)
+    draw: (parent: IShape) => void, //draws shape and all children 
     //overlappHierarchy(pos:IPos): Button[]
-    destroyHierarchy:()=>void
+    destroy: () => void
 }
 
-export function instanceOfShape(arg: any): arg is IShape {
-    return arg.discriminator1 === 'IShape';
-}
 
-export class Shape implements IShape{
-    public discriminator1: 'IShape'='IShape';
-    public canvas:Canvas;
-    public parent:IShape;
-    public children:IShape[]=[];
-    constructor(parent:IShape,canvas:Canvas){
-        parent.children.push(this); //set this as a child of parent to create an object tree
+export abstract class Shape<Opts extends IShapeOpts = IShapeOpts> implements IShape {
+    public parent: IShape = boundingShape;
+    public canvas: Canvas = boundingShape.canvas;
+    public children: IShape[] = [];
+    constructor() {
+        this.parent.children.push(this);
+
+    }
+    public createConfig(opts:IShapeOpts){
+        this.addConfig(opts)
+    }
+
+    protected addConfig(opts: any) {
+        for (const opt in opts) {
+            if (Object.prototype.hasOwnProperty.call(opts, opt)) {
+                this.setConfigAttr(opt as keyof Opts, opts[opt])
+            }
+        }
+        //boundingShape.draw();
+    }
+
+    public setConfigAttr(key: keyof Opts, val: any) {
+
+        if (val === undefined || val === null) {
+            delete this[key as keyof IShapeOpts];
+        } else if (key==="parent") {
+            this.setParent(val as IShape);//why val.parent????
+        }
+        else {
+            this[key as keyof IShapeOpts] = val;
+        }
+    }
+
+    private getConfigAttr(key: keyof IShapeOpts) {
+        return this[key];
+    }
+
+    protected setParent(parent:IShape){
+        this.parent.children.splice(this.parent.children.indexOf(this),1)
+        parent.children.push(this);
         this.parent=parent;
-        this.canvas=canvas;
     }
 
-    public drawHierarchy(parent:IShape){
-        for (const child of this.children){
-            child.drawHierarchy(parent);
+    public draw(parent: IShape) {
+        for (const child of this.children) {
+            child.draw(this);
         }
     }
 
-    //public overlappHierarchy(pos:IPos): Button[] {
-    //    let all:Button[]=[];
-    //    for (const child of this.children){
-    //        all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
-    //    }
-    //    return all;
-    //}
+    public destroy() {
 
-    public destroyHierarchy(){
-        //this.parent.children.splice(this.parent.children.indexOf(this),1);
-        //console.log("dest")
+        const len = this.children.length
 
-        const len=this.children.length
-
-        for(let i=0;i<len;i++){
-            this.children[0].destroyHierarchy();
+        for (let i = 0; i < len; i++) {
+            this.children[0].destroy();
         }
-        this.parent.children.splice(this.parent.children.indexOf(this),1);
-        //this.parent.children.splice(this.parent.children.indexOf(this),1);
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
     }
 }
-
-class BoundingShape implements IShape{
-    public discriminator1: 'IShape'='IShape';
-    public children:IShape[]=[];
-    public absEdges={left:0,right:0,top:0,bottom:0};
-    public type:EObjectType=EObjectType.Normal;
-    constructor(){
-    }
-
-    public drawHierarchy(){
-        this.absEdges={left:0,right:window.innerWidth,top:0,bottom:window.innerHeight}
-        for (const child of this.children){
-            child.drawHierarchy(this);
-        }
-    }
-
-    //public overlappHierarchy(pos:IPos): Button[] {
-    //    let all:Button[]=[];
-    //    for (const child of this.children){
-    //        all=all.concat((child as IShape).overlappHierarchy(pos) as Button[])
-    //    }
-    //    all=all.slice().reverse();
-    //    return all;
-    //}
-
-    public destroyHierarchy(){
-        for (const child of this.children){
-            child.destroyHierarchy();
-        }
-    }
-}
-
-const boundingShape=new BoundingShape();
-//Object.freeze(boundingShape);
-
-export {boundingShape};

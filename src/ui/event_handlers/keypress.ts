@@ -2,7 +2,7 @@
 
 import { Canvas } from "../canvas.js";
 import { Rect } from "../rect.js";
-import { boundingShape, IShape } from "../shape.js";
+import { boundingShape, IShape } from "../ui.js";
 
 //add info here
 //
@@ -30,7 +30,6 @@ export class KeypressHandler{
     }
 
     static logKey(e:KeyboardEvent) {
-        console.log(e)
         for(const obj of this.callbackObjects){
             obj.onKeyPress(e.key)
         }

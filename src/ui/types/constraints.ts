@@ -1,13 +1,13 @@
 export enum EConstraintsX {
-    left=0,
-    right=1,
-    center=2,
-    scale=3
+    left="left",
+    right="right",
+    center="center",
+    scale="scale"
 }
 
 export enum EConstraintsY {
-    top=0,
-    bottom=1,
-    center=2,
-    scale=3
+    top="top",
+    bottom="bottom",
+    center="center",
+    scale="scale"
 }

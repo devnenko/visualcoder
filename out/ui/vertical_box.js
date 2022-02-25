@@ -1,8 +1,7 @@
-import { EObjectType } from "./shape.js";
-import { Rect } from "./rect.js";
+import { EObjectType, Rect } from "./ui.js";
 export class VerticalBox extends Rect {
-    constructor(parent, canvas) {
-        super(parent, canvas);
+    constructor() {
+        super();
         this.type = EObjectType.VtBox;
     }
 }

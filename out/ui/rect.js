@@ -1,113 +1,76 @@
-import { isIMouseHandler, MouseHandler } from "./event_handlers/mouse.js";
-import { EObjectType, Shape, boundingShape } from "./shape.js";
-import { EConstraintsX, EConstraintsY } from "./types/constraints.js";
-//export function instanceOfRectType(object: any): object is RectType {
-//    return object.hasOwnProperty('absEdges');
-//}
+import { EObjectType, BoundingShape } from "./ui.js";
+import { EConstraintsX, EConstraintsY } from "./types/types.js";
+import { Shape } from "./shape.js";
 export class Rect extends Shape {
-    constructor(parent, canvas) {
-        super(parent, canvas);
-        this.type = EObjectType.Normal;
+    //private parentSize:IEdges={left:0,right:0,top:0,bottom:0};
+    constructor() {
+        super();
         //additional display options 
         this.isVisible = true;
         this.color = "pink";
         //constraints for calculating absEdges in resize event
-        this.constX = EConstraintsX.left;
-        this.constY = EConstraintsY.top;
-        this.fixedSize = { w: 100, h: 100 };
-        this.fixedPos = { x: 0, y: 0 };
+        this.constraintX = EConstraintsX.left;
+        this.constraintY = EConstraintsY.top;
+        this.fixedSizeW = 100;
+        this.fixedSizeH = 100;
+        this.fixedOffsetX = 0;
+        this.fixedOffsetY = 0;
         this.snapOffset = { left: 0, right: 0, top: 0, bottom: 0 };
-        this.margin = 0;
-        this.fixedProportion = { x: 100, y: 100 }; //number between 0 and 100 for fixed proportions
+        this.snapMargin = 0;
+        this.boxProportion = { x: 100, y: 100 }; //number between 0 and 100 for fixed proportions
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
-        this.parentSize = { left: 0, right: 0, top: 0, bottom: 0 };
-        if (parent instanceof Rect) {
-            this.parentSize = parent.absEdges;
-        }
+        this.type = EObjectType.Normal;
     }
-    setConstraints(constX, constY) {
-        this.constX = constX;
-        this.constY = constY;
+    createConfig(opts) {
+        this.addConfig(opts);
     }
-    setConstraintsInfo(fixedPos, fixedSize, snapOffset) {
-        if (fixedPos) {
-            this.fixedPos = fixedPos;
-        }
-        if (fixedSize) {
-            this.fixedSize = fixedSize;
-        }
-        if (snapOffset) {
-            this.snapOffset = snapOffset;
-        }
-    }
-    drawHierarchy(parent) {
-        if (parent instanceof Rect || typeof boundingShape) {
-            this.resize(parent);
-            this.draw();
+    draw(parent) {
+        if (parent instanceof Rect || parent instanceof BoundingShape) {
+            this.resizeRect(parent);
+            this.drawRect();
             for (const child of this.children) {
-                child.drawHierarchy(this);
+                child.draw(this);
             }
         }
         else {
-            //this.resize(parent.parent as Rect);
-            //this.draw();
+            console.warn("a rect is a child of a shape and doesnt know what to do");
             for (const child of this.children) {
-                child.drawHierarchy(this);
+                child.draw(this);
             }
         }
     }
-    setParent(parent, index) {
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        if (index) {
-            parent.children.splice(index, 0, this);
-        }
-        else {
-            parent.children.push(this);
-        }
-        this.parent = parent;
-        boundingShape.drawHierarchy();
-    }
-    destroyHierarchy() {
-        //console.log(this)
-        if (isIMouseHandler(this)) {
-            //console.log("unsub")
-            //console.log(this)
-            MouseHandler.unsubscribe(this);
-        }
-        super.destroyHierarchy();
-    }
-    resize(parent) {
+    resizeRect(parent) {
         if (parent.type == EObjectType.Normal) {
             const parentSize = parent.absEdges;
-            if (this.constX == EConstraintsX.left) {
-                this.absEdges.left = parentSize.left + this.snapOffset.left + this.fixedPos.x;
-                this.absEdges.right = this.absEdges.left + this.fixedSize.w;
+            if (this.constraintX == EConstraintsX.left) {
+                this.absEdges.left = parentSize.left + this.snapOffset.left + this.fixedOffsetX;
+                this.absEdges.right = this.absEdges.left + this.fixedSizeW;
             }
-            else if (this.constX == EConstraintsX.right) {
-                this.absEdges.right = parentSize.right - this.snapOffset.right + this.fixedPos.x + this.fixedPos.x;
-                this.absEdges.left = this.absEdges.right - this.fixedSize.w;
+            else if (this.constraintX == EConstraintsX.right) {
+                this.absEdges.right = parentSize.right - this.snapOffset.right + this.fixedOffsetX + this.fixedOffsetX;
+                this.absEdges.left = this.absEdges.right - this.fixedSizeW;
             }
-            else if (this.constX == EConstraintsX.center) {
-                this.absEdges.left = parentSize.left + (parentSize.right - parentSize.left) / 2 - this.fixedSize.w / 2 + this.fixedPos.x;
-                this.absEdges.right = parentSize.left + (parentSize.right - parentSize.left) / 2 + this.fixedSize.w / 2 + this.fixedPos.x;
+            else if (this.constraintX == EConstraintsX.center) {
+                this.absEdges.left = parentSize.left + (parentSize.right - parentSize.left) / 2 - this.fixedSizeW / 2 + this.fixedOffsetX;
+                this.absEdges.right = parentSize.left + (parentSize.right - parentSize.left) / 2 + this.fixedSizeW / 2 + this.fixedOffsetX;
             }
-            else if (this.constX == EConstraintsX.scale) {
+            else if (this.constraintX == EConstraintsX.scale) {
                 this.absEdges.left = parentSize.left + this.snapOffset.left;
                 this.absEdges.right = parentSize.right - this.snapOffset.right;
             }
-            if (this.constY == EConstraintsY.top) {
-                this.absEdges.top = parentSize.top + this.snapOffset.top + this.fixedPos.y;
-                this.absEdges.bottom = this.absEdges.top + this.fixedSize.h;
+            if (this.constraintY == EConstraintsY.top) {
+                this.absEdges.top = parentSize.top + this.snapOffset.top + this.fixedOffsetY;
+                this.absEdges.bottom = this.absEdges.top + this.fixedSizeH;
             }
-            else if (this.constY == EConstraintsY.bottom) {
-                this.absEdges.bottom = parentSize.bottom - this.snapOffset.bottom + this.fixedPos.y;
-                this.absEdges.top = this.absEdges.bottom - this.fixedSize.h;
+            else if (this.constraintY == EConstraintsY.bottom) {
+                this.absEdges.bottom = parentSize.bottom - this.snapOffset.bottom + this.fixedOffsetY;
+                this.absEdges.top = this.absEdges.bottom - this.fixedSizeH;
             }
-            else if (this.constY == EConstraintsY.center) {
-                this.absEdges.top = parentSize.top + (parentSize.bottom - parentSize.top) / 2 - this.fixedSize.h / 2 + this.fixedPos.y;
-                this.absEdges.bottom = parentSize.top + (parentSize.bottom - parentSize.top) / 2 + this.fixedSize.h / 2 + this.fixedPos.y;
+            else if (this.constraintY == EConstraintsY.center) {
+                this.absEdges.top = parentSize.top + (parentSize.bottom - parentSize.top) / 2 - this.fixedSizeH / 2 + this.fixedOffsetY;
+                this.absEdges.bottom = parentSize.top + (parentSize.bottom - parentSize.top) / 2 + this.fixedSizeH / 2 + this.fixedOffsetY;
             }
-            else if (this.constY == EConstraintsY.scale) {
+            else if (this.constraintY == EConstraintsY.scale) {
                 this.absEdges.top = parentSize.top + this.snapOffset.top;
                 this.absEdges.bottom = parentSize.bottom - this.snapOffset.bottom;
             }
@@ -137,14 +100,14 @@ export class Rect extends Shape {
              {
                 this.absEdges.left = parent.absEdges.left;
             }
-            if (this.constX == EConstraintsX.scale && parent.children[indexInParent + 1] == null) {
+            if (this.constraintX == EConstraintsX.scale && parent.children[indexInParent + 1] == null) {
                 this.absEdges.right = parent.absEdges.right;
             }
-            else if (this.constX == EConstraintsX.scale) {
-                this.absEdges.right = this.absEdges.left + (parent.getAbsSize().w) * this.fixedProportion.x / 100;
+            else if (this.constraintX == EConstraintsX.scale) {
+                this.absEdges.right = this.absEdges.left + (parent.getAbsSize().w) * this.boxProportion.x / 100;
             }
             else {
-                this.absEdges.right = this.absEdges.left + this.fixedSize.w;
+                this.absEdges.right = this.absEdges.left + this.fixedSizeW;
             }
         }
         else if (parent.type == EObjectType.VtBox) {
@@ -160,22 +123,22 @@ export class Rect extends Shape {
              {
                 this.absEdges.top = parent.absEdges.top;
             }
-            if (this.constY == EConstraintsY.scale && parent.children[indexInParent + 1] == null) {
+            if (this.constraintY == EConstraintsY.scale && parent.children[indexInParent + 1] == null) {
                 this.absEdges.bottom = parent.absEdges.bottom;
             }
-            else if (this.constY == EConstraintsY.scale) {
-                this.absEdges.bottom = this.absEdges.top + (parent.getAbsSize().h) * this.fixedProportion.y / 100;
+            else if (this.constraintY == EConstraintsY.scale) {
+                this.absEdges.bottom = this.absEdges.top + (parent.getAbsSize().h) * this.boxProportion.y / 100;
             }
             else {
-                this.absEdges.bottom = this.absEdges.top + this.fixedSize.h;
+                this.absEdges.bottom = this.absEdges.top + this.fixedSizeH;
             }
         }
-        this.absEdges.left += this.margin;
-        this.absEdges.right -= this.margin;
-        this.absEdges.top += this.margin;
-        this.absEdges.bottom -= this.margin;
+        this.absEdges.left += this.snapMargin;
+        this.absEdges.right -= this.snapMargin;
+        this.absEdges.top += this.snapMargin;
+        this.absEdges.bottom -= this.snapMargin;
     }
-    draw() {
+    drawRect() {
         if (this.isVisible == true) {
             const transform = this.edgesToDrawdimensions(this.absEdges);
             this.canvas.ctx.beginPath();

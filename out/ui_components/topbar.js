@@ -1,12 +1,11 @@
 import { editor } from "../main.js";
 import { colorCreator } from "../ui/color.js";
 import { HorizontalBox } from "../ui/horizontal_box.js";
-import { boundingShape } from "../ui/shape.js";
 import { Text } from "../ui/text.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
-import { HoverPressButton } from "./special_buttons.js";
+import { Scene } from "./views/scene.js";
+import { HoverPressButton } from "./button.js";
 import { ContentBrowser } from "./views/content_browser.js";
-import { AllFunctions, runScript } from "../save_file/ge_lib.js";
 class TopBarButton extends HoverPressButton {
     constructor(parent, canvas) {
         super(parent, canvas);
@@ -22,7 +21,7 @@ class TopBarButton extends HoverPressButton {
         this.text.color = "white";
     }
 }
-export class TopBar extends HorizontalBox //will have play button, options for adding views (maybe should be something better)
+export class EditorTopBar extends HorizontalBox //will have play button, options for adding views (maybe should be something better)
  {
     constructor(parent, canvas) {
         super(parent, canvas);
@@ -38,16 +37,13 @@ export class TopBar extends HorizontalBox //will have play button, options for a
             //editor.addViewGeneric(scene,"Scene");
             //scene.reload();
             //const newWin=window.open("frame1.html", "_blank");
-            const scriptString = JSON.stringify([AllFunctions.LogConsoleTest]);
-            console.log(scriptString);
-            window.localStorage.setItem("test", scriptString);
-            runScript();
+            editor.addViewGeneric(Scene, "Scene");
         };
         const contentBrowserButton = new TopBarButton(this, this.canvas);
         contentBrowserButton.text.text = "Content Browser";
         contentBrowserButton.onCLick = () => //implement loading script also for drag and drop and multi tab. also implement for click add at best location
          {
-            editor.addViewGeneric(new ContentBrowser(boundingShape, this.canvas), "ContentBrowser");
+            editor.addViewGeneric(ContentBrowser, "ContentBrowser");
         };
         //add last opened file button 
     }

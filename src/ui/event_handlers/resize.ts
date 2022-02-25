@@ -1,6 +1,6 @@
 
 import { Canvas } from "../canvas.js";
-import { boundingShape } from "../shape.js";
+import { boundingShape } from "../ui.js";
 
 //add info here
 //
@@ -22,7 +22,7 @@ export class ResizeHandler{
         for (const canvas of this.canvases){
             canvas.resize();
         }
-        boundingShape.drawHierarchy();
+        boundingShape.draw();
     }
 
     static visibilityChange(event:ResizeHandler){

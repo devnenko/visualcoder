@@ -1,6 +1,8 @@
+import { colorCreator } from "../ui/color.js";
 import { MouseHandler } from "../ui/event_handlers/mouse.js";
 import { Rect } from "../ui/rect.js";
 import { Text } from "../ui/text.js";
+import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
 export class HoverPressButton extends Rect {
     constructor(parent, canvas) {
         super(parent, canvas);
@@ -25,10 +27,23 @@ export class HoverPressButton extends Rect {
     }
     onMouseDown(type, pos) {
         this.color = this.pressColor;
+        this.onCLick(type, pos);
     }
     onMouseUp(type, pos) {
         this.color = this.origColor;
-        this.onCLick();
+    }
+}
+export class DefaultHoverPressButton extends HoverPressButton {
+    constructor(parent, canvas) {
+        super(parent, canvas);
+        this.fixedSize.w = 60;
+        this.fixedSize.h = 60;
+        this.setConstraints(EConstraintsX.scale, EConstraintsY.scale);
+        this.setOrigColor(colorCreator.colorByBrightness(30));
+        this.hoverColor = colorCreator.colorByBrightness(45);
+        this.pressColor = colorCreator.colorByBrightness(80);
+        this.title = new Text(this, this.canvas);
+        this.title.color = "white";
     }
 }
 export class ToggleButton extends Rect {

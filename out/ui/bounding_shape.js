@@ -1,27 +1,28 @@
-//this rect encapsulates all other rects
-//it can refresh the whole screen when updated
-//the any type addition disables typechecking for some reason
-//this might introduce some bugs later
+import { Canvas } from "./canvas.js";
+import { EObjectType } from "./shape.js";
 export class BoundingShape {
     constructor() {
-        this.discriminator1 = 'IShape';
         this.children = [];
+        this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
+        this.type = EObjectType.Normal;
+        this.canvas = new Canvas();
     }
-    drawHierarchy(parent) {
+    draw() {
+        this.absEdges = { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight };
+        this.canvas.ctx.clearRect(this.absEdges.left, this.absEdges.top, this.absEdges.right, this.absEdges.bottom);
         for (const child of this.children) {
-            child.drawHierarchy(this);
+            child.draw(this);
         }
-    }
-    overlappHierarchy(pos) {
-        let all = [];
-        for (const child of this.children) {
-            all = all.concat(child.overlappHierarchy(pos));
-        }
-        return all;
     }
     destroy() {
         for (const child of this.children) {
             child.destroy();
         }
     }
+    getAbsSize() {
+        return { w: this.absEdges.right - this.absEdges.left, h: this.absEdges.bottom - this.absEdges.top };
+    }
 }
+const boundingShape = new BoundingShape();
+//Object.freeze(boundingShape);
+export { boundingShape };

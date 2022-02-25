@@ -16,11 +16,15 @@ export class Line {
     //overlappHierarchy(pos:IPos): Button[] {
     //    return [];
     //}
-    destroyHierarchy() {
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        if (this.parent.children.indexOf(this) == -1) {
-            console.log("error");
+    destroy() {
+        //this.parent.children.splice(this.parent.children.indexOf(this),1);
+        //console.log("dest")
+        const len = this.children.length;
+        for (let i = 0; i < len; i++) {
+            this.children[0].destroy();
         }
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        //this.parent.children.splice(this.parent.children.indexOf(this),1);
     }
     draw() {
         if (this.isVisible == true) {

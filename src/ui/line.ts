@@ -37,11 +37,17 @@ export class Line implements IShape{
     //    return [];
     //}
 
-    destroyHierarchy(){
-        this.parent.children.splice(this.parent.children.indexOf(this),1);
-        if(this.parent.children.indexOf(this)==-1){
-            console.log("error")
+    public destroy(){
+        //this.parent.children.splice(this.parent.children.indexOf(this),1);
+        //console.log("dest")
+
+        const len=this.children.length
+
+        for(let i=0;i<len;i++){
+            this.children[0].destroy();
         }
+        this.parent.children.splice(this.parent.children.indexOf(this),1);
+        //this.parent.children.splice(this.parent.children.indexOf(this),1);
     }
 
     protected draw(){

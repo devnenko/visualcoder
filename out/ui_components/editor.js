@@ -1,10 +1,11 @@
 import { editor } from "../main.js";
 import { colorCreator } from "../ui/color.js";
 import { Rect } from "../ui/rect.js";
+import { boundingShape } from "../ui/shape.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
 import { VerticalBox } from "../ui/vertical_box.js";
 import { View } from "./views/view.js";
-import { TopBar } from "./topbar.js";
+import { EditorTopBar } from "./topbar.js";
 // problem: how do we create views so that they are usefull and dont cause confusion? 
 //what are the usefull and useless usecases and how could you implement that in an intuitive way 
 //maybe phones should have completely different system with individual tabs like the close button for shortcuts on shortcuts app
@@ -19,9 +20,10 @@ export class Editor extends VerticalBox {
     //emptyText;
     constructor(parent, canvas) {
         super(parent, canvas);
+        this.views = [];
         this.setConstraints(EConstraintsX.scale, EConstraintsY.scale);
         this.isVisible = false;
-        this.topbar = new TopBar(this, this.canvas);
+        this.topbar = new EditorTopBar(this, this.canvas);
         this.contentArea = new Rect(this, this.canvas);
         this.contentArea.color = colorCreator.colorByBrightness(20);
         this.contentArea.setConstraints(EConstraintsX.scale, EConstraintsY.scale);
@@ -31,7 +33,7 @@ export class Editor extends VerticalBox {
         //const v=new View(this.contentArea,this.canvas);
         //v.topBar.title.text="scene"
     }
-    addViewGeneric(content, title) {
+    addViewGeneric(myClassRef, viewTitle) {
         for (const child of this.contentArea.children) {
             if (child instanceof View) {
                 const index = this.contentArea.children.indexOf(child);
@@ -39,9 +41,10 @@ export class Editor extends VerticalBox {
                 break;
             }
         }
-        const view = new View(editor.contentArea, this.canvas);
-        view.topBar.title.text = title;
-        content.setParent(view.contentArea);
+        const view = new View(editor.contentArea, editor.canvas, myClassRef, viewTitle);
+        this.views.push(view);
+        view.topBar.title.text = view.contentArea.viewTitle;
+        boundingShape.drawHierarchy();
     }
     drawViewPreview(pos) {
     }
