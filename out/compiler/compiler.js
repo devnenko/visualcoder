@@ -75,7 +75,7 @@ export function createAndRunScript() {
         if (js) {
             const sc = JSON.parse(js).functions;
             console.log(sc);
-            let jsCode = '(async () => {const module = await import("./code/lib.js"); module.init();';
+            let jsCode = '(async () => {const module = await import("./compiler/lib.js"); module.init();';
             jsCode = jsCode.concat("\n \n");
             for (const func of sc) {
                 jsCode = jsCode.concat(ConvertFnToJs(func) + "\n");

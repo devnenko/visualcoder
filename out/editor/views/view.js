@@ -1,8 +1,10 @@
 import { HoverPressButton } from "../../ui_components/ui_components.js";
 import { GeFile } from "./views.js";
-import { Rect, VerticalBox, TextBox, colorCreator } from "../../ui/ui.js";
+import { Rect, TextBox, colorCreator } from "../../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../../ui/types/types.js";
 import { FileTypes } from "./cb_file.js";
+import { ERectType } from "../../ui/shape.js";
+import { Clickable } from "../../ui/clickable.js";
 class ViewTopBar extends Rect {
     constructor(view) {
         super();
@@ -30,16 +32,19 @@ class ViewTopBar extends Rect {
                 view.destroy();
             }
         });
-        this.deleteButton.title.createConfig({
-            text: "delete"
+        this.deleteButton.createIcon();
+        this.deleteButton.icon?.createConfig({
+            imageSrc: "xmark.svg",
         });
     }
 }
 //should view classes extend view maybe rather than be part of
-export class View extends VerticalBox {
+export class View extends Rect {
     constructor(ContentAreaInstance, editor, file) {
         super();
+        this.editor = editor;
         this.createConfig({
+            rectType: ERectType.VtBox,
             parent: editor.contentArea,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
@@ -57,10 +62,11 @@ export class View extends VerticalBox {
         super.destroy();
     }
 }
-export class ViewContentArea extends Rect {
+export class ViewContentArea extends Clickable {
     constructor(view) {
         super();
         this.viewName = "Default View";
+        this.view = view;
         this.createConfig({
             parent: view,
             constraintX: EConstraintsX.scale,

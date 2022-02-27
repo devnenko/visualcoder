@@ -7,17 +7,22 @@ export class TextInput extends ToggleButton {
         this.onToggle = (isOn) => {
             if (isOn) {
                 KeypressHandler.subscribe(this);
-                console.log(document.getElementById("keyboardHack"));
-                document.getElementById("keyboardHack")?.focus();
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    console.log(document.getElementById("keyboardHack"));
+                    document.getElementById("keyboardHack")?.focus();
+                }
                 MouseHandler.actifInputField = this;
             }
             else {
                 KeypressHandler.unsubscribe(this);
-                console.log(document.getElementById("keyboardHack"));
-                document.getElementById("keyboardHack")?.blur();
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    console.log(document.getElementById("keyboardHack"));
+                    document.getElementById("keyboardHack")?.blur();
+                }
                 MouseHandler.actifInputField = null;
             }
         };
+        this.createTitle();
         this.createConfig({
             constraintX: EConstraintsX.left,
             constraintY: EConstraintsY.top,
@@ -25,8 +30,9 @@ export class TextInput extends ToggleButton {
             fixedSizeW: 200,
             canClickToggleOf: false
         });
-        this.title.createConfig({
-            constraintX: EConstraintsX.left
+        this.title?.createConfig({
+            constraintX: EConstraintsX.left,
+            text: "untitled"
         });
     }
     createConfig(opts) {
@@ -34,6 +40,12 @@ export class TextInput extends ToggleButton {
     }
     onKeyPress(key) {
         console.log(key);
+        if (this.title) {
+            let text = this.title.text;
+        }
+        else {
+            console.error("no title on text input");
+        }
         let text = this.title.text;
         if (key === "Backspace") {
             text = text.slice(0, -1);
@@ -41,6 +53,6 @@ export class TextInput extends ToggleButton {
         else {
             text = text.concat(key);
         }
-        this.title.setText(text);
+        this.title?.setText(text);
     }
 }

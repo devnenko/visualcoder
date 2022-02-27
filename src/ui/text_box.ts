@@ -52,14 +52,14 @@ export class TextBox<Opts extends ITextBoxOpts = ITextBoxOpts> extends Rect{
         }
     }
 
-    public resizeRect(parent: Rect<IRectOpts> | BoundingShape){
+    public resizeRect(parent: Rect | BoundingShape){
         this.canvas.ctx.font = this.size+"px Sans-Serif";
         const measure=this.canvas.ctx.measureText(this.text)
         this.fixedSizeW=measure.width;
         this.fixedSizeH=measure.fontBoundingBoxAscent+measure.fontBoundingBoxDescent;
         //console.log(textBounds)
 
-        if(parent.type==EObjectType.Normal){
+        if(parent.rectType==EObjectType.Normal){
             const parentSize=parent.absEdges;
             if(this.constraintX==EConstraintsX.left){
                 this.absEdges.left=parentSize.left+this.snapOffset.left+this.fixedOffsetX;

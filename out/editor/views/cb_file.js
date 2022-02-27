@@ -2,6 +2,7 @@ export var FileTypes;
 (function (FileTypes) {
     FileTypes["image"] = "image";
     FileTypes["script"] = "script";
+    FileTypes["level"] = "level";
 })(FileTypes || (FileTypes = {}));
 export class CBFile {
     constructor(name, type, source) {

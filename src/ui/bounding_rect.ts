@@ -3,18 +3,17 @@
 import { Canvas } from "./canvas.js";
 import { KeypressHandler } from "./event_handlers/keypress.js";
 import { MouseHandler } from "./event_handlers/mouse.js";
-import { HorizontalBox } from "./horizontal_box.js";
 import { Rect } from "./rect.js";
-import { EObjectType, IShape } from "./shape.js";
+import { ERectType, IShape } from "./shape.js";
 import { EConstraintsX, EConstraintsY } from "./types/constraints.js";
 import { IEdges } from "./types/edges.js";
 import { IPos } from "./types/pos.js";
 import { ITransform } from "./types/transform.js";
 
-export class BoundingShape implements IShape {
+export class BoundingRect implements IShape {
     public children: IShape[] = [];
     public absEdges:IEdges = { left: 0, right: 0, top: 0, bottom: 0 };
-    public type: EObjectType = EObjectType.Normal;
+    public rectType: ERectType = ERectType.Normal;
     public canvas = new Canvas();
     constructor() {
     }
@@ -38,7 +37,7 @@ export class BoundingShape implements IShape {
     }
 }
 
-const boundingShape = new BoundingShape();
+const boundingShape = new BoundingRect();
 //Object.freeze(boundingShape);
 
 export { boundingShape };

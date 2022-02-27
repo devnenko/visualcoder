@@ -1,9 +1,9 @@
-import { boundingShape, EObjectType as ERectType, BoundingShape } from "./ui.js";
+import { EObjectType as ERectType, BoundingShape } from "./ui.js";
 import { EConstraintsX, EConstraintsY } from "./types/types.js";
 import { Shape } from "./shape.js";
 export class Rect extends Shape {
     //private parentSize:IEdges={left:0,right:0,top:0,bottom:0};
-    constructor(config) {
+    constructor() {
         super();
         //additional display options 
         this.isVisible = true;
@@ -20,39 +20,9 @@ export class Rect extends Shape {
         this.boxProportion = { x: 100, y: 100 }; //number between 0 and 100 for fixed proportions
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
         this.rectType = ERectType.Normal;
-        this.imageSrc = "";
-        this.image = null;
-        this.setAttrs(config);
     }
-    //public createConfig(opts:IRectOpts){
-    //    this.addConfig(opts)
-    //}
-    //
-    //public setConfigAttr(key: keyof IRectOpts, val: any): void {
-    //    if(key==="imageSrc"){
-    //        this.createImage(val as string);
-    //    }
-    //    else{
-    //        if (val === undefined || val === null) {
-    //            delete this[key as keyof IShapeOpts];
-    //        }
-    //        else if (key==="parent") {
-    //            this.setParent(val as IShape);//why val.parent????
-    //        }
-    //        else {
-    //            this[key as keyof IShapeOpts] = val;
-    //        }
-    //    }
-    //}
-    createImage(src) {
-        console.log;
-        let image = new Image();
-        this.imageSrc = src;
-        image.src = "/icons/".concat(src);
-        this.image = image;
-        this.image.onload = function () {
-            boundingShape.draw();
-        };
+    createConfig(opts) {
+        this.addConfig(opts);
     }
     draw(parent) {
         if (parent instanceof Rect || parent instanceof BoundingShape) {
@@ -171,20 +141,10 @@ export class Rect extends Shape {
     drawRect() {
         if (this.isVisible == true) {
             const transform = this.edgesToDrawdimensions(this.absEdges);
-            if (this.image != null) {
-                if (this.image) {
-                    this.canvas.ctx.drawImage(this.image, Math.floor(transform.pos.x), Math.floor(transform.pos.y), Math.floor(transform.size.w), Math.floor(transform.size.h));
-                }
-                else {
-                    console.error("image not valid");
-                }
-            }
-            else {
-                this.canvas.ctx.beginPath();
-                this.canvas.ctx.rect(Math.floor(transform.pos.x), Math.floor(transform.pos.y), Math.floor(transform.size.w), Math.floor(transform.size.h));
-                this.canvas.ctx.fillStyle = this.color;
-                this.canvas.ctx.fill();
-            }
+            this.canvas.ctx.beginPath();
+            this.canvas.ctx.rect(Math.floor(transform.pos.x), Math.floor(transform.pos.y), Math.floor(transform.size.w), Math.floor(transform.size.h));
+            this.canvas.ctx.fillStyle = this.color;
+            this.canvas.ctx.fill();
         }
     }
     edgesToDrawdimensions(edges) {
@@ -199,6 +159,4 @@ export class Rect extends Shape {
     getAbsSize() {
         return { w: this.absEdges.right - this.absEdges.left, h: this.absEdges.bottom - this.absEdges.top };
     }
-}
-export class recti extends Rect {
 }

@@ -1,18 +1,22 @@
 // @ts-ignore
 import { HoverPressButton, ToggleButton } from "../../../ui_components/ui_components.js";
-import { Rect, VerticalBox, HorizontalBox, TextBox, colorCreator, boundingShape } from "../../../ui/ui.js";
+import { Rect, TextBox, colorCreator, boundingShape } from "../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../../../ui/types/types.js";
 import { ViewContentArea } from "../view.js";
 import { allFiles, CBFile, FileTypes } from "../cb_file.js";
 import { TextInput } from "../../../ui_components/text_input.js";
+import { BlockEditor } from "../script/block/block_editor.js";
+import { ERectType } from "../../../ui/shape.js";
+import { PixelImage } from "../image/image.js";
 export class ContentBrowser extends ViewContentArea {
     constructor(view) {
         super(view);
         this.isInFileSelector = false;
         this.viewName = "ContentBrowser";
         //this.color=colorCreator.colorByBrightness(20);
-        this.vtBox = new VerticalBox();
+        this.vtBox = new Rect();
         this.vtBox.createConfig({
+            rectType: ERectType.VtBox,
             parent: this,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
@@ -29,7 +33,9 @@ export class ContentBrowser extends ViewContentArea {
         for (const file of allFiles) {
             const b1 = new CBButton(file, this);
         }
-        new FileAddButton(this);
+        console.log("ref");
+        const b1 = new FileAddButton(this);
+        console.log(b1);
     }
 }
 export class FileAddButton extends HoverPressButton {
@@ -59,7 +65,8 @@ export class FileAddButton extends HoverPressButton {
                 new FileSelector(contentBrowser);
             }
         });
-        this.title.createConfig({
+        this.createTitle();
+        this.title?.createConfig({
             text: "Create File"
         });
     }
@@ -76,8 +83,9 @@ class FileSelector extends Rect {
             snapMargin: 20,
             color: colorCreator.colorByBrightness(10),
         });
-        const vtBox = new VerticalBox();
+        const vtBox = new Rect();
         vtBox.createConfig({
+            rectType: ERectType.VtBox,
             parent: this,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
@@ -99,8 +107,9 @@ class FileSelector extends Rect {
             fixedSizeH: 50,
             snapMargin: 5,
         });
-        this.fileTypeHzBox = new HorizontalBox();
+        this.fileTypeHzBox = new Rect();
         this.fileTypeHzBox.createConfig({
+            rectType: ERectType.HzBox,
             parent: vtBox,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.top,
@@ -111,6 +120,7 @@ class FileSelector extends Rect {
         let first = true;
         for (const fileType in FileTypes) {
             let button = new ToggleButton();
+            // @ts-ignore to ignore next line
             button["cBFileType"] = fileType;
             if (first) {
                 this.fileTypePrevToggle = button;
@@ -130,10 +140,12 @@ class FileSelector extends Rect {
                     this.fileTypePrevToggle = button;
                 }
             });
-            button.title.setText(fileType);
+            button.createTitle();
+            button.title?.setText(fileType);
         }
-        this.bottomHzBox = new HorizontalBox();
+        this.bottomHzBox = new Rect();
         this.bottomHzBox.createConfig({
+            rectType: ERectType.HzBox,
             parent: this,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.bottom,
@@ -152,7 +164,8 @@ class FileSelector extends Rect {
                 this.destroy();
             }
         });
-        this.cancelButton.title.createConfig({
+        this.cancelButton.createTitle();
+        this.cancelButton.title?.createConfig({
             text: "Cancel"
         });
         this.createButton = new HoverPressButton();
@@ -161,13 +174,15 @@ class FileSelector extends Rect {
             snapMargin: 5,
             boxProportion: { x: 50, y: 50 },
             onPress: () => {
+                // @ts-ignore to ignore next line
                 allFiles.push(new CBFile(textInput.title.text, this.fileTypePrevToggle["cBFileType"], ""));
                 contentBrowser.refresh();
                 contentBrowser.isInFileSelector = false;
                 this.destroy();
             }
         });
-        this.createButton.title.setText("Create");
+        this.createButton.createTitle();
+        this.createButton.title?.setText("Create");
     }
 }
 export class CBButton extends HoverPressButton {
@@ -193,10 +208,17 @@ export class CBButton extends HoverPressButton {
             constraintY: EConstraintsY.top,
             snapMargin: 5,
             fixedSizeH: 70,
-            onPress: () => {
+            onPress: (type, pos, isTopMost) => {
+                if (isTopMost) {
+                    if (file.type == FileTypes.script) {
+                        contentBrowser.view.editor.addViewGeneric(BlockEditor);
+                    }
+                    else if (file.type == FileTypes.image) {
+                        contentBrowser.view.editor.addViewGeneric(PixelImage);
+                    }
+                }
             }
         });
-        this.title.destroy();
         const labelConfig = {
             constraintY: EConstraintsY.center,
             size: 24,
@@ -224,6 +246,11 @@ export class CBButton extends HoverPressButton {
                 allFiles.splice(allFiles.indexOf(file), 1);
                 contentBrowser.refresh();
             }
+        });
+        deleteButton.createIcon();
+        deleteButton.icon?.createConfig({
+            imageSrc: "trash.svg",
+            snapMargin: 5
         });
         ///this.fileType.fixedOffset.x=100;
         ///this.fileType.color="white";

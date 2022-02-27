@@ -5,6 +5,7 @@ import {} from "../../../ui/types/types.js";
 import { View } from "../views.js";
 
 export class Scene extends ViewContentArea{
+    viewName: string="Scene";
     constructor(view:View){
         super(view)
 
@@ -12,6 +13,7 @@ export class Scene extends ViewContentArea{
         createAndRunScript();
     }
     destroy(): void {
+        this.view.editor.topbar.playButton.toggle(false);
         destroyScript();
         super.destroy();
     }

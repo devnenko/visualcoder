@@ -1,6 +1,5 @@
 import { ResizeHandler, MouseHandler, KeypressHandler } from "./ui/event_handlers/event_handlers.js";
-import { boundingShape, colorCreator } from "./ui/ui.js";
-import { Editor } from "./editor/editor.js";
+import { Rect, boundingShape, colorCreator } from "./ui/ui.js";
 window.addEventListener("contextmenu", e => e.preventDefault());
 document.body.style.margin = "0px";
 document.body.style.position = "fixed";
@@ -13,10 +12,13 @@ MouseHandler.init();
 KeypressHandler.init();
 //DragFileHandler.init();
 //const canvas = new Canvas();
-//const r1 = new Rect({
-//  color:"red",
-//  constraintX:EConstraintsX.scale
+//const EightBitSprite = applyMixins(Clickable,[Rect])
+//const r1 = new EightBitSprite();
+//console.log(r1)
+//r1.createConfig({
+//  color:"red"
 //});
+//r1.onMouseDown=()=>{console.log("hi")}
 //
 //const r2 = new Rect({
 //  parent:r1,
@@ -28,12 +30,6 @@ KeypressHandler.init();
 //
 //
 //
-//const b1=new Clickable({
-//  onMouseHoverBegin:()=>{b1.createConfig({color:"purple"})},
-//  onMouseHoverEnd:()=>{b1.createConfig({color:"orange"})},
-//  color:"orange",
-//  fixedOffsetX:200
-//});
 //
 //const t1=new TextBox({
 //  text:"hello",
@@ -45,7 +41,11 @@ KeypressHandler.init();
 //  constraintY:EConstraintsY.top
 //});
 //console.log(b2)
-const editor = new Editor();
+const r1 = new Rect({
+    color: "blue"
+});
+console.log(r1);
+//const editor=new Editor()
 boundingShape.draw();
 //console.log(boundingShape)
 //window.open("frame1.html", "_blank");

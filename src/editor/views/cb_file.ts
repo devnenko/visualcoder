@@ -1,6 +1,7 @@
 export enum FileTypes{
     image="image",
-    script="script"
+    script="script",
+    level="level"
 }
 
 export class CBFile{

@@ -3,7 +3,7 @@ import { Rect, Canvas, IShape, TextBox, colorCreator } from "../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType, IPos } from "../ui/types/types.js";
 import { IRectOpts } from "../ui/rect.js";
 import { Clickable, IClickableOpts } from "../ui/clickable.js";
-import { boundingShape } from "../ui/bounding_shape.js";
+import { boundingShape } from "../ui/bounding_rect.js";
 import { HoverPressButton, IHoverPressButtonOpts, IToggleButtonOpts, ToggleButton } from "./button.js";
 
 export interface ITextInputOpts extends IToggleButtonOpts{
@@ -18,6 +18,7 @@ export class TextInput<Opts extends ITextInputOpts = ITextInputOpts> extends Tog
 
     constructor() {
         super()
+        this.createTitle();
         this.createConfig({
             constraintX:EConstraintsX.left,
             constraintY:EConstraintsY.top,
@@ -26,35 +27,46 @@ export class TextInput<Opts extends ITextInputOpts = ITextInputOpts> extends Tog
             canClickToggleOf:false
             
         })
-        this.title.createConfig({
-            constraintX:EConstraintsX.left
+        this.title?.createConfig({
+            constraintX:EConstraintsX.left,
+            text:"untitled"
         });
     }
 
     public onToggle: (isOn: boolean) => void=(isOn)=>{
         if(isOn){
             KeypressHandler.subscribe(this);
-            console.log(document.getElementById("keyboardHack"))
-            document.getElementById("keyboardHack")?.focus();
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                console.log(document.getElementById("keyboardHack"))
+                document.getElementById("keyboardHack")?.focus();
+            }
             MouseHandler.actifInputField=this;
         }
         else{
             KeypressHandler.unsubscribe(this);
-            console.log(document.getElementById("keyboardHack"))
-            document.getElementById("keyboardHack")?.blur()
+            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+                console.log(document.getElementById("keyboardHack"))
+                document.getElementById("keyboardHack")?.blur()
+            }
             MouseHandler.actifInputField=null;
         }
     };
 
     public onKeyPress(key: string): void {
         console.log(key)
-        let text=this.title.text;
+        if(this.title){
+            let text=this.title.text;
+        }
+        else{
+            console.error("no title on text input")
+        }
+        let text=(this.title as TextBox).text;
         if(key==="Backspace"){
             text=text.slice(0, -1)
         }
         else{
             text=text.concat(key);
         }
-        this.title.setText(text);
+        this.title?.setText(text);
     }
 }

@@ -2,13 +2,11 @@
 import { Canvas } from "../ui/canvas.js";
 import { colorCreator } from "../ui/color.js";
 import { MouseHandler } from "../ui/event_handlers/mouse.js";
-import { HorizontalBox } from "../ui/horizontal_box.js";
 import { IRectOpts, Rect } from "../ui/rect.js";
-import { boundingShape, IShape } from "../ui/ui.js";
+import { boundingShape, EObjectType, IShape } from "../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
 import { EMouseType } from "../ui/types/mouse.js";
 import { IPos } from "../ui/types/pos.js";
-import { VerticalBox } from "../ui/vertical_box.js";
 import { Scene } from "./views/scene/scene.js";
 import { HoverPressButton } from "../ui_components/ui_components.js";
 import { FileViewContentArea, View, ViewContentArea } from "./views/view.js";
@@ -34,7 +32,7 @@ import { EditorTopBar } from "./topbar.js";
 
 
 
-export class Editor extends VerticalBox {
+export class Editor extends Rect {
     topbar: EditorTopBar;
     contentArea: Rect;
     //views: View[] = [];
@@ -42,6 +40,7 @@ export class Editor extends VerticalBox {
     constructor() {
         super()
         this.createConfig({
+            rectType:EObjectType.VtBox,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
             isVisible: false
@@ -70,18 +69,32 @@ export class Editor extends VerticalBox {
     }
 
     public addViewGeneric(ContentAreaClass: typeof ViewContentArea) {
-        ////for(const child of this.contentArea.children){
-        ////    if(child instanceof View){
-        ////        const index=this.contentArea.children.indexOf(child);
-        ////        
-        ////        child.destroyHierarchy();
-        ////        break;
-        ////    }
-        ////}
-        const view =new View(ContentAreaClass,this);
+        ContentAreaClass.prototype.viewName
+        if(this.contentArea.children[0]){
+            if((this.contentArea.children[0] as View).contentArea.viewName!=ContentAreaClass.prototype.constructor.name){
+                (this.contentArea.children[0] as View).destroy();
+                const view =new View(ContentAreaClass,this);
+                console.log(ContentAreaClass.prototype.constructor.name)
+            }
+            else{
+                console.log("ye")
+            }
+        }else{
+            const view =new View(ContentAreaClass,this);
+        }
         ////this.views.push(view);
         ////view.topBar.title.text=view.contentArea.viewTitle;
         ////boundingShape.drawHierarchy();
+    }
+    public findView(viewName:string){
+        for(const child of this.contentArea.children){
+            for(const area of (child.children as ViewContentArea[])){
+                if(area.viewName==viewName){
+                    return child;
+                }
+            }
+        }
+        return null;
     }
 
     public drawViewPreview(pos: IPos) {

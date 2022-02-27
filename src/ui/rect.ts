@@ -1,5 +1,5 @@
 import { isIMouseHandler, MouseHandler } from "./event_handlers/event_handlers.js";
-import { IShape, boundingShape,EObjectType,IShapeOpts,BoundingShape} from "./ui.js";
+import { IShape, boundingShape,EObjectType as ERectType,IShapeOpts,BoundingShape} from "./ui.js";
 import { ITransform ,EConstraintsX, EConstraintsY,IEdges,IPos} from "./types/types.js"; 
 import { Shape } from "./shape.js";
 import { TopBarButton } from "../editor/topbar.js";
@@ -9,7 +9,7 @@ import { TopBarButton } from "../editor/topbar.js";
 //    return object.hasOwnProperty('absEdges');
 //}
 
-export interface IRectOpts extends IShapeOpts{
+export interface IRectConfig extends IShapeOpts{
     constraintX?:EConstraintsX,
     constraintY?:EConstraintsY,
     snapOffset?:IEdges,
@@ -20,20 +20,22 @@ export interface IRectOpts extends IShapeOpts{
     fixedSizeH?:number,
     isVisible?:boolean,
     color?:string,
-    boxProportion?:IPos
+    boxProportion?:IPos,
+    rectType?:ERectType
+    imageSrc?:string
 }
 
-export class Rect<Opts extends IRectOpts = IRectOpts> extends Shape{
+export class Rect<Config extends IRectConfig = IRectConfig> extends Shape<Config>{
 
     //additional display options 
     protected isVisible:boolean=true;
-    protected color:string="pink";
+    public color:string="pink";
 
     //constraints for calculating absEdges in resize event
     protected constraintX=EConstraintsX.left;
     protected constraintY=EConstraintsY.top;
-    protected fixedSizeW:number=100;
-    protected fixedSizeH:number=100;
+    public fixedSizeW:number=100;
+    public fixedSizeH:number=100;
     protected fixedOffsetX:number=0;
     protected fixedOffsetY:number=0;
     protected snapOffset:IEdges={left:0,right:0,top:0,bottom:0};
@@ -41,15 +43,47 @@ export class Rect<Opts extends IRectOpts = IRectOpts> extends Shape{
     protected boxProportion:IPos={x:100,y:100};//number between 0 and 100 for fixed proportions
 
     public absEdges:IEdges={left:0,right:0,top:0,bottom:0};
-    public type:EObjectType=EObjectType.Normal;
+    public rectType:ERectType=ERectType.Normal;
+    protected imageSrc:string="";
+    public image:HTMLImageElement|null=null;
 
     //private parentSize:IEdges={left:0,right:0,top:0,bottom:0};
 
-    constructor(){
-        super()
+    constructor(config?:Config){
+        super();
+        this.setAttrs(config)
     }
-    public createConfig(opts: IRectOpts){
-        this.addConfig(opts)
+
+    //public createConfig(opts:IRectOpts){
+    //    this.addConfig(opts)
+    //}
+//
+    //public setConfigAttr(key: keyof IRectOpts, val: any): void {
+    //    if(key==="imageSrc"){
+    //        this.createImage(val as string);
+    //    }
+    //    else{
+    //        if (val === undefined || val === null) {
+    //            delete this[key as keyof IShapeOpts];
+    //        }
+    //        else if (key==="parent") {
+    //            this.setParent(val as IShape);//why val.parent????
+    //        }
+    //        else {
+    //            this[key as keyof IShapeOpts] = val;
+    //        }
+    //    }
+    //}
+
+    private createImage(src:string){
+        console.log
+        let image = new Image();
+        this.imageSrc=src;
+        image.src="/icons/".concat(src);
+        this.image=image;
+        this.image.onload=function() {
+            boundingShape.draw();
+        }
     }
 
 
@@ -71,7 +105,7 @@ export class Rect<Opts extends IRectOpts = IRectOpts> extends Shape{
     }
 
     public resizeRect(parent:Rect|BoundingShape){
-        if(parent.type==EObjectType.Normal){
+        if(parent.rectType==ERectType.Normal){
             const parentSize=parent.absEdges;
             if(this.constraintX==EConstraintsX.left){
                 this.absEdges.left=parentSize.left+this.snapOffset.left+this.fixedOffsetX;
@@ -120,7 +154,7 @@ export class Rect<Opts extends IRectOpts = IRectOpts> extends Shape{
                 this.absEdges.bottom=parent.absEdges.bottom;
             }
         }
-        else if(parent.type==EObjectType.HzBox){
+        else if(parent.rectType==ERectType.HzBox){
             const indexInParent=parent.children.indexOf(this);
             //console.log(indexInParent)
             this.absEdges.top=parent.absEdges.top;
@@ -146,7 +180,7 @@ export class Rect<Opts extends IRectOpts = IRectOpts> extends Shape{
             }
 
         }
-        else if(parent.type==EObjectType.VtBox){
+        else if(parent.rectType==ERectType.VtBox){
             const indexInParent=parent.children.indexOf(this);
             //console.log(indexInParent)
             this.absEdges.left=parent.absEdges.left;
@@ -180,11 +214,21 @@ export class Rect<Opts extends IRectOpts = IRectOpts> extends Shape{
     public drawRect(){
         if(this.isVisible==true){
             const transform=this.edgesToDrawdimensions(this.absEdges);
+            if(this.image!=null){
 
-            this.canvas.ctx.beginPath();
-            this.canvas.ctx.rect(Math.floor(transform.pos.x), Math.floor(transform.pos.y),Math.floor(transform.size.w),Math.floor(transform.size.h));
-            this.canvas.ctx.fillStyle=this.color;
-            this.canvas.ctx.fill();
+                if(this.image){
+                    this.canvas.ctx.drawImage(this.image, Math.floor(transform.pos.x), Math.floor(transform.pos.y),Math.floor(transform.size.w),Math.floor(transform.size.h));
+                }
+                else{
+                    console.error("image not valid")
+                }
+            }
+            else{
+                this.canvas.ctx.beginPath();
+                this.canvas.ctx.rect(Math.floor(transform.pos.x), Math.floor(transform.pos.y),Math.floor(transform.size.w),Math.floor(transform.size.h));
+                this.canvas.ctx.fillStyle=this.color;
+                this.canvas.ctx.fill();
+            }
         }
     }
     
@@ -201,4 +245,8 @@ export class Rect<Opts extends IRectOpts = IRectOpts> extends Shape{
     public getAbsSize(){
         return {w:this.absEdges.right-this.absEdges.left,h:this.absEdges.bottom-this.absEdges.top};
     }
+}
+
+export class recti extends Rect{
+
 }

@@ -1,16 +1,18 @@
 
 import { Canvas } from "./canvas.js";
 import { Rect} from "./rect.js";
-import { IShape } from "./shape.js";
+import { IShape, IShapeConfig, Shape } from "./shape.js";
 import { IEdges } from "./types/edges.js";
 import { IPos } from "./types/pos.js";
 
-export class Line implements IShape{
+export interface ILineOpts extends IShapeConfig{
+    isVisible?:boolean,
+    color?:string,
+    boxProportion?:IPos
+}
 
-    discriminator1: 'IShape'='IShape';
+export class Line extends Shape{
 
-    public canvas:Canvas;
-    public children:IShape[]=[];
 
     public fixedPos1:IPos={x:0,y:0};
     public fixedPos2:IPos={x:0,y:0};
@@ -22,35 +24,18 @@ export class Line implements IShape{
     public isVisible:boolean=true;
     public color:string="pink";
 
-    public parent:IShape;
 
-    constructor(drawParent:IShape,canvas:Canvas){
 
-        drawParent.children.push(this); //set this as a child of parent to create an object tree
-        this.parent=drawParent;
-        this.canvas=canvas;
+    constructor(){
+        super()
+    }
+
+    public createConfig(opts: ILineOpts): void {
+        this.addConfig(opts);
     }
 
 
-
-    //overlappHierarchy(pos:IPos): Button[] {
-    //    return [];
-    //}
-
-    public destroy(){
-        //this.parent.children.splice(this.parent.children.indexOf(this),1);
-        //console.log("dest")
-
-        const len=this.children.length
-
-        for(let i=0;i<len;i++){
-            this.children[0].destroy();
-        }
-        this.parent.children.splice(this.parent.children.indexOf(this),1);
-        //this.parent.children.splice(this.parent.children.indexOf(this),1);
-    }
-
-    protected draw(){
+    public draw(){
         if(this.isVisible==true){
 
             this.canvas.ctx.beginPath();
@@ -72,9 +57,5 @@ export class Line implements IShape{
     
             this.canvas.ctx.stroke();
         }
-    }
-
-    public drawHierarchy(parent:IShape){
-        this.draw();
     }
 }

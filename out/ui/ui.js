@@ -1,10 +1,8 @@
 import { Rect } from "./rect.js";
-import { Shape, EObjectType } from "./shape.js";
-import { boundingShape, BoundingShape } from "./bounding_shape.js";
+import { Shape, ERectType } from "./shape.js";
+import { boundingShape, BoundingRect } from "./bounding_rect.js";
 import { colorCreator } from "./color.js";
 import { Canvas } from "./canvas.js";
-import { HorizontalBox } from "./horizontal_box.js";
-import { VerticalBox } from "./vertical_box.js";
 import { TextBox } from "./text_box.js";
 import { Line } from "./line.js";
-export { Rect, Shape, Canvas, HorizontalBox, EObjectType, VerticalBox, TextBox, Line, boundingShape, BoundingShape, colorCreator };
+export { Rect, Shape, Canvas, ERectType as EObjectType, TextBox, Line, boundingShape, BoundingRect as BoundingShape, colorCreator };

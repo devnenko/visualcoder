@@ -1,10 +1,12 @@
 import { destroyScript } from "../../compiler/compiler.js";
 import { HoverPressButton } from "../../ui_components/ui_components.js";
 import { GeFile } from "./views.js";
-import {Rect,Canvas,VerticalBox,HorizontalBox,TextBox,colorCreator} from "../../ui/ui.js";
+import {Rect,Canvas,TextBox,colorCreator} from "../../ui/ui.js";
 import {EConstraintsX,EConstraintsY,EMouseType,IPos} from "../../ui/types/types.js";
 import { Editor } from "../editor.js";
 import { FileTypes } from "./cb_file.js";
+import { ERectType } from "../../ui/shape.js";
+import { Clickable } from "../../ui/clickable.js";
 
 class ViewTopBar extends Rect{
     title;
@@ -28,6 +30,7 @@ class ViewTopBar extends Rect{
         })
 
         this.deleteButton=new HoverPressButton();
+        
         this.deleteButton.createConfig({
             parent:this,
             constraintX:EConstraintsX.right,
@@ -38,20 +41,24 @@ class ViewTopBar extends Rect{
                 view.destroy();
             }
         })
-        this.deleteButton.title.createConfig({
-            text:"delete"
-        });
+        this.deleteButton.createIcon();
+        this.deleteButton.icon?.createConfig({
+            imageSrc:"xmark.svg",
+        })
     }
 }
 
 //should view classes extend view maybe rather than be part of
 
-export class View extends VerticalBox{
+export class View extends Rect{
     topBar:ViewTopBar;
     contentArea:ViewContentArea;
+    editor:Editor;
     constructor(ContentAreaInstance: typeof ViewContentArea,editor:Editor,file?:GeFile){
         super()
+        this.editor=editor;
         this.createConfig({
+            rectType:ERectType.VtBox,
             parent:editor.contentArea,
             constraintX:EConstraintsX.scale,
             constraintY:EConstraintsY.scale,
@@ -73,10 +80,12 @@ export class View extends VerticalBox{
     }
 }
 
-export class ViewContentArea extends Rect{
+export class ViewContentArea extends Clickable{
     viewName:string="Default View"
+    view:View;
     constructor(view:View){
         super()
+        this.view=view;
         this.createConfig({
             parent:view,
             constraintX:EConstraintsX.scale,
@@ -85,6 +94,7 @@ export class ViewContentArea extends Rect{
         })
     }
 }
+
 
 export class FileViewContentArea extends ViewContentArea{
     file:GeFile=new GeFile("hi",FileTypes.image,"hi");

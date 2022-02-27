@@ -1,46 +1,80 @@
 import { boundingShape } from "./ui.js";
-export var EObjectType;
-(function (EObjectType) {
-    EObjectType[EObjectType["Normal"] = 0] = "Normal";
-    EObjectType[EObjectType["HzBox"] = 1] = "HzBox";
-    EObjectType[EObjectType["VtBox"] = 2] = "VtBox";
-})(EObjectType || (EObjectType = {}));
+export var ERectType;
+(function (ERectType) {
+    ERectType[ERectType["Normal"] = 0] = "Normal";
+    ERectType[ERectType["HzBox"] = 1] = "HzBox";
+    ERectType[ERectType["VtBox"] = 2] = "VtBox";
+})(ERectType || (ERectType = {}));
 export class Shape {
-    constructor() {
+    constructor(config) {
         this.parent = boundingShape;
         this.canvas = boundingShape.canvas;
         this.children = [];
         this.parent.children.push(this);
+        this.setAttrs(config);
     }
-    createConfig(opts) {
-        this.addConfig(opts);
+    addConfig(config) {
+        this.setAttrs(config);
+        boundingShape.draw();
     }
-    addConfig(opts) {
-        for (const opt in opts) {
-            if (Object.prototype.hasOwnProperty.call(opts, opt)) {
-                this.setConfigAttr(opt, opts[opt]);
+    setAttrs(config) {
+        if (config) {
+            for (const opt in config) {
+                console.log(opt);
+                //if (Object.prototype.hasOwnProperty.call(config, opt)) {
+                //    this.setAttr(opt, config[opt])
+                //}
+                this.setAttr(opt, config[opt]);
             }
         }
-        //boundingShape.draw();
     }
-    setConfigAttr(key, val) {
-        if (val === undefined || val === null) {
-            delete this[key];
-        }
-        else if (key === "parent") {
-            this.setParent(val); //why val.parent????
+    setAttr(key, value) {
+        console.log(key);
+        if (key === "parent") {
+            this.setParent(value); //why val.parent????
         }
         else {
-            this[key] = val;
+            this[key] = value;
         }
+        return this;
     }
-    getConfigAttr(key) {
+    getAttr(key) {
+        // @ts-ignore
         return this[key];
     }
+    //public createConfig(opts:Opts){
+    //    this.addConfig(opts)
+    //}
+    //
+    //protected addConfig(opts: any) {
+    //    for (const opt in opts) {
+    //        if (Object.prototype.hasOwnProperty.call(opts, opt)) {
+    //            this.setConfigAttr(opt as keyof Opts, opts[opt])
+    //        }
+    //    }
+    //    //boundingShape.draw();
+    //}
+    //public setConfigAttr(key: keyof Opts, val: any) {
+    //
+    //    if (val === undefined || val === null) {
+    //        delete this[key as keyof IShapeConfig];
+    //    }
+    //    else if (key==="parent") {
+    //        this.setParent(val as IShape);//why val.parent????
+    //    }
+    //    else {
+    //        this[key as keyof IShapeConfig] = val;
+    //    }
+    //}
+    //
+    //private getConfigAttr(key: keyof IShapeConfig) {
+    //    return this[key];
+    //}
     setParent(parent) {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
         parent.children.push(this);
         this.parent = parent;
+        boundingShape.draw();
     }
     draw(parent) {
         for (const child of this.children) {
@@ -48,8 +82,8 @@ export class Shape {
         }
     }
     destroy() {
-        const len = this.children.length;
-        for (let i = 0; i < len; i++) {
+        const childLength = this.children.length;
+        for (let i = 0; i < childLength; i++) {
             this.children[0].destroy();
         }
         this.parent.children.splice(this.parent.children.indexOf(this), 1);

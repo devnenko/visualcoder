@@ -1,41 +1,76 @@
 import { colorCreator } from "../ui/color.js";
-import { HorizontalBox } from "../ui/horizontal_box.js";
+import { Rect } from "../ui/rect.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
-import { HoverPressButton } from "../ui_components/button.js";
+import { Scene } from "./views/scene/scene.js";
+import { HoverPressButton, ToggleButton } from "../ui_components/button.js";
 import { ContentBrowser } from "./views/contentbrowser/content_browser.js";
+import { ERectType } from "../ui/shape.js";
 export class TopBarButton extends HoverPressButton {
-    constructor(parent) {
+    constructor(editorTopBar) {
         super();
-        console.log(parent);
+        console.log(editorTopBar);
         this.createConfig({
-            constraintX: EConstraintsX.scale,
-            fixedSizeW: 250,
-            parent: parent,
+            constraintX: EConstraintsX.left,
+            fixedSizeW: editorTopBar.fixedSizeH,
+            parent: editorTopBar,
             snapMargin: 5,
             boxProportion: { x: 50, y: 50 }
         });
     }
 }
-export class EditorTopBar extends HorizontalBox //will have play button, options for adding views (maybe should be something better)
- {
-    //newWin:Window|null=null;
-    constructor(parent) {
+export class TopBarToggleButton extends ToggleButton {
+    constructor(editorTopBar) {
         super();
-        this.children = [];
-        console.log(parent);
+        this.toggleOnIconSrc = "";
+        this.toggleOffIconSrc = "";
+        console.log(editorTopBar);
         this.createConfig({
-            parent: parent,
-            constraintX: EConstraintsX.scale,
-            constraintY: EConstraintsY.top,
-            fixedSizeH: 65,
-            color: colorCreator.colorByBrightness(0)
-        });
-        const playButton = new TopBarButton(this);
-        playButton.title.createConfig({ text: "Play" });
-        playButton.createConfig({
-            onPress: () => {
+            constraintX: EConstraintsX.left,
+            fixedSizeW: editorTopBar.fixedSizeH,
+            parent: editorTopBar,
+            snapMargin: 5,
+            boxProportion: { x: 50, y: 50 },
+            onToggle: (isOn) => {
+                if (isOn) {
+                    this.icon?.createConfig({
+                        imageSrc: this.toggleOnIconSrc
+                    });
+                }
+                else {
+                    this.icon?.createConfig({
+                        imageSrc: this.toggleOffIconSrc
+                    });
+                }
             }
         });
+    }
+}
+export class EditorTopBar extends Rect //will have play button, options for adding views (maybe should be something better)
+ {
+    //newWin:Window|null=null;
+    constructor(editor) {
+        super();
+        this.children = [];
+        console.log(editor);
+        this.createConfig({
+            rectType: ERectType.HzBox,
+            parent: editor,
+            constraintX: EConstraintsX.scale,
+            constraintY: EConstraintsY.top,
+            fixedSizeH: 70,
+            color: colorCreator.colorByBrightness(5)
+        });
+        const playButton = new TopBarToggleButton(this);
+        playButton.createIcon();
+        playButton.icon?.createConfig({ imageSrc: "play.svg" });
+        playButton.toggleOffIconSrc = "play.svg";
+        playButton.toggleOnIconSrc = "pause.svg";
+        playButton.createConfig({
+            onPress: () => {
+                const sceneView = editor.addViewGeneric(Scene);
+            }
+        });
+        this.playButton = playButton;
         //playButton.title.text="Play"
         //playButton.onPress=()=>{
         //    //const scene=new Scene(boundingShape,this.canvas);
@@ -46,10 +81,11 @@ export class EditorTopBar extends HorizontalBox //will have play button, options
         //}
         //
         const contentBrowserButton = new TopBarButton(this);
-        contentBrowserButton.title.createConfig({ text: "ContentBrowser" });
+        contentBrowserButton.createIcon();
+        contentBrowserButton.icon?.createConfig({ imageSrc: "folder.svg" });
         contentBrowserButton.createConfig({
             onPress: () => {
-                parent.addViewGeneric(ContentBrowser);
+                editor.addViewGeneric(ContentBrowser);
             }
         });
         //contentBrowserButton.title.text="Content Browser"

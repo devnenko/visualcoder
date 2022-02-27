@@ -75,7 +75,10 @@ export class MouseHandler {
         this.topMostSave = topMost;
         for (const overlObj of overlObjs) {
             if (typeof overlObj.onMouseDown == 'function') {
-                overlObj.onMouseDown(e, pos, topMost.includes(overlObj));
+                if (!(overlObj.fireOnlyTopMost == true && overlObj != topMost[0])) {
+                    overlObj.onMouseDown(e, pos, topMost.includes(overlObj));
+                }
+                //overlObj.onMouseDown(e,pos,topMost.includes(overlObj));
             }
             this.mouseDownRects.push(overlObj);
         }
@@ -118,14 +121,32 @@ export class MouseHandler {
         else {
             for (const overlObj of overlObjs) {
                 if (this.mouseHoverRects.includes(overlObj) == false) {
-                    if (typeof overlObj.onMouseHoverBegin == 'function') {
-                        if (topMostDone == false) {
-                            topMost = this.getTopMost(overlObjs);
-                            topMostDone = true;
-                        }
-                        overlObj.onMouseHoverBegin(e, pos, topMost.includes(overlObj));
+                    if (topMostDone == false) {
+                        topMost = this.getTopMost(overlObjs);
+                        topMostDone = true;
                     }
-                    this.mouseHoverRects.push(overlObj);
+                    ;
+                    if (overlObj.fireOnlyTopMost == true && overlObj == topMost[0]) {
+                        if (typeof overlObj.onMouseHoverBegin == 'function') {
+                            overlObj.onMouseHoverBegin(e, pos, topMost.includes(overlObj));
+                        }
+                        this.mouseHoverRects.push(overlObj);
+                    }
+                    if (overlObj.fireOnlyTopMost == false) {
+                        if (typeof overlObj.onMouseHoverBegin == 'function') {
+                            overlObj.onMouseHoverBegin(e, pos, topMost.includes(overlObj));
+                        }
+                        this.mouseHoverRects.push(overlObj);
+                    }
+                    for (const hoverObj of this.mouseHoverRects) {
+                        //console.log(hoverObj!=topMost as any)
+                        if (hoverObj.fireOnlyTopMost == true && hoverObj != topMost[0]) {
+                            if (typeof hoverObj.onMouseHoverEnd == 'function') {
+                                hoverObj.onMouseHoverEnd(e, pos, topMost.includes(hoverObj));
+                            }
+                            this.mouseHoverRects.splice(this.mouseHoverRects.indexOf(hoverObj), 1);
+                        }
+                    }
                 }
             }
             for (const hoverObj of this.mouseHoverRects) {
@@ -176,8 +197,10 @@ export class MouseHandler {
             }
             if (e != EMouseType.touch) //check if not mobile
              {
-                if (typeof mouseDownRect.onMouseHoverBegin == 'function') {
-                    mouseDownRect.onMouseHoverBegin(e, pos, topMost.includes(mouseDownRect));
+                if (mouseDownRect.fireOnlyTopMost == true && mouseDownRect == topMost[0]) {
+                    if (typeof mouseDownRect.onMouseHoverBegin == 'function') {
+                        mouseDownRect.onMouseHoverBegin(e, pos, topMost.includes(mouseDownRect));
+                    }
                 }
             }
         }

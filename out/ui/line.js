@@ -1,7 +1,7 @@
-export class Line {
-    constructor(drawParent, canvas) {
-        this.discriminator1 = 'IShape';
-        this.children = [];
+import { Shape } from "./shape.js";
+export class Line extends Shape {
+    constructor() {
+        super();
         this.fixedPos1 = { x: 0, y: 0 };
         this.fixedPos2 = { x: 0, y: 0 };
         this.obj1 = null;
@@ -9,22 +9,9 @@ export class Line {
         //additional display options 
         this.isVisible = true;
         this.color = "pink";
-        drawParent.children.push(this); //set this as a child of parent to create an object tree
-        this.parent = drawParent;
-        this.canvas = canvas;
     }
-    //overlappHierarchy(pos:IPos): Button[] {
-    //    return [];
-    //}
-    destroy() {
-        //this.parent.children.splice(this.parent.children.indexOf(this),1);
-        //console.log("dest")
-        const len = this.children.length;
-        for (let i = 0; i < len; i++) {
-            this.children[0].destroy();
-        }
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        //this.parent.children.splice(this.parent.children.indexOf(this),1);
+    createConfig(opts) {
+        this.addConfig(opts);
     }
     draw() {
         if (this.isVisible == true) {
@@ -45,8 +32,5 @@ export class Line {
             }
             this.canvas.ctx.stroke();
         }
-    }
-    drawHierarchy(parent) {
-        this.draw();
     }
 }

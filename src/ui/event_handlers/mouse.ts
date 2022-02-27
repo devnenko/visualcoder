@@ -6,6 +6,7 @@ import { IPos } from "../types/pos.js";
 import { EMouseType } from "../types/mouse.js";
 import { boundingShape, IShape } from "../ui.js";
 import { ToggleButton } from "../../ui_components/button.js";
+import { Clickable } from "../clickable.js";
 //import { components } from "../../main.js";
 
 //need to rework the mouse logic in a more readable way and better structure with more static classes for usefull functions
@@ -29,12 +30,12 @@ export class MouseHandler{
     public static actifInputField:ToggleButton|null=null;
     public static canvases:Canvas[]=[];
     public static currentPos:IPos={x:0,y:0};
-    public static mouseDownRects:(IMouseHandler&Rect)[]=[];
-    public static mouseHoverRects:(IMouseHandler&Rect)[]=[];
+    public static mouseDownRects:Clickable[]=[];
+    public static mouseHoverRects:Clickable[]=[];
     public static isMouseDown=false;
     public static topMostSave:Rect[]=[];
 
-    static callbackObjects:(IMouseHandler&Rect)[]=[];
+    static callbackObjects:Clickable[]=[];
 
     public static init(){
         //window.addEventListener('click', this.mouseClick.bind(this));
@@ -48,12 +49,12 @@ export class MouseHandler{
     }
     
 
-    static subscribe(object:(IMouseHandler&Rect)){
+    static subscribe(object:Clickable){
         this.callbackObjects.push(object);
         //create dom here stuff for later optimization with collision checking
     }
 
-    static unsubscribe(object:(IMouseHandler&Rect)){
+    static unsubscribe(object:Clickable){
         if(this.callbackObjects.indexOf(object)!=-1){
             this.callbackObjects.splice(this.callbackObjects.indexOf(object), 1);
 
@@ -68,7 +69,7 @@ export class MouseHandler{
 
     public static getOverlapp(pos:IPos){
         const mousePos=pos;
-        let objs:(IMouseHandler&Rect)[]=[];
+        let objs:Clickable[]=[];
         
         for(const obj of this.callbackObjects){
             if(obj.absEdges.left<mousePos.x&&obj.absEdges.right>mousePos.x&&obj.absEdges.top<mousePos.y&&obj.absEdges.bottom>mousePos.y){
@@ -117,7 +118,10 @@ export class MouseHandler{
 
         for(const overlObj of overlObjs){
             if (typeof overlObj.onMouseDown == 'function') { 
-                overlObj.onMouseDown(e,pos,topMost.includes(overlObj));
+                if(!(overlObj.fireOnlyTopMost==true&&(overlObj as Rect)!=topMost[0])){
+                    overlObj.onMouseDown(e,pos,topMost.includes(overlObj));
+                }
+                //overlObj.onMouseDown(e,pos,topMost.includes(overlObj));
             }
             this.mouseDownRects.push(overlObj);
         }
@@ -146,7 +150,7 @@ export class MouseHandler{
         //this runs to slowly (probably topmost is to power intensive function or smething else)
         this.currentPos=pos;
         const overlObjs=this.getOverlapp(pos);
-        let topMost:(IMouseHandler&Rect)[]=[];
+        let topMost:Rect[]=[];
         let topMostDone:boolean=false;
 
         if(this.isMouseDown==true){
@@ -166,15 +170,35 @@ export class MouseHandler{
 
             for(const overlObj of overlObjs){
                 if(this.mouseHoverRects.includes(overlObj)==false){   
-                    if (typeof overlObj.onMouseHoverBegin == 'function') { 
-                        if(topMostDone==false){
-                            topMost=this.getTopMost(overlObjs);
-                            topMostDone=true;
+                    if(topMostDone==false){
+                        topMost=this.getTopMost(overlObjs);
+                        topMostDone=true;
+                    };
+                    if(overlObj.fireOnlyTopMost==true&&(overlObj as Rect)==topMost[0] as any){
+                        if (typeof overlObj.onMouseHoverBegin == 'function') { 
+                            overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
                         }
-                        overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
+                        this.mouseHoverRects.push(overlObj);
                     }
-    
-                    this.mouseHoverRects.push(overlObj);
+                    if(overlObj.fireOnlyTopMost==false){
+                        if (typeof overlObj.onMouseHoverBegin == 'function') { 
+                            overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
+                        }
+                        this.mouseHoverRects.push(overlObj);
+                    }
+
+                    
+                    for(const hoverObj of this.mouseHoverRects){
+                        //console.log(hoverObj!=topMost as any)
+                        if(hoverObj.fireOnlyTopMost==true&&(hoverObj as Rect)!=topMost[0] as any){
+                            if (typeof hoverObj.onMouseHoverEnd == 'function') { 
+                                hoverObj.onMouseHoverEnd(e,pos,topMost.includes(hoverObj));
+                            }
+            
+                            this.mouseHoverRects.splice(this.mouseHoverRects.indexOf(hoverObj),1);
+                        }
+                        
+                    }
                 }
             }
 
@@ -232,8 +256,10 @@ export class MouseHandler{
             }
             if(e!=EMouseType.touch)//check if not mobile
             {
-                if (typeof mouseDownRect.onMouseHoverBegin == 'function') { 
-                    mouseDownRect.onMouseHoverBegin(e,pos,topMost.includes(mouseDownRect));
+                if(mouseDownRect.fireOnlyTopMost==true&&(mouseDownRect as Rect)==topMost[0]){
+                    if (typeof mouseDownRect.onMouseHoverBegin == 'function') { 
+                        mouseDownRect.onMouseHoverBegin(e,pos,topMost.includes(mouseDownRect));
+                    }
                 }
             }
 

@@ -1,5 +1,5 @@
--isOnTop should be able to be enabled or disabled on a per object basis and should be on by default for each object
-
+-find a way to make clickable addable to any rect instance
+-view resize options should be modularized,cause used in many views
 
 -new project folder structure (find way to bundle exports in a good way maybe per folder one file imports everything) (idea in bookmarks bar)
 -new structure that is better and faster for creating objects (maybe something with constructor using f.e. shapeopts interface with lots of optional arguments, 

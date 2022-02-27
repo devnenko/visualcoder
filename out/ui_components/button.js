@@ -1,17 +1,33 @@
-import { TextBox, colorCreator } from "../ui/ui.js";
+import { Rect, TextBox, colorCreator } from "../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/types.js";
 import { Clickable } from "../ui/clickable.js";
-import { boundingShape } from "../ui/bounding_shape.js";
+import { boundingShape } from "../ui/bounding_rect.js";
 export class HoverPressButton extends Clickable {
     constructor() {
         super();
         this.hoverColor = colorCreator.colorByBrightness(28);
         this.pressColor = colorCreator.colorByBrightness(70);
+        this.title = null;
+        this.icon = null;
         this.onPress = (type, pos, isTopMost) => { };
+        this.onRelease = (type, pos, isTopMost) => { };
+        //if(hasTitle){
+        //    this.title = new TextBox();
+        //    this.title.createConfig({
+        //        parent:this,
+        //        constraintX:EConstraintsX.center,
+        //        constraintY:EConstraintsY.center,
+        //        color:"white",
+        //        size:24,
+        //    });
+        //}
         this.constraintX = EConstraintsX.scale;
         this.constraintY = EConstraintsY.scale;
         this.color = colorCreator.darkColorDef;
         this.notPressedColor = this.color;
+        //this.text.text = "";
+    }
+    createTitle() {
         this.title = new TextBox();
         this.title.createConfig({
             parent: this,
@@ -20,7 +36,15 @@ export class HoverPressButton extends Clickable {
             color: "white",
             size: 24,
         });
-        //this.text.text = "";
+    }
+    createIcon() {
+        this.icon = new Rect();
+        this.icon.createConfig({
+            imageSrc: "trash.svg",
+            constraintX: EConstraintsX.scale,
+            constraintY: EConstraintsY.scale,
+            parent: this
+        });
     }
     createConfig(opts) {
         this.addConfig(opts);
@@ -30,13 +54,17 @@ export class HoverPressButton extends Clickable {
     }
     onMouseHoverEnd(type, pos, isTopMost) {
         this.color = this.notPressedColor;
+        console.log("end");
     }
     onMouseDown(type, pos, isTopMost) {
         this.color = this.pressColor;
         this.onPress(type, pos, isTopMost);
     }
+    onMouseMoveDown(type, pos, isTopMost) {
+    }
     onMouseUp(type, pos, isTopMost) {
         this.color = this.notPressedColor;
+        this.onRelease(type, pos, isTopMost);
     }
 }
 export class ToggleButton extends HoverPressButton {
@@ -45,16 +73,14 @@ export class ToggleButton extends HoverPressButton {
         this.isOn = false;
         this.onToggle = () => { };
         this.canClickToggleOf = true;
-        this.onMouseHoverBegin = () => {
+        this.onMouseHoverBegin = (type, pos, isTopMost) => {
             if (this.isOn == false) {
                 this.color = this.hoverColor;
-                //super.onMouseHoverBegin();
             }
         };
-        this.onMouseHoverEnd = () => {
+        this.onMouseHoverEnd = (type, pos, isTopMost) => {
             if (this.isOn == false) {
                 this.color = this.notPressedColor;
-                //super.onMouseHoverEnd();
             }
         };
         this.onMouseDown = (type, pos, isTopMost) => {
