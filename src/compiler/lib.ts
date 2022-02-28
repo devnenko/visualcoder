@@ -1,5 +1,5 @@
 
-import { Scene } from "../editor/views/scene/scene.js";
+import { Level } from "../editor/views/level/level.js";
 
 //single canvas or multicanvas (single canvas big screen)
 //draw commands automatic or issued by lib (by lib every time there is a change)

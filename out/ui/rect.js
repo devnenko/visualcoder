@@ -24,26 +24,15 @@ export class Rect extends Shape {
         this.image = null;
         this.setAttrs(config);
     }
-    //public createConfig(opts:IRectOpts){
-    //    this.addConfig(opts)
-    //}
-    //
-    //public setConfigAttr(key: keyof IRectOpts, val: any): void {
-    //    if(key==="imageSrc"){
-    //        this.createImage(val as string);
-    //    }
-    //    else{
-    //        if (val === undefined || val === null) {
-    //            delete this[key as keyof IShapeOpts];
-    //        }
-    //        else if (key==="parent") {
-    //            this.setParent(val as IShape);//why val.parent????
-    //        }
-    //        else {
-    //            this[key as keyof IShapeOpts] = val;
-    //        }
-    //    }
-    //}
+    addConfig(config) {
+        super.addConfig(config);
+    }
+    setAttr(key, val) {
+        if (key === "imageSrc") {
+            this.createImage(val);
+        }
+        super.setAttr(key, val);
+    }
     createImage(src) {
         console.log;
         let image = new Image();

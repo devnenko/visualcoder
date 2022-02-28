@@ -2,20 +2,21 @@ import { boundingShape, EObjectType, BoundingShape } from "./ui.js";
 import { EConstraintsX, EConstraintsY } from "./types/types.js";
 import { Rect } from "./ui.js";
 export class TextBox extends Rect {
-    constructor() {
+    constructor(config) {
         super();
         //use texture atlas in future
         this.text = "Empty Text";
         this.size = 20;
         this.useWOrH = false;
         this.color = "white";
+        this.setAttrs(config);
+    }
+    addConfig(config) {
+        super.addConfig(config);
     }
     setText(text) {
         this.text = text;
         boundingShape.draw();
-    }
-    createConfig(opts) {
-        this.addConfig(opts);
     }
     draw(parent) {
         if (parent instanceof Rect || parent instanceof BoundingShape) {

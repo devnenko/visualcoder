@@ -1,15 +1,15 @@
 import { colorCreator } from "../ui/color.js";
 import { Rect } from "../ui/rect.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
-import { Scene } from "./views/scene/scene.js";
+import { Level } from "./views/level/level.js";
 import { HoverPressButton, ToggleButton } from "../ui_components/button.js";
 import { ContentBrowser } from "./views/contentbrowser/content_browser.js";
 import { ERectType } from "../ui/shape.js";
+import { mapStartFile } from "./views/cb_file.js";
 export class TopBarButton extends HoverPressButton {
     constructor(editorTopBar) {
         super();
-        console.log(editorTopBar);
-        this.createConfig({
+        this.addConfig({
             constraintX: EConstraintsX.left,
             fixedSizeW: editorTopBar.fixedSizeH,
             parent: editorTopBar,
@@ -23,8 +23,7 @@ export class TopBarToggleButton extends ToggleButton {
         super();
         this.toggleOnIconSrc = "";
         this.toggleOffIconSrc = "";
-        console.log(editorTopBar);
-        this.createConfig({
+        this.addConfig({
             constraintX: EConstraintsX.left,
             fixedSizeW: editorTopBar.fixedSizeH,
             parent: editorTopBar,
@@ -32,12 +31,12 @@ export class TopBarToggleButton extends ToggleButton {
             boxProportion: { x: 50, y: 50 },
             onToggle: (isOn) => {
                 if (isOn) {
-                    this.icon?.createConfig({
+                    this.icon?.addConfig({
                         imageSrc: this.toggleOnIconSrc
                     });
                 }
                 else {
-                    this.icon?.createConfig({
+                    this.icon?.addConfig({
                         imageSrc: this.toggleOffIconSrc
                     });
                 }
@@ -51,8 +50,7 @@ export class EditorTopBar extends Rect //will have play button, options for addi
     constructor(editor) {
         super();
         this.children = [];
-        console.log(editor);
-        this.createConfig({
+        this.addConfig({
             rectType: ERectType.HzBox,
             parent: editor,
             constraintX: EConstraintsX.scale,
@@ -62,12 +60,12 @@ export class EditorTopBar extends Rect //will have play button, options for addi
         });
         const playButton = new TopBarToggleButton(this);
         playButton.createIcon();
-        playButton.icon?.createConfig({ imageSrc: "play.svg" });
+        playButton.icon?.addConfig({ imageSrc: "play.svg" });
         playButton.toggleOffIconSrc = "play.svg";
         playButton.toggleOnIconSrc = "pause.svg";
-        playButton.createConfig({
+        playButton.addConfig({
             onPress: () => {
-                const sceneView = editor.addViewGeneric(Scene);
+                const sceneView = editor.addViewGeneric(Level, mapStartFile);
             }
         });
         this.playButton = playButton;
@@ -82,8 +80,8 @@ export class EditorTopBar extends Rect //will have play button, options for addi
         //
         const contentBrowserButton = new TopBarButton(this);
         contentBrowserButton.createIcon();
-        contentBrowserButton.icon?.createConfig({ imageSrc: "folder.svg" });
-        contentBrowserButton.createConfig({
+        contentBrowserButton.icon?.addConfig({ imageSrc: "folder.svg" });
+        contentBrowserButton.addConfig({
             onPress: () => {
                 editor.addViewGeneric(ContentBrowser);
             }

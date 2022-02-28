@@ -17,8 +17,7 @@ export class Editor extends Rect {
     //views: View[] = [];
     //emptyText;
     constructor() {
-        super();
-        this.createConfig({
+        super({
             rectType: EObjectType.VtBox,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
@@ -27,7 +26,7 @@ export class Editor extends Rect {
         //this.setOpts({isVisible:true});
         this.topbar = new EditorTopBar(this);
         this.contentArea = new Rect();
-        this.contentArea.createConfig({
+        this.contentArea.addConfig({
             parent: this,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
@@ -39,20 +38,19 @@ export class Editor extends Rect {
         //const v=new View(this.contentArea,this.canvas);
         //v.topBar.title.text="scene"
     }
-    addViewGeneric(ContentAreaClass) {
+    addViewGeneric(ContentAreaClass, file) {
         ContentAreaClass.prototype.viewName;
         if (this.contentArea.children[0]) {
             if (this.contentArea.children[0].contentArea.viewName != ContentAreaClass.prototype.constructor.name) {
                 this.contentArea.children[0].destroy();
-                const view = new View(ContentAreaClass, this);
-                console.log(ContentAreaClass.prototype.constructor.name);
+                const view = new View(ContentAreaClass, this, file);
             }
             else {
                 console.log("ye");
             }
         }
         else {
-            const view = new View(ContentAreaClass, this);
+            const view = new View(ContentAreaClass, this, file);
         }
         ////this.views.push(view);
         ////view.topBar.title.text=view.contentArea.viewTitle;

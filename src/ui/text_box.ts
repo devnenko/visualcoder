@@ -3,17 +3,17 @@ import { IShape, boundingShape,EObjectType,IShapeOpts,BoundingShape} from "./ui.
 import { ITransform ,EConstraintsX, EConstraintsY,IEdges,IPos} from "./types/types.js"; 
 import { Shape } from "./shape.js";
 import { Rect } from "./ui.js";
-import { IRectOpts } from "./rect.js";
+import { IRectConfig} from "./rect.js";
 
 
 
-export interface ITextBoxOpts extends IRectOpts{
+export interface ITextBoxConfig extends IRectConfig{
     text?:string,
     size?:number,
     useWOrH?:boolean
 }
 
-export class TextBox<Opts extends ITextBoxOpts = ITextBoxOpts> extends Rect{
+export class TextBox<Config extends ITextBoxConfig = ITextBoxConfig> extends Rect<Config>{
     //use texture atlas in future
 
     public text:string="Empty Text"
@@ -21,18 +21,19 @@ export class TextBox<Opts extends ITextBoxOpts = ITextBoxOpts> extends Rect{
     public useWOrH:boolean=false;
 
 
-    constructor(){
+    constructor(config?:ITextBoxConfig){
         super()
         this.color="white"
+        this.setAttrs(config);
+    }
+
+    addConfig(config: ITextBoxConfig): void {
+        super.addConfig(config)
     }
 
     setText(text:string){
         this.text=text;
         boundingShape.draw();
-    }
-
-    public createConfig(opts: ITextBoxOpts){
-        this.addConfig(opts)
     }
 
     public draw(parent:IShape){

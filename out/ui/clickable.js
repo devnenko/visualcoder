@@ -1,10 +1,11 @@
 import { MouseHandler } from "./event_handlers/event_handlers.js";
 import { Rect } from "./ui.js";
 export class Clickable extends Rect {
-    constructor() {
+    constructor(config) {
         super();
         this.fireOnlyTopMost = true;
         MouseHandler.subscribe(this);
+        this.setAttrs(config);
     }
     //use texture atlas in future
     onMouseDown(type, pos, isTopMost) { }
@@ -17,8 +18,8 @@ export class Clickable extends Rect {
     ;
     onMouseHoverEnd(type, pos, isTopMost) { }
     ;
-    createConfig(opts) {
-        this.addConfig(opts);
+    addConfig(config) {
+        super.addConfig(config);
     }
     destroy() {
         MouseHandler.unsubscribe(this);
@@ -59,7 +60,7 @@ export function MakeClickable(Base) {
             this.fireOnlyTopMost = true;
             MouseHandler.subscribe(this);
         }
-        createConfig(opts) {
+        addConfig(opts) {
             this.addConfig(opts);
         }
         destroy() {

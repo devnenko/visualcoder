@@ -3,9 +3,9 @@ import { IShape, boundingShape, EObjectType, IShapeOpts, BoundingShape } from ".
 import { ITransform, EConstraintsX, EConstraintsY, IEdges, IPos, EMouseType } from "./types/types.js";
 import { Shape } from "./shape.js";
 import { Rect } from "./ui.js";
-import { IRectOpts } from "./rect.js";
+import { IRectConfig } from "./rect.js";
 
-export interface IClickableOpts extends IRectOpts {
+export interface IClickableConfig extends IRectConfig {
     onMouseDown?: (type: EMouseType, pos: IPos) => void,
     onMouseMoveDown?: (type: EMouseType, pos: IPos, isTopMost: boolean) => void;
     onMouseUp?: (type: EMouseType, pos: IPos, isTopMost: boolean) => void;
@@ -14,23 +14,24 @@ export interface IClickableOpts extends IRectOpts {
     fireOnlyTopMost?: boolean;
 }
 
-export class Clickable<Opts extends IClickableOpts = IClickableOpts> extends Rect {
+export class Clickable<Config= IClickableConfig> extends Rect<Config> {
     //use texture atlas in future
 
-    onMouseDown(type: EMouseType, pos: IPos, isTopMost: boolean) { };
+    onMouseDown(type: EMouseType, pos: IPos, isTopMost: boolean) {        };
     onMouseMoveDown(type: EMouseType, pos: IPos, isTopMost: boolean) { };
     onMouseUp(type: EMouseType, pos: IPos, isTopMost: boolean) { };
     onMouseHoverBegin(type: EMouseType, pos: IPos, isTopMost: boolean) { };
     onMouseHoverEnd(type: EMouseType, pos: IPos, isTopMost: boolean) { };
     fireOnlyTopMost: boolean = true;
 
-    constructor() {
+    constructor(config?:IClickableConfig) {
         super()
         MouseHandler.subscribe(this);
+        this.setAttrs(config);
     }
 
-    public createConfig(opts: IClickableOpts) {
-        this.addConfig(opts)
+    addConfig(config: IClickableConfig): void {
+        super.addConfig(config);
     }
 
     destroy() {
@@ -86,7 +87,7 @@ export function MakeClickable<TBase extends Constructor>(Base: { new(...args: an
             MouseHandler.subscribe(this);
         }
 
-        createConfig(opts: any) {
+        addConfig(opts: any) {
             this.addConfig(opts)
         }
 

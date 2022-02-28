@@ -9,7 +9,7 @@ export class PixelImage extends ViewContentArea{
     constructor(view:View){
         super(view)
         const mainImage=new Rect();
-        mainImage.createConfig({
+        mainImage.addConfig({
             parent:this
         })
         mainImage.image=new Image();

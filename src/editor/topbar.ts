@@ -2,24 +2,24 @@
 import { Canvas } from "../ui/canvas.js";
 import { colorCreator } from "../ui/color.js";
 import { MouseHandler } from "../ui/event_handlers/mouse.js";
-import { IRectOpts, Rect } from "../ui/rect.js";
+import {Rect } from "../ui/rect.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
 import { EMouseType } from "../ui/types/mouse.js";
 import { IPos } from "../ui/types/pos.js";
-import { Scene } from "./views/scene/scene.js";
+import { Level } from "./views/level/level.js";
 import {  HoverPressButton, ToggleButton } from "../ui_components/button.js";
 import { View ,ViewContentArea} from "./views/view.js";
 import { Editor } from "./editor.js";
 import { ContentBrowser } from "./views/contentbrowser/content_browser.js";
 import { ERectType } from "../ui/shape.js";
+import { mapStartFile } from "./views/cb_file.js";
 
 
 export class TopBarButton extends HoverPressButton
 {
     constructor(editorTopBar:EditorTopBar){
         super()
-        console.log(editorTopBar)
-        this.createConfig({
+        this.addConfig({
             constraintX:EConstraintsX.left,
             fixedSizeW:editorTopBar.fixedSizeH,
             parent:editorTopBar,
@@ -34,8 +34,7 @@ export class TopBarToggleButton extends ToggleButton{
     public toggleOffIconSrc:string="";
     constructor(editorTopBar:EditorTopBar){
         super()
-        console.log(editorTopBar)
-        this.createConfig({
+        this.addConfig({
             constraintX:EConstraintsX.left,
             fixedSizeW:editorTopBar.fixedSizeH,
             parent:editorTopBar,
@@ -43,12 +42,12 @@ export class TopBarToggleButton extends ToggleButton{
             boxProportion:{x:50,y:50},
             onToggle:(isOn:boolean)=>{
                 if(isOn){
-                    this.icon?.createConfig({
+                    this.icon?.addConfig({
                         imageSrc:this.toggleOnIconSrc
-                    })
+                })
                 }
                 else{
-                    this.icon?.createConfig({
+                    this.icon?.addConfig({
                         imageSrc:this.toggleOffIconSrc
                     })
                 }
@@ -64,8 +63,7 @@ export class EditorTopBar extends Rect//will have play button, options for addin
     //newWin:Window|null=null;
     constructor(editor:Editor){
         super()
-        console.log(editor)
-        this.createConfig({
+        this.addConfig({
             rectType:ERectType.HzBox,
             parent:editor,
             constraintX:EConstraintsX.scale,
@@ -78,12 +76,12 @@ export class EditorTopBar extends Rect//will have play button, options for addin
 
         const playButton=new TopBarToggleButton(this);
         playButton.createIcon();
-        playButton.icon?.createConfig({imageSrc:"play.svg"});
+        playButton.icon?.addConfig({imageSrc:"play.svg"});
         playButton.toggleOffIconSrc="play.svg";
         playButton.toggleOnIconSrc="pause.svg";
-        playButton.createConfig({
+        playButton.addConfig({
             onPress:()=>{
-                const sceneView=editor.addViewGeneric(Scene);
+                const sceneView=editor.addViewGeneric(Level,mapStartFile);
             }
         });
         
@@ -99,8 +97,8 @@ export class EditorTopBar extends Rect//will have play button, options for addin
 //
         const contentBrowserButton=new TopBarButton(this);
         contentBrowserButton.createIcon();
-        contentBrowserButton.icon?.createConfig({imageSrc:"folder.svg"});
-        contentBrowserButton.createConfig({
+        contentBrowserButton.icon?.addConfig({imageSrc:"folder.svg"});
+        contentBrowserButton.addConfig({
             onPress:()=>{
                 editor.addViewGeneric(ContentBrowser);
             }

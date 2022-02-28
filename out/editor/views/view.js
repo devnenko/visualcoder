@@ -8,13 +8,13 @@ import { Clickable } from "../../ui/clickable.js";
 class ViewTopBar extends Rect {
     constructor(view) {
         super();
-        this.createConfig({
+        this.addConfig({
             parent: view,
             color: colorCreator.colorByBrightness(25),
             fixedSizeH: 50,
         });
         this.title = new TextBox();
-        this.title.createConfig({
+        this.title.addConfig({
             constraintY: EConstraintsY.center,
             parent: this,
             text: "View name not specified",
@@ -22,7 +22,7 @@ class ViewTopBar extends Rect {
             color: "white"
         });
         this.deleteButton = new HoverPressButton();
-        this.deleteButton.createConfig({
+        this.deleteButton.addConfig({
             parent: this,
             constraintX: EConstraintsX.right,
             constraintY: EConstraintsY.scale,
@@ -33,7 +33,7 @@ class ViewTopBar extends Rect {
             }
         });
         this.deleteButton.createIcon();
-        this.deleteButton.icon?.createConfig({
+        this.deleteButton.icon?.addConfig({
             imageSrc: "xmark.svg",
         });
     }
@@ -43,7 +43,7 @@ export class View extends Rect {
     constructor(ContentAreaInstance, editor, file) {
         super();
         this.editor = editor;
-        this.createConfig({
+        this.addConfig({
             rectType: ERectType.VtBox,
             parent: editor.contentArea,
             constraintX: EConstraintsX.scale,
@@ -52,9 +52,16 @@ export class View extends Rect {
         });
         this.topBar = new ViewTopBar(this);
         this.contentArea = new ContentAreaInstance(this);
-        this.topBar.title.createConfig({
-            text: this.contentArea.viewName
-        });
+        if (file) {
+            this.topBar.title.addConfig({
+                text: this.contentArea.viewName.concat(file?.name)
+            });
+        }
+        else {
+            this.topBar.title.addConfig({
+                text: this.contentArea.viewName.concat("nofile")
+            });
+        }
         //contentArea.setParent(this);
     }
     destroy() {
@@ -67,7 +74,7 @@ export class ViewContentArea extends Clickable {
         super();
         this.viewName = "Default View";
         this.view = view;
-        this.createConfig({
+        this.addConfig({
             parent: view,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,

@@ -2,15 +2,16 @@
 import { Canvas } from "../ui/canvas.js";
 import { colorCreator } from "../ui/color.js";
 import { MouseHandler } from "../ui/event_handlers/mouse.js";
-import { IRectOpts, Rect } from "../ui/rect.js";
+import {  Rect } from "../ui/rect.js";
 import { boundingShape, EObjectType, IShape } from "../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
 import { EMouseType } from "../ui/types/mouse.js";
 import { IPos } from "../ui/types/pos.js";
-import { Scene } from "./views/scene/scene.js";
+import { Level } from "./views/level/level.js";
 import { HoverPressButton } from "../ui_components/ui_components.js";
 import { FileViewContentArea, View, ViewContentArea } from "./views/view.js";
 import { EditorTopBar } from "./topbar.js";
+import { GeFile } from "./views/views.js";
 
 // problem: how do we create views so that they are usefull and dont cause confusion? 
 //what are the usefull and useless usecases and how could you implement that in an intuitive way 
@@ -38,19 +39,18 @@ export class Editor extends Rect {
     //views: View[] = [];
     //emptyText;
     constructor() {
-        super()
-        this.createConfig({
+        super({
             rectType:EObjectType.VtBox,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
             isVisible: false
-        });
+        })
         //this.setOpts({isVisible:true});
 
         this.topbar = new EditorTopBar(this);
 
         this.contentArea = new Rect();
-        this.contentArea.createConfig({
+        this.contentArea.addConfig({
             parent:this,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
@@ -68,19 +68,18 @@ export class Editor extends Rect {
         //v.topBar.title.text="scene"
     }
 
-    public addViewGeneric(ContentAreaClass: typeof ViewContentArea) {
+    public addViewGeneric(ContentAreaClass: typeof ViewContentArea,file?:GeFile) {
         ContentAreaClass.prototype.viewName
         if(this.contentArea.children[0]){
             if((this.contentArea.children[0] as View).contentArea.viewName!=ContentAreaClass.prototype.constructor.name){
                 (this.contentArea.children[0] as View).destroy();
-                const view =new View(ContentAreaClass,this);
-                console.log(ContentAreaClass.prototype.constructor.name)
+                const view =new View(ContentAreaClass,this,file);
             }
             else{
                 console.log("ye")
             }
         }else{
-            const view =new View(ContentAreaClass,this);
+            const view =new View(ContentAreaClass,this,file);
         }
         ////this.views.push(view);
         ////view.topBar.title.text=view.contentArea.viewTitle;

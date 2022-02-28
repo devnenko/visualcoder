@@ -1,6 +1,6 @@
 import { Shape } from "./shape.js";
 export class Line extends Shape {
-    constructor() {
+    constructor(config) {
         super();
         this.fixedPos1 = { x: 0, y: 0 };
         this.fixedPos2 = { x: 0, y: 0 };
@@ -9,9 +9,7 @@ export class Line extends Shape {
         //additional display options 
         this.isVisible = true;
         this.color = "pink";
-    }
-    createConfig(opts) {
-        this.addConfig(opts);
+        this.setAttrs(config);
     }
     draw() {
         if (this.isVisible == true) {

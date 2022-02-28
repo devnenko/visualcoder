@@ -1,25 +1,21 @@
 import { MouseHandler, IMouseHandler,IKeyPressHandler,KeypressHandler } from "../ui/event_handlers/event_handlers.js";
 import { Rect, Canvas, IShape, TextBox, colorCreator } from "../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType, IPos } from "../ui/types/types.js";
-import { IRectOpts } from "../ui/rect.js";
-import { Clickable, IClickableOpts } from "../ui/clickable.js";
+import { IRectConfig } from "../ui/rect.js";
+import { Clickable, IClickableConfig } from "../ui/clickable.js";
 import { boundingShape } from "../ui/bounding_rect.js";
-import { HoverPressButton, IHoverPressButtonOpts, IToggleButtonOpts, ToggleButton } from "./button.js";
+import { HoverPressButton, IHoverPressButtonConfig, IToggleButtonConfig, ToggleButton } from "./button.js";
 
-export interface ITextInputOpts extends IToggleButtonOpts{
+export interface ITextInputConfig extends IToggleButtonConfig{
 }
 
-export class TextInput<Opts extends ITextInputOpts = ITextInputOpts> extends ToggleButton implements IKeyPressHandler {
+export class TextInput extends ToggleButton implements IKeyPressHandler {
 
 
-    public createConfig(opts: IToggleButtonOpts){
-        this.addConfig(opts)
-    }
-
-    constructor() {
+    constructor(config:ITextInputConfig) {
         super()
         this.createTitle();
-        this.createConfig({
+        this.addConfig({
             constraintX:EConstraintsX.left,
             constraintY:EConstraintsY.top,
             fixedSizeH:35,
@@ -27,10 +23,15 @@ export class TextInput<Opts extends ITextInputOpts = ITextInputOpts> extends Tog
             canClickToggleOf:false
             
         })
-        this.title?.createConfig({
+        this.title?.addConfig({
             constraintX:EConstraintsX.left,
             text:"untitled"
         });
+        this.setAttrs(config);
+    }
+
+    addConfig(config: ITextInputConfig): void {
+        super.addConfig(config);
     }
 
     public onToggle: (isOn: boolean) => void=(isOn)=>{

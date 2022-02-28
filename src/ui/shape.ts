@@ -23,7 +23,7 @@ export interface IShape {
 
 
 
-export abstract class Shape<Config extends IShapeConfig = IShapeConfig> {
+export abstract class Shape<Config = IShapeConfig> {
     public parent:IShape=boundingShape;
     public canvas:Canvas=boundingShape.canvas;
     public children: IShape[] = [];
@@ -32,7 +32,7 @@ export abstract class Shape<Config extends IShapeConfig = IShapeConfig> {
         this.setAttrs(config);
     }
 
-    addConfig(config:Config){
+    addConfig(config:IShapeConfig){
         this.setAttrs(config);
         boundingShape.draw();
     }
@@ -40,7 +40,6 @@ export abstract class Shape<Config extends IShapeConfig = IShapeConfig> {
     public setAttrs(config:any){
         if(config){
             for (const opt in config) {
-                console.log(opt)
                 //if (Object.prototype.hasOwnProperty.call(config, opt)) {
                 //    this.setAttr(opt, config[opt])
                 //}
@@ -49,15 +48,12 @@ export abstract class Shape<Config extends IShapeConfig = IShapeConfig> {
         }
     }
 
-    private setAttr(key:any,value:any){
-        console.log(key)
+    protected setAttr(key: any,value:any){
         if (key==="parent") {
             this.setParent(value as IShape);//why val.parent????
         }
-        else{
-            this[key]=value;
-        }
-        return this;
+        // @ts-ignore
+        this[key]=value;
     }
 
     getAttr(key:string){
@@ -95,10 +91,9 @@ export abstract class Shape<Config extends IShapeConfig = IShapeConfig> {
     //    return this[key];
     //}
 
-    public setParent(parent:IShape){
+    protected setParent(parent:IShape){
         this.parent.children.splice(this.parent.children.indexOf(this),1)
         parent.children.push(this);
-        this.parent=parent;
         boundingShape.draw();
     }
 
@@ -110,11 +105,15 @@ export abstract class Shape<Config extends IShapeConfig = IShapeConfig> {
 
     public destroy() {
 
+        this.destroyChildrenOnly();
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+    }
+
+    public destroyChildrenOnly(){
         const childLength = this.children.length
 
         for (let i = 0; i < childLength; i++) {
             this.children[0].destroy();
         }
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
     }
 }

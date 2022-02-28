@@ -63,11 +63,11 @@ KeypressHandler.init();
 //});
 
 //console.log(b2)
-const r1=new Rect({
-  color:"blue"
-});
-console.log(r1)
-//const editor=new Editor()
+//const r1=new Rect({
+//  color:"blue"
+//});
+//console.log(r1)
+const editor=new Editor()
 boundingShape.draw();
 //console.log(boundingShape)
 

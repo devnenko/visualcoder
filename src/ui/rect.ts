@@ -25,7 +25,7 @@ export interface IRectConfig extends IShapeOpts{
     imageSrc?:string
 }
 
-export class Rect<Config extends IRectConfig = IRectConfig> extends Shape<Config>{
+export class Rect<Config= IRectConfig> extends Shape<Config>{
 
     //additional display options 
     protected isVisible:boolean=true;
@@ -54,26 +54,16 @@ export class Rect<Config extends IRectConfig = IRectConfig> extends Shape<Config
         this.setAttrs(config)
     }
 
-    //public createConfig(opts:IRectOpts){
-    //    this.addConfig(opts)
-    //}
-//
-    //public setConfigAttr(key: keyof IRectOpts, val: any): void {
-    //    if(key==="imageSrc"){
-    //        this.createImage(val as string);
-    //    }
-    //    else{
-    //        if (val === undefined || val === null) {
-    //            delete this[key as keyof IShapeOpts];
-    //        }
-    //        else if (key==="parent") {
-    //            this.setParent(val as IShape);//why val.parent????
-    //        }
-    //        else {
-    //            this[key as keyof IShapeOpts] = val;
-    //        }
-    //    }
-    //}
+    addConfig(config: IRectConfig): void {
+        super.addConfig(config);
+    }
+
+    protected setAttr(key: any, val: any): void {
+        if(key==="imageSrc"){
+            this.createImage(val);
+        }
+        super.setAttr(key,val)
+    }
 
     private createImage(src:string){
         console.log

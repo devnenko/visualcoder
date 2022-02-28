@@ -115,7 +115,6 @@ export class MouseHandler{
         const overlObjs=this.getOverlapp(pos);
         const topMost=this.getTopMost(overlObjs);
         this.topMostSave=topMost;
-
         for(const overlObj of overlObjs){
             if (typeof overlObj.onMouseDown == 'function') { 
                 if(!(overlObj.fireOnlyTopMost==true&&(overlObj as Rect)!=topMost[0])){

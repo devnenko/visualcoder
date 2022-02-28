@@ -5,13 +5,13 @@ import { IShape, IShapeConfig, Shape } from "./shape.js";
 import { IEdges } from "./types/edges.js";
 import { IPos } from "./types/pos.js";
 
-export interface ILineOpts extends IShapeConfig{
+export interface ILineConfig extends IShapeConfig{
     isVisible?:boolean,
     color?:string,
     boxProportion?:IPos
 }
 
-export class Line extends Shape{
+export class Line<Config extends ILineConfig = ILineConfig> extends Shape<Config>{
 
 
     public fixedPos1:IPos={x:0,y:0};
@@ -26,12 +26,9 @@ export class Line extends Shape{
 
 
 
-    constructor(){
+    constructor(config:Config){
         super()
-    }
-
-    public createConfig(opts: ILineOpts): void {
-        this.addConfig(opts);
+        this.setAttrs(config);
     }
 
 

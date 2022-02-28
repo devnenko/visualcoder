@@ -2,7 +2,7 @@ import { MouseHandler, KeypressHandler } from "../ui/event_handlers/event_handle
 import { EConstraintsX, EConstraintsY } from "../ui/types/types.js";
 import { ToggleButton } from "./button.js";
 export class TextInput extends ToggleButton {
-    constructor() {
+    constructor(config) {
         super();
         this.onToggle = (isOn) => {
             if (isOn) {
@@ -23,20 +23,21 @@ export class TextInput extends ToggleButton {
             }
         };
         this.createTitle();
-        this.createConfig({
+        this.addConfig({
             constraintX: EConstraintsX.left,
             constraintY: EConstraintsY.top,
             fixedSizeH: 35,
             fixedSizeW: 200,
             canClickToggleOf: false
         });
-        this.title?.createConfig({
+        this.title?.addConfig({
             constraintX: EConstraintsX.left,
             text: "untitled"
         });
+        this.setAttrs(config);
     }
-    createConfig(opts) {
-        this.addConfig(opts);
+    addConfig(config) {
+        super.addConfig(config);
     }
     onKeyPress(key) {
         console.log(key);

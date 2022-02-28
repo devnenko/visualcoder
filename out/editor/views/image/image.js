@@ -5,7 +5,7 @@ export class PixelImage extends ViewContentArea {
         super(view);
         this.viewName = "PixelImage";
         const mainImage = new Rect();
-        mainImage.createConfig({
+        mainImage.addConfig({
             parent: this
         });
         mainImage.image = new Image();

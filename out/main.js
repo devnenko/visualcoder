@@ -1,5 +1,6 @@
 import { ResizeHandler, MouseHandler, KeypressHandler } from "./ui/event_handlers/event_handlers.js";
-import { Rect, boundingShape, colorCreator } from "./ui/ui.js";
+import { boundingShape, colorCreator } from "./ui/ui.js";
+import { Editor } from "./editor/editor.js";
 window.addEventListener("contextmenu", e => e.preventDefault());
 document.body.style.margin = "0px";
 document.body.style.position = "fixed";
@@ -41,11 +42,11 @@ KeypressHandler.init();
 //  constraintY:EConstraintsY.top
 //});
 //console.log(b2)
-const r1 = new Rect({
-    color: "blue"
-});
-console.log(r1);
-//const editor=new Editor()
+//const r1=new Rect({
+//  color:"blue"
+//});
+//console.log(r1)
+const editor = new Editor();
 boundingShape.draw();
 //console.log(boundingShape)
 //window.open("frame1.html", "_blank");

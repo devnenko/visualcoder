@@ -20,7 +20,6 @@ export class Shape {
     setAttrs(config) {
         if (config) {
             for (const opt in config) {
-                console.log(opt);
                 //if (Object.prototype.hasOwnProperty.call(config, opt)) {
                 //    this.setAttr(opt, config[opt])
                 //}
@@ -29,14 +28,11 @@ export class Shape {
         }
     }
     setAttr(key, value) {
-        console.log(key);
         if (key === "parent") {
             this.setParent(value); //why val.parent????
         }
-        else {
-            this[key] = value;
-        }
-        return this;
+        // @ts-ignore
+        this[key] = value;
     }
     getAttr(key) {
         // @ts-ignore
@@ -73,7 +69,6 @@ export class Shape {
     setParent(parent) {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
         parent.children.push(this);
-        this.parent = parent;
         boundingShape.draw();
     }
     draw(parent) {
@@ -82,10 +77,13 @@ export class Shape {
         }
     }
     destroy() {
+        this.destroyChildrenOnly();
+        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+    }
+    destroyChildrenOnly() {
         const childLength = this.children.length;
         for (let i = 0; i < childLength; i++) {
             this.children[0].destroy();
         }
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
     }
 }

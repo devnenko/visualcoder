@@ -15,6 +15,14 @@ export class CBFile{
         this.src=source;
         this.onChangeSrc=()=>{console.log("scr changed")};
     }
+    public static getStartLevel(){
+
+    }
 }
 
 export let allFiles:CBFile[]=[];
+export let mapStartFile:CBFile=new CBFile("Entry",FileTypes.level,"");
+export function setMapStartFile(file:CBFile){
+    mapStartFile=file;
+}
+allFiles.push(mapStartFile)

@@ -19,7 +19,7 @@ export class Pin extends Clickable {
     constructor(block: Block, isInPin: boolean, pinVal: PinVal) {
         super();
         this.block = block;
-        this.createConfig({
+        this.addConfig({
             parent: block,
             fixedSizeW: 20,
             fixedSizeH: 20,
@@ -28,14 +28,14 @@ export class Pin extends Clickable {
         this.isInPin = isInPin;
         this.pinVal = pinVal;
         if (isInPin == true) {
-            this.createConfig({
+            this.addConfig({
                 fixedOffsetY: 35 + 25 * block.inPins.length
             });
             block.inPins.push(this);
 
         }
         else {
-            this.createConfig({
+            this.addConfig({
                 constraintX:EConstraintsX.right,
                 fixedOffsetY: 35 + 25 * block.outPins.length
             });
@@ -48,7 +48,7 @@ export class Pin extends Clickable {
     }
     onMouseDown(type: EMouseType, pos: IPos, topMost: boolean) {
         this.prevLine = new Line();
-        this.prevLine.createConfig({
+        this.prevLine.addConfig({
             parent: this
         });
         this.prevLine.obj1 = this;
@@ -68,12 +68,16 @@ export class Pin extends Clickable {
                 if (this.prevLine instanceof Line) {
                     if (this.isInPin == false) {
                         this.nextLine = new Line();
-                        this.nextLine.setParent(this);
+                        this.nextLine.addConfig({
+                            parent:this
+                        }) 
                         this.nextLine.obj1 = this;
                         this.nextLine.obj2 = topObj;
                     } else {
                         topObj.nextLine = new Line();
-                        topObj.nextLine.setParent(this);
+                        topObj.nextLine.addConfig({
+                            parent:this
+                        }) 
                         topObj.nextLine.obj1 = topObj;
                         topObj.nextLine.obj2 = this;
                     }
@@ -119,20 +123,21 @@ export class Block extends Clickable {
     constructor(blockEditor: BlockEditor) {
         super();
         this.blockEditor=blockEditor;
-        this.setParent(blockEditor);
-        this.createConfig({
+        this.addConfig({
+            parent:blockEditor,
             fixedSizeW: 140,
             color: colorCreator.colorByBrightness(10)
         })
 
         this.title = new TextBox();
-        this.title.createConfig({
+        this.title.addConfig({
             parent: this,
             text: "block"
         })
-
+        console.log("wh")
     }
     onMouseDown(type: EMouseType, pos: IPos, topMost: boolean) {
+        console.log("wh")
         if (topMost == true) {
             this.blockEditor.selector?.destroy();
             this.blockEditor.selector=null;
@@ -142,7 +147,7 @@ export class Block extends Clickable {
     onMouseMoveDown(type: EMouseType, pos: IPos, topMost: boolean) {
         if (topMost == true) {
             const relPos = MouseHandler.getRelativeMousePos(this.parent as Rect, pos);
-            this.createConfig({
+            this.addConfig({
                 fixedOffsetX: relPos.x - this.mouseOffsetBlock.x,
                 fixedOffsetY: relPos.y - this.mouseOffsetBlock.y
             });
@@ -156,7 +161,7 @@ export class BlockSelector extends Rect {
     constructor(blockEditor: BlockEditor) {
         super();
         this.blockEditor = blockEditor;
-        this.createConfig({
+        this.addConfig({
             rectType:ERectType.VtBox,
             parent: blockEditor,
             fixedSizeW: 160,
@@ -170,7 +175,7 @@ export class BlockSelector extends Rect {
     addAllButtons() {
         for (const fn of FunctionNames2) {
             const button = new HoverPressButton();
-            button.createConfig({
+            button.addConfig({
                 parent: this,
                 constraintY: EConstraintsY.top,
                 fixedSizeH:60,
@@ -179,7 +184,7 @@ export class BlockSelector extends Rect {
                     this.blockEditor.selector?.destroy();
                     this.blockEditor.selector=null;
                     const block = new Block(this.blockEditor);
-                    block.createConfig({
+                    block.addConfig({
                         fixedOffsetX: MouseHandler.getRelativeMousePos(this.parent as BlockEditor, pos).x,
                         fixedOffsetY: MouseHandler.getRelativeMousePos(this.parent as BlockEditor, pos).y
                     })
@@ -190,23 +195,23 @@ export class BlockSelector extends Rect {
                             const pin = new Pin(block, true, inArgs)
                             switch (inArgs.pinType) {
                                 case PinType.exec:
-                                    pin.createConfig({
+                                    pin.addConfig({
                                         color: "blue"
                                     })
                                     break;
                                 case PinType.string:
-                                    pin.createConfig({
+                                    pin.addConfig({
                                         color: "green"
                                     })
                                     pin.text = new TextBox()
-                                    pin.text.createConfig({
+                                    pin.text.addConfig({
                                         parent: pin,
                                         color: "red",
                                         text: inArgs.value
                                     })
                                     break;
                                 default:
-                                    pin.createConfig({
+                                    pin.addConfig({
                                         color: "pink"
                                     })
                                     break;
@@ -219,23 +224,23 @@ export class BlockSelector extends Rect {
                             const pin = new Pin(block, false, outArgs)
                             switch (outArgs.pinType) {
                                 case PinType.exec:
-                                    pin.createConfig({
+                                    pin.addConfig({
                                         color: "blue"
                                     })
                                     break;
                                 case PinType.string:
-                                    pin.createConfig({
+                                    pin.addConfig({
                                         color: "green"
                                     })
                                     pin.text = new TextBox()
-                                    pin.text.createConfig({
+                                    pin.text.addConfig({
                                         parent: pin,
                                         color: "red",
                                         text: outArgs.value
                                     })
                                     break;
                                 default:
-                                    pin.createConfig({
+                                    pin.addConfig({
                                         color: "pink"
                                     })
                                     break;
@@ -246,7 +251,7 @@ export class BlockSelector extends Rect {
                 }
             });
             button.createTitle();
-            button.title?.createConfig({
+            button.title?.addConfig({
                 size: 18,
                 text: fn.functionName
             })
@@ -264,12 +269,11 @@ export class BlockEditor extends ViewContentArea {
         //this.showDebugSrc();
     }
     onMouseDown(type: EMouseType, pos: IPos, topMost: boolean) {
-        console.log()
         if (topMost == true && (type == EMouseType.left || type == EMouseType.touch)) {
             if (this.selector == null) {
                 this.selector = new BlockSelector(this)
             }
-            this.selector.createConfig({
+            this.selector.addConfig({
                 fixedOffsetX: MouseHandler.getRelativeMousePos(this, pos).x,
                 fixedOffsetY: MouseHandler.getRelativeMousePos(this, pos).y
             });
@@ -283,6 +287,7 @@ export class BlockEditor extends ViewContentArea {
                 this.selector = null;
             }
         }
+        super.onMouseDown(type,pos,topMost);
     }
     createSaveFile() {
         //creates a json compatible with compiler from blocks
