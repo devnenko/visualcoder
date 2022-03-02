@@ -1,1 +1,9 @@
-{}
+{
+    "main": "C:/Users/nenko/Desktop/Projects/VisualCoder/backend/index.js",
+    "scripts": {
+        "start": "node ."
+    },
+    "dependencies": {
+        "connect-livereload": "^0.6.1"
+    }
+}

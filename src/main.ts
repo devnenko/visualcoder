@@ -11,7 +11,6 @@ import { ViewContentArea } from "./editor/views/views.js";
 import { recti } from "./ui/rect.js";
 
 
-
 window.addEventListener("contextmenu", e => e.preventDefault());
 document.body.style.margin = "0px";
 document.body.style.position = "fixed";

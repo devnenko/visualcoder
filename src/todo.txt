@@ -1,6 +1,5 @@
--find a way to make clickable addable to any rect instance
+
 -view resize with mouse or touch should be modularized,cause used in many views
--togglebutton groups with defaulttoggled and switch between toggled
 
 -new project folder structure (find way to bundle exports in a good way maybe per folder one file imports everything) (idea in bookmarks bar)
 -new structure that is better and faster for creating objects (maybe something with constructor using f.e. shapeopts interface with lots of optional arguments, 
