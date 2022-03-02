@@ -6,6 +6,7 @@ import { View } from "../views.js";
 
 export class Level extends ViewContentArea{
     viewName: string="Level";
+    linkedFiles: CBFile[]=[];
     constructor(view:View){
         super(view) 
 

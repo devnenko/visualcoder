@@ -8,6 +8,7 @@ export class CBFile{
     name:string;
     type:FileTypes;
     src:string;
+    linkedObjects:CBFile[]=[];
     onChangeSrc:()=>void;
     constructor(name:string,type:FileTypes,source:string){
         this.name=name;
@@ -16,6 +17,11 @@ export class CBFile{
         this.onChangeSrc=()=>{console.log("scr changed")};
     }
     public static getStartLevel(){
+
+    }
+    destroy(){
+        this.linkedObjects.forEach removeref
+        
 
     }
 }
