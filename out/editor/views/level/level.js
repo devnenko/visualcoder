@@ -4,6 +4,7 @@ export class Level extends ViewContentArea {
     constructor(view) {
         super(view);
         this.viewName = "Level";
+        this.linkedFiles = [];
         createAndRunScript();
     }
     destroy() {

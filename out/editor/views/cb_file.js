@@ -6,12 +6,17 @@ export var FileTypes;
 })(FileTypes || (FileTypes = {}));
 export class CBFile {
     constructor(name, type, source) {
+        this.linkedObjects = [];
         this.name = name;
         this.type = type;
         this.src = source;
         this.onChangeSrc = () => { console.log("scr changed"); };
     }
     static getStartLevel() {
+    }
+    destroy() {
+        this.linkedObjects.forEach;
+        removeref;
     }
 }
 export let allFiles = [];
