@@ -1,3 +1,7 @@
+-should resize all in hierarchy
+-then draw based on zindex
+-best of both worlds
+
 
 -view resize with mouse or touch should be modularized,cause used in many views
 

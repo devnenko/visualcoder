@@ -40,15 +40,21 @@ export class HoverPressButton extends Clickable {
         });
     }
     onMouseHoverBegin(type, pos, isTopMost) {
-        this.color = this.hoverColor;
+        this.addConfig({
+            color: this.hoverColor
+        });
         super.onMouseHoverBegin(type, pos, isTopMost);
     }
     onMouseHoverEnd(type, pos, isTopMost) {
-        this.color = this.notPressedColor;
+        this.addConfig({
+            color: this.notPressedColor
+        });
         super.onMouseHoverEnd(type, pos, isTopMost);
     }
     onMouseDown(type, pos, isTopMost) {
-        this.color = this.pressColor;
+        this.addConfig({
+            color: this.pressColor
+        });
         this.onPress(type, pos, isTopMost);
         super.onMouseDown(type, pos, isTopMost);
     }
@@ -56,7 +62,9 @@ export class HoverPressButton extends Clickable {
         super.onMouseMoveDown(type, pos, isTopMost);
     }
     onMouseUp(type, pos, isTopMost) {
-        this.color = this.notPressedColor;
+        this.addConfig({
+            color: this.notPressedColor
+        });
         this.onRelease(type, pos, isTopMost);
         super.onMouseUp(type, pos, isTopMost);
     }
@@ -71,13 +79,17 @@ export class ToggleButton extends HoverPressButton {
         this.group = null;
         this.onMouseHoverBegin = (type, pos, isTopMost) => {
             if (this.isOn == false) {
-                this.color = this.hoverColor;
+                this.addConfig({
+                    color: this.hoverColor
+                });
             }
             //super.onMouseHoverBegin(type,pos,isTopMost);
         };
         this.onMouseHoverEnd = (type, pos, isTopMost) => {
             if (this.isOn == false) {
-                this.color = this.notPressedColor;
+                this.addConfig({
+                    color: this.notPressedColor
+                });
             }
             //super.onMouseHoverEnd(type,pos,isTopMost);
         };
@@ -95,12 +107,18 @@ export class ToggleButton extends HoverPressButton {
         super.addConfig(config);
     }
     toggle(onOrOff) {
+        console.log("tog");
+        console.log(this);
         this.isOn = onOrOff;
         if (onOrOff == true) {
-            this.color = this.pressColor;
+            this.addConfig({
+                color: this.pressColor
+            });
         }
         else {
-            this.color = this.notPressedColor;
+            this.addConfig({
+                color: this.notPressedColor
+            });
             //because need to be hovering over in order to be able to do that anyway
         }
         this.onToggle(this.isOn);
@@ -142,7 +160,6 @@ export class ToggleButtonGroup {
         };
     }
     removeButton(button) {
-        console.log(this.buttons.indexOf(button));
         this.buttons.slice(this.buttons.indexOf(button), 1);
     }
 }

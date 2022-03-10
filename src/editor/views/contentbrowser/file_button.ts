@@ -1,7 +1,7 @@
 import { HoverPressButton, ToggleButton } from "../../../ui_components/ui_components.js";
 import { Rect, Canvas, TextBox, colorCreator, boundingShape } from "../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType, IPos } from "../../../ui/types/types.js";
-import { View, ViewContentArea } from "../view.js";
+import { ViewOutline, View } from "../view.js";
 import { allFiles, CBFile, FileTypes, mapStartFile, setMapStartFile } from "../cb_file.js";
 import { ITextBoxConfig } from "../../../ui/text_box.js";
 import { TextInput } from "../../../ui_components/text_input.js";
@@ -31,13 +31,13 @@ export class FileButton extends HoverPressButton {
             onPress: (type: EMouseType, pos: IPos, isTopMost: boolean) => {
                 if (isTopMost) {
                     if (file.type == FileTypes.script) {
-                        contentBrowser.view.editor.addViewGeneric(BlockEditor);
+                        contentBrowser.viewOutline.editor.addViewGeneric(BlockEditor);
                     }
                     else if(file.type == FileTypes.image){
-                        contentBrowser.view.editor.addViewGeneric(PixelImage);
+                        contentBrowser.viewOutline.editor.addViewGeneric(PixelImage);
                     }
                     else if(file.type == FileTypes.level){
-                        contentBrowser.view.editor.addViewGeneric(Level,file);
+                        contentBrowser.viewOutline.editor.addViewGeneric(Level,file);
                     }
                 }
             }
@@ -68,8 +68,9 @@ export class FileButton extends HoverPressButton {
             rectType:ERectType.HzBox,
             constraintX:EConstraintsX.right,
             constraintY:EConstraintsY.scale,
-            fixedSizeW:300,
-            isVisible:false
+            fixedSizeW:500,
+            isVisible:true,
+            resizeBoxToContent:false
         })
 
         if(file.type==FileTypes.level){
@@ -82,8 +83,6 @@ export class FileButton extends HoverPressButton {
                 onToggle:(isOn:boolean)=>{
                     if(isOn){
                         setMapStartFile(this.file);
-                        console.log("toggle")
-                        console.log(mapStartFile)
                         setStartButton.icon?.addConfig({
                             imageSrc:"flag.square.svg"
                         }) 
@@ -104,8 +103,6 @@ export class FileButton extends HoverPressButton {
             this.contentBrowser.startFlagGroup.addButton(setStartButton);
             this.setStartButton=setStartButton;
 
-            console.log("gen")
-            console.log(mapStartFile)
             if(mapStartFile==file){
                 this.contentBrowser.startFlagGroup.setCurrentToggled(setStartButton);
 

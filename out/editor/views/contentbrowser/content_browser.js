@@ -1,13 +1,13 @@
 // @ts-ignore
 import { Rect } from "../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../../../ui/types/types.js";
-import { ViewContentArea } from "../view.js";
+import { View } from "../view.js";
 import { allFiles } from "../cb_file.js";
 import { ERectType } from "../../../ui/shape.js";
 import { FileButton } from "./file_button.js";
 import { FileAddButton } from "./fileadd_button.js";
 import { ToggleButtonGroup } from "../../../ui_components/button.js";
-export class ContentBrowser extends ViewContentArea {
+export class ContentBrowser extends View {
     constructor(view) {
         super(view);
         this.isInFileSelector = false;
@@ -31,5 +31,11 @@ export class ContentBrowser extends ViewContentArea {
             new FileButton(file, this);
         }
         new FileAddButton(this);
+    }
+    destroy() {
+        console.log("de");
+        console.log(this.viewOutline.editor.topbar);
+        this.viewOutline.editor.topbar.cbButton.toggle(false);
+        super.destroy();
     }
 }

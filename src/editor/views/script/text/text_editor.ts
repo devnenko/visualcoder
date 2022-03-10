@@ -2,7 +2,7 @@
 
 import { editor } from "../../../../main.js";
 import { Canvas } from "../../../../ui/canvas.js";
-import { colorCreator } from "../../../../ui/color.js";
+import { colorCreator } from "../../../../util/color.js";
 import { KeypressHandler } from "../../../../ui/event_handlers/keypress.js";
 import { IMouseHandler, MouseHandler } from "../../../../ui/event_handlers/mouse.js";
 import { HorizontalBox } from "../../../../ui/horizontal_box.js";

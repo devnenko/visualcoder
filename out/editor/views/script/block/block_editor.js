@@ -4,7 +4,7 @@ import { Rect, TextBox, Line, colorCreator, boundingShape } from "../../../../ui
 import { EConstraintsX, EConstraintsY, EMouseType } from "../../../../ui/types/types.js";
 import { MouseHandler, KeypressHandler } from "../../../../ui/event_handlers/event_handlers.js";
 import { Clickable } from "../../../../ui/clickable.js";
-import { ViewContentArea } from "../../view.js";
+import { View } from "../../view.js";
 import { ERectType } from "../../../../ui/shape.js";
 export class Pin extends Clickable {
     constructor(block, isInPin, pinVal) {
@@ -38,12 +38,12 @@ export class Pin extends Clickable {
         }
     }
     onMouseDown(type, pos, topMost) {
-        this.prevLine = new Line();
-        this.prevLine.addConfig({
-            parent: this
-        });
-        this.prevLine.obj1 = this;
-        this.prevLine.fixedPos2 = pos;
+        //this.prevLine = new Line();
+        //this.prevLine.addConfig({
+        //    parent: this
+        //});
+        //this.prevLine.obj1 = this;
+        //this.prevLine.fixedPos2 = pos;
     }
     onMouseMoveDown(type, pos) {
         if (this.prevLine instanceof Line) {
@@ -58,20 +58,20 @@ export class Pin extends Clickable {
             if (topObj instanceof Pin) {
                 if (this.prevLine instanceof Line) {
                     if (this.isInPin == false) {
-                        this.nextLine = new Line();
-                        this.nextLine.addConfig({
-                            parent: this
-                        });
-                        this.nextLine.obj1 = this;
-                        this.nextLine.obj2 = topObj;
+                        //this.nextLine = new Line();
+                        //this.nextLine.addConfig({
+                        //    parent:this
+                        //}) 
+                        //this.nextLine.obj1 = this;
+                        //this.nextLine.obj2 = topObj;
                     }
                     else {
-                        topObj.nextLine = new Line();
-                        topObj.nextLine.addConfig({
-                            parent: this
-                        });
-                        topObj.nextLine.obj1 = topObj;
-                        topObj.nextLine.obj2 = this;
+                        //topObj.nextLine = new Line();
+                        //topObj.nextLine.addConfig({
+                        //    parent:this
+                        //}) 
+                        //topObj.nextLine.obj1 = topObj;
+                        //topObj.nextLine.obj2 = this;
                     }
                     this.parent.parent.createSaveFile();
                 }
@@ -122,10 +122,8 @@ export class Block extends Clickable {
             parent: this,
             text: "block"
         });
-        console.log("wh");
     }
     onMouseDown(type, pos, topMost) {
-        console.log("wh");
         if (topMost == true) {
             this.blockEditor.selector?.destroy();
             this.blockEditor.selector = null;
@@ -141,19 +139,26 @@ export class Block extends Clickable {
             });
         }
     }
+    draw(parent) {
+        const sorted = this.children.slice().sort(function (a, b) {
+            if (a.zIndex - b.zIndex != 0) {
+            }
+            return a.zIndex - b.zIndex;
+        });
+        super.draw(parent);
+    }
 }
 export class BlockSelector extends Rect {
     constructor(blockEditor) {
-        super();
-        this.buttons = [];
-        this.blockEditor = blockEditor;
-        this.addConfig({
+        super({
             rectType: ERectType.VtBox,
             parent: blockEditor,
             fixedSizeW: 160,
             fixedSizeH: FunctionNames2.length * 60,
             color: colorCreator.colorByBrightness(10)
         });
+        this.buttons = [];
+        this.blockEditor = blockEditor;
         this.addAllButtons();
     }
     addAllButtons() {
@@ -229,6 +234,7 @@ export class BlockSelector extends Rect {
                             }
                         }
                     }
+                    block.setZIndex(-1);
                 }
             });
             button.createTitle();
@@ -241,11 +247,12 @@ export class BlockSelector extends Rect {
 }
 //maybe extend viewcontentarea to fileviewcontent or something to bind file change events to all instances of class
 //do later when ideas more clear though
-export class BlockEditor extends ViewContentArea {
+export class BlockEditor extends View {
     constructor(view) {
         super(view);
         this.selector = null;
         this.viewName = "BlockEditor";
+        this.setZIndex(-2);
         //this.showDebugSrc();
     }
     onMouseDown(type, pos, topMost) {

@@ -1,0 +1,15 @@
+-create default view for plain text
+-decouple images code and make into a class
+-figure out view refreshing and loading
+
+-refactor rect  resizing code (hzbox from both directions)
+-add hzbox startdirection choice
+-correct textbox wrong dimensions 
+-mvp ready 
+    -component and file creation through text
+    -ability to save anything(savesrc,save,load refresh on class)
+    -file linking 
+    -levels(main file with startlevel)
+    -materials(text for now)
+    -meshes(text for now)
+    -Gameobjects

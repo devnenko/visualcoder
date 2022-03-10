@@ -1,14 +1,16 @@
+import { Block } from "../editor/views/script/block/block_editor.js";
 import { BoundingShape, boundingShape ,Canvas} from "./ui.js";
 
 export enum ERectType {
-    Normal = 0,
-    HzBox = 1,
-    VtBox = 2
+    Normal = "normal",
+    HzBox = "hzbox",
+    VtBox = "vtbox"
 }
 
 export interface IShapeConfig {
     parent?: IShape,
-    canvas?: Canvas
+    canvas?: Canvas,
+    zIndex?:number
 }
 
 
@@ -16,19 +18,25 @@ export interface IShape {
     canvas?: Canvas,
     parent?: IShape;
     children: IShape[],//only children is passed (no parent)
+    zIndex:number,
     draw: (parent: IShape) => void, //draws shape and all children 
     //overlappHierarchy(pos:IPos): Button[]
-    destroy: () => void
+    destroy: () => void,
+    drawRect:()=>void,
+    setZIndex:(index:number)=>void
 }
 
 
 
 export abstract class Shape<Config = IShapeConfig> {
+    public zIndex=10;
     public parent:IShape=boundingShape;
     public canvas:Canvas=boundingShape.canvas;
     public children: IShape[] = [];
     constructor(config?:Config) {
         this.parent.children.push(this);
+        boundingShape.allShapes.push(this);
+        this.zIndex=this.parent.zIndex;
         this.setAttrs(config);
     }
 
@@ -59,6 +67,13 @@ export abstract class Shape<Config = IShapeConfig> {
     getAttr(key:string){
         // @ts-ignore
         return this[key];
+    }
+
+    setZIndex(index:number){
+        this.zIndex=index;
+        for (const child of this.children) {
+            child.setZIndex(index);
+        }
     }
 
     //public createConfig(opts:Opts){
@@ -93,20 +108,37 @@ export abstract class Shape<Config = IShapeConfig> {
 
     protected setParent(parent:IShape){
         this.parent.children.splice(this.parent.children.indexOf(this),1)
+
         parent.children.push(this);
+
         boundingShape.draw();
+    }
+    public setIndex(index:number){
+        this.parent.children.splice(this.parent.children.indexOf(this),1)
+        this.parent.children.splice(index, 0, this);
     }
 
     public draw(parent: IShape) {
+        const sorted=this.children.slice().sort(function(a, b){
+            if(a.zIndex - b.zIndex!=0){
+            }
+            return a.zIndex - b.zIndex
+        });
         for (const child of this.children) {
             child.draw(this);
         }
+    }
+
+    drawRect(){
+
     }
 
     public destroy() {
 
         this.destroyChildrenOnly();
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        boundingShape.allShapes.splice(boundingShape.allShapes.indexOf(this),1)
+        boundingShape.draw();
     }
 
     public destroyChildrenOnly(){

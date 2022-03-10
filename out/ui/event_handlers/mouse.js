@@ -87,7 +87,7 @@ export class MouseHandler {
                 this.actifInputField.toggle(false);
             }
         }
-        boundingShape.draw();
+        //boundingShape.draw();
         //var overlapping=boundingShape.overlappHierarchy(pos);
         //if(overlapping[0]){
         //    this.activeRect?.onMouseHoverEnd(e,pos);
@@ -98,7 +98,7 @@ export class MouseHandler {
         //    this.activeRect=null;
         //}
         //
-        //boundingShape.draw();
+        boundingShape.draw();
         //this.currentPos=pos;
     }
     static move(e, pos) {

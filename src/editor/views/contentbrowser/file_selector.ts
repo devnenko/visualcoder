@@ -1,7 +1,7 @@
 import { HoverPressButton, ToggleButton } from "../../../ui_components/ui_components.js";
 import { Rect, Canvas, TextBox, colorCreator, boundingShape } from "../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType, IPos } from "../../../ui/types/types.js";
-import { View, ViewContentArea } from "../view.js";
+import { ViewOutline, View } from "../view.js";
 import { allFiles, CBFile, FileTypes } from "../cb_file.js";
 import { ITextBoxConfig } from "../../../ui/text_box.js";
 import { TextInput } from "../../../ui_components/text_input.js";
@@ -10,8 +10,9 @@ import { ERectType } from "../../../ui/shape.js";
 import { PixelImage } from "../image/image.js";
 import { ContentBrowser } from "./content_browser";
 import { ToggleButtonGroup } from "../../../ui_components/button.js";
+import { Clickable } from "../../../ui/clickable.js";
 
-export class FileSelector extends Rect {
+export class FileSelector extends Clickable {
     contentBrowser;
     //topDragArea;
     fileTypeHzBox;

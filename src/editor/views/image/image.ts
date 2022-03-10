@@ -1,12 +1,11 @@
 import { createAndRunScript, destroyScript } from "../../../compiler/compiler.js";
-import { ViewContentArea } from "../view.js";
+import { View, ViewOutline } from "../view.js";
 import {Rect,Canvas,boundingShape} from "../../../ui/ui.js";
 import {} from "../../../ui/types/types.js";
-import { View } from "../views.js";
 
-export class PixelImage extends ViewContentArea{
+export class PixelImage extends View{
     viewName: string="PixelImage";
-    constructor(view:View){
+    constructor(view:ViewOutline){
         super(view)
         const mainImage=new Rect();
         mainImage.addConfig({

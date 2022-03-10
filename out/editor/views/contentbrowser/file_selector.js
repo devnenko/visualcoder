@@ -5,7 +5,8 @@ import { allFiles, CBFile, FileTypes } from "../cb_file.js";
 import { TextInput } from "../../../ui_components/text_input.js";
 import { ERectType } from "../../../ui/shape.js";
 import { ToggleButtonGroup } from "../../../ui_components/button.js";
-export class FileSelector extends Rect {
+import { Clickable } from "../../../ui/clickable.js";
+export class FileSelector extends Clickable {
     constructor(contentBrowser) {
         super();
         this.fileType = FileTypes.image; //default value

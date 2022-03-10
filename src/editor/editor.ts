@@ -1,17 +1,20 @@
 //import { editor } from "../main.js";
 import { Canvas } from "../ui/canvas.js";
-import { colorCreator } from "../ui/color.js";
+import { colorCreator } from "../util/color.js";
 import { MouseHandler } from "../ui/event_handlers/mouse.js";
-import {  Rect } from "../ui/rect.js";
+import {  IRectConfig, Rect, recti } from "../ui/rect.js";
 import { boundingShape, EObjectType, IShape } from "../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../ui/types/constraints.js";
 import { EMouseType } from "../ui/types/mouse.js";
 import { IPos } from "../ui/types/pos.js";
 import { Level } from "./views/level/level.js";
 import { HoverPressButton } from "../ui_components/ui_components.js";
-import { FileViewContentArea, View, ViewContentArea } from "./views/view.js";
+import {  ViewOutline, View } from "./views/view.js";
 import { EditorTopBar } from "./topbar.js";
-import { GeFile } from "./views/views.js";
+import { CBFile } from "./views/cb_file.js";
+import { ERectType } from "../ui/shape.js";
+import { ResizeHandler } from "../ui/event_handlers/resize.js";
+import { ISize } from "../compiler/lib.js";
 
 // problem: how do we create views so that they are usefull and dont cause confusion? 
 //what are the usefull and useless usecases and how could you implement that in an intuitive way 
@@ -30,13 +33,36 @@ import { GeFile } from "./views/views.js";
 
 
 
+export enum Direction{
+    Left="left",
+    Right="right",
+    Top="top",
+    Bottom="bottom"
+}
 
 
+export class TwoViewRect extends Rect{
+    public children: Rect[]=[];
+    constructor(config?:IRectConfig){
+        super()
+        this.setAttrs(config);
+    }
+    removeSelf(){
+        const childLenght=this.children.length;
+        for(let i=0;i<childLenght;i++){
+            this.children[0].addConfig({
+                parent:this.parent
+            })
+        }
+        this.destroy();
+    }
+}
 
 export class Editor extends Rect {
     topbar: EditorTopBar;
     contentArea: Rect;
-    //views: View[] = [];
+    views: View[] = [];
+    viewMinSize:ISize={w:220,h:220}
     //emptyText;
     constructor() {
         super({
@@ -66,34 +92,87 @@ export class Editor extends Rect {
 
         //const v=new View(this.contentArea,this.canvas);
         //v.topBar.title.text="scene"
+        
+        boundingShape.draw();
     }
-
-    public addViewGeneric(ContentAreaClass: typeof ViewContentArea,file?:GeFile) {
-        ContentAreaClass.prototype.viewName
-        if(this.contentArea.children[0]){
-            if((this.contentArea.children[0] as View).contentArea.viewName!=ContentAreaClass.prototype.constructor.name){
-                (this.contentArea.children[0] as View).destroy();
-                const view =new View(ContentAreaClass,this,file);
-            }
-            else{
-                console.log("ye")
-            }
-        }else{
-            const view =new View(ContentAreaClass,this,file);
-        }
-        ////this.views.push(view);
-        ////view.topBar.title.text=view.contentArea.viewTitle;
-        ////boundingShape.drawHierarchy();
-    }
-    public findView(viewName:string){
-        for(const child of this.contentArea.children){
-            for(const area of (child.children as ViewContentArea[])){
-                if(area.viewName==viewName){
-                    return child;
-                }
+    public findView(ContentAreaClass: typeof View){
+        for(const currContentArea of this.views){
+            if(currContentArea instanceof ContentAreaClass){
+                return currContentArea;
             }
         }
         return null;
+    }
+
+    public addViewGeneric(newView: typeof View,file?:CBFile) {
+        if(this.views.length==0){
+            new ViewOutline(newView,this);
+        }else{
+            this.addViewInDir(this.views[0],newView,Direction.Left);
+        }
+        console.log(this.views.length)
+    }
+
+    public checkViewSpaceInDir(origin:View,newView: typeof View,direction:Direction){
+        return //returns if the view is creatable or not boolean
+    }
+
+    public addViewInDir(origin:View,newView: typeof View,direction:Direction){
+        let originOutline=origin.viewOutline;
+        let newBoundingRect=new TwoViewRect({
+            parent:originOutline.parent,
+            constraintX:EConstraintsX.scale,
+            constraintY:EConstraintsY.scale,
+            isVisible:false,
+        });
+        originOutline.addConfig({
+            parent:newBoundingRect,
+            boxProportion:{x:50,y:50}
+        })
+        const newViewObj =new ViewOutline(newView,this);
+        newViewObj.addConfig({
+            parent:newBoundingRect,
+            boxProportion:{x:50,y:50}
+        })
+        switch (direction){
+            case Direction.Left: case Direction.Right:
+                newBoundingRect.addConfig({
+                    rectType:ERectType.HzBox
+                })
+                if(direction==Direction.Left){
+                    console.log("yse")
+                    originOutline.addConfig({
+                        parent:originOutline.parent
+                    })
+                    console.log(newViewObj.parent)
+                }
+                break;
+            case Direction.Top: case Direction.Bottom:
+                newBoundingRect.addConfig({
+                    rectType:ERectType.VtBox
+                })
+                if(direction==Direction.Top){
+                    console.log("yse")
+                    originOutline.addConfig({
+                        parent:originOutline.parent
+                    })
+                    console.log(newViewObj.parent)
+                }
+                break;
+        }
+        //add resize bar
+        const resizeBar=new Rect({
+            fixedSizeW:10,
+            fixedSizeH:10,
+            parent:newBoundingRect
+        })
+        resizeBar.setIndex(1);
+        //resizeBar.parent=newBoundingRect;
+        //resizeBar.setParent(newBoundingRect,1);
+        //if(newViewObj.getAbsSize().w<this.viewMinSize.w||newViewObj.getAbsSize().h<this.viewMinSize.h){
+        //    //too small
+        //    newViewObj.destroy();
+        //}
     }
 
     public drawViewPreview(pos: IPos) {
@@ -104,3 +183,4 @@ export class Editor extends Rect {
 
     }
 }
+

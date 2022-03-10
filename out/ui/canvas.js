@@ -22,12 +22,29 @@ export class Canvas {
         //this.update();
         //window.addEventListener('resize', this.update.bind(this));
     }
+    resizeCanvasToDisplaySize(canvas) {
+        // Lookup the size the browser is displaying the canvas in CSS pixels.
+        const dpr = window.devicePixelRatio;
+        const { width, height } = canvas.getBoundingClientRect();
+        const displayWidth = Math.round(width * dpr);
+        const displayHeight = Math.round(height * dpr);
+        // Check if the canvas is not the same size.
+        const needResize = canvas.width != displayWidth ||
+            canvas.height != displayHeight;
+        if (needResize) {
+            // Make the canvas the same size
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+        }
+        return needResize;
+    }
     resize() {
         let ratio = window.devicePixelRatio;
         let style_width = +getComputedStyle(this.canvas).getPropertyValue("width").slice(0, -2); //+ makes to integer, slice removes px at end
         let style_height = +getComputedStyle(this.canvas).getPropertyValue("height").slice(0, -2); //+ makes to integer, slice removes px at end
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+        this.resizeCanvasToDisplaySize(this.canvas);
     }
     update() {
         //stats.begin();

@@ -1,20 +1,19 @@
 import { createAndRunScript, destroyScript } from "../../../compiler/compiler.js";
-import { ViewContentArea } from "../view.js";
 import {Rect,Canvas} from "../../../ui/ui.js";
 import {} from "../../../ui/types/types.js";
-import { View } from "../views.js";
+import { View, ViewOutline } from "../view.js";
 
-export class Level extends ViewContentArea{
+export class Level extends View{
     viewName: string="Level";
-    linkedFiles: CBFile[]=[];
-    constructor(view:View){
+    //linkedFiles: CBFile[]=[];
+    constructor(view:ViewOutline){
         super(view) 
 
 
         createAndRunScript();
     }
     destroy(): void {
-        this.view.editor.topbar.playButton.toggle(false);
+        this.viewOutline.editor.topbar.playButton.toggle(false);
         destroyScript();
         super.destroy();
     }

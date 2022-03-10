@@ -1,14 +1,14 @@
 import { createAndRunScript, destroyScript } from "../../../compiler/compiler.js";
-import { ViewContentArea } from "../view.js";
-export class Level extends ViewContentArea {
+import { View } from "../view.js";
+export class Level extends View {
+    //linkedFiles: CBFile[]=[];
     constructor(view) {
         super(view);
         this.viewName = "Level";
-        this.linkedFiles = [];
         createAndRunScript();
     }
     destroy() {
-        this.view.editor.topbar.playButton.toggle(false);
+        this.viewOutline.editor.topbar.playButton.toggle(false);
         destroyScript();
         super.destroy();
     }

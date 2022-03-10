@@ -15,8 +15,7 @@ export class CBFile {
     static getStartLevel() {
     }
     destroy() {
-        this.linkedObjects.forEach;
-        removeref;
+        //this.linkedObjects.forEach removeref
     }
 }
 export let allFiles = [];

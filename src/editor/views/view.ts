@@ -1,17 +1,16 @@
 import { destroyScript } from "../../compiler/compiler.js";
 import { HoverPressButton } from "../../ui_components/ui_components.js";
-import { GeFile } from "./views.js";
 import { Rect, Canvas, TextBox, colorCreator } from "../../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType, IPos } from "../../ui/types/types.js";
-import { Editor } from "../editor.js";
-import { FileTypes } from "./cb_file.js";
+import { Editor, TwoViewRect } from "../editor.js";
+import { CBFile, FileTypes } from "./cb_file.js";
 import { ERectType } from "../../ui/shape.js";
 import { Clickable } from "../../ui/clickable.js";
 
 class ViewTopBar extends Rect {
     title;
     deleteButton;
-    constructor(view: View) {
+    constructor(view: ViewOutline) {
         super()
         this.addConfig({
             parent: view,
@@ -28,6 +27,7 @@ class ViewTopBar extends Rect {
             size: 24,
             color: "white"
         })
+        this.title.zIndex=4;
 
         this.deleteButton = new HoverPressButton();
 
@@ -45,16 +45,17 @@ class ViewTopBar extends Rect {
         this.deleteButton.icon?.addConfig({
             imageSrc: "xmark.svg",
         })
+        this.deleteButton.zIndex=4;
     }
 }
 
 //should view classes extend view maybe rather than be part of
 
-export class View extends Rect {
+export class ViewOutline extends Rect {
     topBar: ViewTopBar;
-    contentArea: ViewContentArea;
+    view: View;
     editor: Editor;
-    constructor(ContentAreaInstance: typeof ViewContentArea, editor: Editor, file?: GeFile) {
+    constructor(ContentAreaInstance: typeof View, editor: Editor, file?: CBFile) {
         super()
         this.editor = editor;
         this.addConfig({
@@ -62,37 +63,46 @@ export class View extends Rect {
             parent: editor.contentArea,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
-            isVisible: false
+            isVisible: false,
         });
 
         this.topBar = new ViewTopBar(this);
 
-        this.contentArea = new ContentAreaInstance(this);
+        this.view = new ContentAreaInstance(this);
 
         if (file) {
             this.topBar.title.addConfig({
-                text: this.contentArea.viewName.concat(file?.name)
+                text: this.view.viewName.concat(file?.name)
             });
         }
         else{
             this.topBar.title.addConfig({
-                text: this.contentArea.viewName.concat("nofile")
+                text: this.view.viewName.concat("nofile")
             });
         }
         //contentArea.setParent(this);
     }
     destroy(): void {
-        //editor.views.splice(editor.views.indexOf(this),1);
+        //this.editor.removeView(this);
+        if(this.parent instanceof TwoViewRect){
+            const twoViewRect=this.parent;
+            console.log("twoviewRect")
+            console.log(twoViewRect.children)
+            this.parent.removeSelf();
+            console.log("now")
+            console.log(twoViewRect.children)
+        }
         super.destroy();
     }
 }
 
-export class ViewContentArea extends Clickable {
+export class View extends Clickable {
     viewName: string = "Default View"
-    view: View;
-    constructor(view: View) {
+    viewOutline: ViewOutline;
+    constructor(view: ViewOutline) {
         super()
-        this.view = view;
+        this.viewOutline = view;
+        this.viewOutline.editor.views.push(this);
         this.addConfig({
             parent: view,
             constraintX: EConstraintsX.scale,
@@ -100,18 +110,11 @@ export class ViewContentArea extends Clickable {
             color: colorCreator.midColorDef
         })
     }
-}
-
-
-export class FileViewContentArea extends ViewContentArea {
-    file: GeFile = new GeFile("hi", FileTypes.image, "hi");
-    //debugSrc:Text|null=null;
-
-    constructor(view: View, file: GeFile) {
-        super(view)
-    }
-
-    showDebugSrc() {
-        //this.debugSrc=new Text(this,this.canvas);
+    destroy(): void {
+        //this.viewOutline.editor.removeView(this);
+        this.viewOutline.editor.views.splice(this.viewOutline.editor.views.indexOf(this),1)
+        super.destroy();
     }
 }
+
+

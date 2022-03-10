@@ -19,7 +19,7 @@ export class HoverPressButton<Config= IHoverPressButtonConfig> extends Clickable
     public title: TextBox | null = null;
     public icon: Rect | null = null;
     public onPress = (type: EMouseType, pos: IPos, isTopMost: boolean) => { };
-    public onRelease = (type: EMouseType, pos: IPos, isTopMost: boolean) => { };
+    public onRelease = (type: EMouseType, pos: IPos, isTopMost: boolean,stillOverlapping:boolean) => { };
 
     constructor(config?:IHoverPressButtonConfig){
         super();
@@ -55,15 +55,21 @@ export class HoverPressButton<Config= IHoverPressButtonConfig> extends Clickable
 
 
     public onMouseHoverBegin(type: EMouseType, pos: IPos, isTopMost: boolean) {
-        this.color = this.hoverColor;
+        this.addConfig({
+            color:this.hoverColor
+        })
         super.onMouseHoverBegin(type,pos,isTopMost);
     }
     public onMouseHoverEnd(type: EMouseType, pos: IPos, isTopMost: boolean) {
-        this.color = this.notPressedColor;
+        this.addConfig({
+            color:this.notPressedColor
+        })
         super.onMouseHoverEnd(type,pos,isTopMost);
     }
     public onMouseDown(type: EMouseType, pos: IPos, isTopMost: boolean) {
-        this.color = this.pressColor;
+        this.addConfig({
+            color:this.pressColor
+        })
         this.onPress(type, pos, isTopMost);
         super.onMouseDown(type,pos,isTopMost);
     }
@@ -71,7 +77,9 @@ export class HoverPressButton<Config= IHoverPressButtonConfig> extends Clickable
         super.onMouseMoveDown(type,pos,isTopMost);
     }
     public onMouseUp(type: EMouseType, pos: IPos, isTopMost: boolean) {
-        this.color = this.notPressedColor;
+        this.addConfig({
+            color:this.notPressedColor
+        })
         this.onRelease(type, pos, isTopMost);
         super.onMouseUp(type,pos,isTopMost);
     }
@@ -100,12 +108,18 @@ export class ToggleButton<Config= IToggleButtonConfig> extends HoverPressButton<
     }
 
     public toggle(onOrOff: boolean) {
+        console.log("tog")
+        console.log(this)
         this.isOn = onOrOff;
         if (onOrOff == true) {
-            this.color = this.pressColor;
+            this.addConfig({
+                color:this.pressColor
+            })
         }
         else {
-            this.color = this.notPressedColor;
+            this.addConfig({
+                color:this.notPressedColor
+            })
             //because need to be hovering over in order to be able to do that anyway
         }
         this.onToggle(this.isOn);
@@ -115,13 +129,17 @@ export class ToggleButton<Config= IToggleButtonConfig> extends HoverPressButton<
 
     public onMouseHoverBegin = (type: EMouseType, pos: IPos, isTopMost: boolean) => {
         if (this.isOn == false) {
-            this.color = this.hoverColor;
+            this.addConfig({
+                color:this.hoverColor
+            })
         }
         //super.onMouseHoverBegin(type,pos,isTopMost);
     }
     public onMouseHoverEnd = (type: EMouseType, pos: IPos, isTopMost: boolean) => {
         if (this.isOn == false) {
-            this.color = this.notPressedColor;
+            this.addConfig({
+                color:this.notPressedColor
+            })
         }
         //super.onMouseHoverEnd(type,pos,isTopMost);
     }
@@ -170,7 +188,6 @@ export class ToggleButtonGroup{
         }
     }
     removeButton(button:ToggleButton){
-        console.log(this.buttons.indexOf(button));
         this.buttons.slice(this.buttons.indexOf(button),1)
     }
 }

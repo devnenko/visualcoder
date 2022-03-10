@@ -1,8 +1,7 @@
 import { HoverPressButton } from "../../ui_components/ui_components.js";
-import { GeFile } from "./views.js";
 import { Rect, TextBox, colorCreator } from "../../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../../ui/types/types.js";
-import { FileTypes } from "./cb_file.js";
+import { TwoViewRect } from "../editor.js";
 import { ERectType } from "../../ui/shape.js";
 import { Clickable } from "../../ui/clickable.js";
 class ViewTopBar extends Rect {
@@ -21,6 +20,7 @@ class ViewTopBar extends Rect {
             size: 24,
             color: "white"
         });
+        this.title.zIndex = 4;
         this.deleteButton = new HoverPressButton();
         this.deleteButton.addConfig({
             parent: this,
@@ -36,10 +36,11 @@ class ViewTopBar extends Rect {
         this.deleteButton.icon?.addConfig({
             imageSrc: "xmark.svg",
         });
+        this.deleteButton.zIndex = 4;
     }
 }
 //should view classes extend view maybe rather than be part of
-export class View extends Rect {
+export class ViewOutline extends Rect {
     constructor(ContentAreaInstance, editor, file) {
         super();
         this.editor = editor;
@@ -48,32 +49,41 @@ export class View extends Rect {
             parent: editor.contentArea,
             constraintX: EConstraintsX.scale,
             constraintY: EConstraintsY.scale,
-            isVisible: false
+            isVisible: false,
         });
         this.topBar = new ViewTopBar(this);
-        this.contentArea = new ContentAreaInstance(this);
+        this.view = new ContentAreaInstance(this);
         if (file) {
             this.topBar.title.addConfig({
-                text: this.contentArea.viewName.concat(file?.name)
+                text: this.view.viewName.concat(file?.name)
             });
         }
         else {
             this.topBar.title.addConfig({
-                text: this.contentArea.viewName.concat("nofile")
+                text: this.view.viewName.concat("nofile")
             });
         }
         //contentArea.setParent(this);
     }
     destroy() {
-        //editor.views.splice(editor.views.indexOf(this),1);
+        //this.editor.removeView(this);
+        if (this.parent instanceof TwoViewRect) {
+            const twoViewRect = this.parent;
+            console.log("twoviewRect");
+            console.log(twoViewRect.children);
+            this.parent.removeSelf();
+            console.log("now");
+            console.log(twoViewRect.children);
+        }
         super.destroy();
     }
 }
-export class ViewContentArea extends Clickable {
+export class View extends Clickable {
     constructor(view) {
         super();
         this.viewName = "Default View";
-        this.view = view;
+        this.viewOutline = view;
+        this.viewOutline.editor.views.push(this);
         this.addConfig({
             parent: view,
             constraintX: EConstraintsX.scale,
@@ -81,14 +91,9 @@ export class ViewContentArea extends Clickable {
             color: colorCreator.midColorDef
         });
     }
-}
-export class FileViewContentArea extends ViewContentArea {
-    //debugSrc:Text|null=null;
-    constructor(view, file) {
-        super(view);
-        this.file = new GeFile("hi", FileTypes.image, "hi");
-    }
-    showDebugSrc() {
-        //this.debugSrc=new Text(this,this.canvas);
+    destroy() {
+        //this.viewOutline.editor.removeView(this);
+        this.viewOutline.editor.views.splice(this.viewOutline.editor.views.indexOf(this), 1);
+        super.destroy();
     }
 }

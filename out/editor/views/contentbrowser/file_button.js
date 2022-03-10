@@ -33,13 +33,13 @@ export class FileButton extends HoverPressButton {
             onPress: (type, pos, isTopMost) => {
                 if (isTopMost) {
                     if (file.type == FileTypes.script) {
-                        contentBrowser.view.editor.addViewGeneric(BlockEditor);
+                        contentBrowser.viewOutline.editor.addViewGeneric(BlockEditor);
                     }
                     else if (file.type == FileTypes.image) {
-                        contentBrowser.view.editor.addViewGeneric(PixelImage);
+                        contentBrowser.viewOutline.editor.addViewGeneric(PixelImage);
                     }
                     else if (file.type == FileTypes.level) {
-                        contentBrowser.view.editor.addViewGeneric(Level, file);
+                        contentBrowser.viewOutline.editor.addViewGeneric(Level, file);
                     }
                 }
             }
@@ -65,8 +65,9 @@ export class FileButton extends HoverPressButton {
             rectType: ERectType.HzBox,
             constraintX: EConstraintsX.right,
             constraintY: EConstraintsY.scale,
-            fixedSizeW: 300,
-            isVisible: false
+            fixedSizeW: 500,
+            isVisible: true,
+            resizeBoxToContent: false
         });
         if (file.type == FileTypes.level) {
             const setStartButton = new ToggleButton();
@@ -78,8 +79,6 @@ export class FileButton extends HoverPressButton {
                 onToggle: (isOn) => {
                     if (isOn) {
                         setMapStartFile(this.file);
-                        console.log("toggle");
-                        console.log(mapStartFile);
                         setStartButton.icon?.addConfig({
                             imageSrc: "flag.square.svg"
                         });
@@ -98,8 +97,6 @@ export class FileButton extends HoverPressButton {
             });
             this.contentBrowser.startFlagGroup.addButton(setStartButton);
             this.setStartButton = setStartButton;
-            console.log("gen");
-            console.log(mapStartFile);
             if (mapStartFile == file) {
                 this.contentBrowser.startFlagGroup.setCurrentToggled(setStartButton);
             }

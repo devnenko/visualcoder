@@ -1,6 +1,6 @@
-import { ViewContentArea } from "../view.js";
+import { View } from "../view.js";
 import { Rect, boundingShape } from "../../../ui/ui.js";
-export class PixelImage extends ViewContentArea {
+export class PixelImage extends View {
     constructor(view) {
         super(view);
         this.viewName = "PixelImage";

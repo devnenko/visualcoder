@@ -1,11 +1,10 @@
 import { PinVal, PinType, FunctionNames2, IFn, IScript } from "../../../../compiler/compiler.js";
 import { HoverPressButton } from "../../../../ui_components/ui_components.js";
-import { GeFile } from "./../../views.js";
 import { Rect, Canvas, TextBox, Line, colorCreator, IShape, boundingShape } from "../../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType, IPos } from "../../../../ui/types/types.js";
 import { MouseHandler, IMouseHandler, KeypressHandler, IKeyPressHandler } from "../../../../ui/event_handlers/event_handlers.js";
 import { Clickable } from "../../../../ui/clickable.js";
-import { ViewContentArea,View } from "../../view.js";
+import { View,ViewOutline } from "../../view.js";
 import { ERectType } from "../../../../ui/shape.js";
 
 export class Pin extends Clickable {
@@ -47,12 +46,12 @@ export class Pin extends Clickable {
 
     }
     onMouseDown(type: EMouseType, pos: IPos, topMost: boolean) {
-        this.prevLine = new Line();
-        this.prevLine.addConfig({
-            parent: this
-        });
-        this.prevLine.obj1 = this;
-        this.prevLine.fixedPos2 = pos;
+        //this.prevLine = new Line();
+        //this.prevLine.addConfig({
+        //    parent: this
+        //});
+        //this.prevLine.obj1 = this;
+        //this.prevLine.fixedPos2 = pos;
     }
     onMouseMoveDown(type: EMouseType, pos: IPos) {
         if (this.prevLine instanceof Line) {
@@ -67,19 +66,19 @@ export class Pin extends Clickable {
             if (topObj instanceof Pin) {
                 if (this.prevLine instanceof Line) {
                     if (this.isInPin == false) {
-                        this.nextLine = new Line();
-                        this.nextLine.addConfig({
-                            parent:this
-                        }) 
-                        this.nextLine.obj1 = this;
-                        this.nextLine.obj2 = topObj;
+                        //this.nextLine = new Line();
+                        //this.nextLine.addConfig({
+                        //    parent:this
+                        //}) 
+                        //this.nextLine.obj1 = this;
+                        //this.nextLine.obj2 = topObj;
                     } else {
-                        topObj.nextLine = new Line();
-                        topObj.nextLine.addConfig({
-                            parent:this
-                        }) 
-                        topObj.nextLine.obj1 = topObj;
-                        topObj.nextLine.obj2 = this;
+                        //topObj.nextLine = new Line();
+                        //topObj.nextLine.addConfig({
+                        //    parent:this
+                        //}) 
+                        //topObj.nextLine.obj1 = topObj;
+                        //topObj.nextLine.obj2 = this;
                     }
                     (this.parent.parent as BlockEditor).createSaveFile();
                 }
@@ -134,10 +133,8 @@ export class Block extends Clickable {
             parent: this,
             text: "block"
         })
-        console.log("wh")
     }
     onMouseDown(type: EMouseType, pos: IPos, topMost: boolean) {
-        console.log("wh")
         if (topMost == true) {
             this.blockEditor.selector?.destroy();
             this.blockEditor.selector=null;
@@ -153,21 +150,28 @@ export class Block extends Clickable {
             });
         }
     }
+    public draw(parent: IShape): void {
+        const sorted=this.children.slice().sort(function(a, b){
+            if(a.zIndex - b.zIndex!=0){
+            }
+            return a.zIndex - b.zIndex
+        });
+        super.draw(parent);
+    }
 }
 
 export class BlockSelector extends Rect {
     buttons: HoverPressButton[] = [];
     blockEditor: BlockEditor;
     constructor(blockEditor: BlockEditor) {
-        super();
-        this.blockEditor = blockEditor;
-        this.addConfig({
+        super({
             rectType:ERectType.VtBox,
             parent: blockEditor,
             fixedSizeW: 160,
             fixedSizeH: FunctionNames2.length * 60,
             color: colorCreator.colorByBrightness(10)
-        })
+        });
+        this.blockEditor = blockEditor;
 
         this.addAllButtons();
 
@@ -248,6 +252,7 @@ export class BlockSelector extends Rect {
                             }
                         }
                     }
+                    block.setZIndex(-1);
                 }
             });
             button.createTitle();
@@ -261,11 +266,12 @@ export class BlockSelector extends Rect {
 
 //maybe extend viewcontentarea to fileviewcontent or something to bind file change events to all instances of class
 //do later when ideas more clear though
-export class BlockEditor extends ViewContentArea {
+export class BlockEditor extends View {
     selector: BlockSelector | null = null;
     viewName: string="BlockEditor";
-    constructor(view: View) {
+    constructor(view: ViewOutline) {
         super(view)
+        this.setZIndex(-2);
         //this.showDebugSrc();
     }
     onMouseDown(type: EMouseType, pos: IPos, topMost: boolean) {

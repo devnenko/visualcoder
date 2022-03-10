@@ -20,7 +20,7 @@ export class CBFile{
 
     }
     destroy(){
-        this.linkedObjects.forEach removeref
+        //this.linkedObjects.forEach removeref
         
 
     }
