@@ -2,7 +2,7 @@ import { MouseHandler, IMouseHandler,IKeyPressHandler,KeypressHandler } from "..
 import { Rect, Canvas, IShape, TextBox, colorCreator } from "../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType, IPos } from "../ui/types/types.js";
 import { IRectConfig } from "../ui/rect.js";
-import { Clickable, IClickableConfig } from "../ui/clickable.js";
+import { Clickable, IClickableConfig } from "../ui/clickable_rect.js";
 import { boundingShape } from "../ui/bounding_rect.js";
 import { HoverPressButton, IHoverPressButtonConfig, IToggleButtonConfig, ToggleButton } from "./button.js";
 
@@ -27,7 +27,7 @@ export class TextInput extends ToggleButton implements IKeyPressHandler {
             constraintX:EConstraintsX.left,
             text:"untitled"
         });
-        this.setAttrs(config);
+        this.setConfigAttrs(config);
     }
 
     addConfig(config: ITextInputConfig): void {

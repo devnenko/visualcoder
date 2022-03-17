@@ -1,106 +1,92 @@
-import { boundingShape } from "./ui.js";
-export var ERectType;
-(function (ERectType) {
-    ERectType["Normal"] = "normal";
-    ERectType["HzBox"] = "hzbox";
-    ERectType["VtBox"] = "vtbox";
-})(ERectType || (ERectType = {}));
+import { boundingRect } from "./bounding_rect.js";
 export class Shape {
-    constructor(config) {
-        this.zIndex = 10;
-        this.parent = boundingShape;
-        this.canvas = boundingShape.canvas;
+    constructor() {
+        this.parent = boundingRect;
         this.children = [];
-        this.parent.children.push(this);
-        boundingShape.allShapes.push(this);
-        this.zIndex = this.parent.zIndex;
-        this.setAttrs(config);
+        this.canvas = boundingRect.canvas;
+        this.zIndex = 0;
+        boundingRect.allShapes.push(this);
+        this.setParent(this.parent);
+        this.setZIndex(this.zIndex);
     }
     addConfig(config) {
-        this.setAttrs(config);
-        boundingShape.draw();
+        this.setConfigAttrs(config);
+        boundingRect.draw();
     }
-    setAttrs(config) {
+    setConfigAttrs(config) {
         if (config) {
             for (const opt in config) {
-                //if (Object.prototype.hasOwnProperty.call(config, opt)) {
-                //    this.setAttr(opt, config[opt])
-                //}
                 this.setAttr(opt, config[opt]);
             }
         }
     }
     setAttr(key, value) {
         if (key === "parent") {
-            this.setParent(value); //why val.parent????
+            this.setParent(value);
         }
-        // @ts-ignore
+        else if (key === "zIndex") {
+            this.setZIndex(value);
+        }
+        // @ts-ignore: to ignore next line in ts
         this[key] = value;
     }
     getAttr(key) {
-        // @ts-ignore
+        // @ts-ignore: to ignore next line in ts
         return this[key];
     }
     setZIndex(index) {
         this.zIndex = index;
         for (const child of this.children) {
-            child.setZIndex(index);
+            child.addConfig({
+                zIndex: this.zIndex
+            });
         }
     }
-    //public createConfig(opts:Opts){
-    //    this.addConfig(opts)
-    //}
-    //
-    //protected addConfig(opts: any) {
-    //    for (const opt in opts) {
-    //        if (Object.prototype.hasOwnProperty.call(opts, opt)) {
-    //            this.setConfigAttr(opt as keyof Opts, opts[opt])
-    //        }
-    //    }
-    //    //boundingShape.draw();
-    //}
-    //public setConfigAttr(key: keyof Opts, val: any) {
-    //
-    //    if (val === undefined || val === null) {
-    //        delete this[key as keyof IShapeConfig];
-    //    }
-    //    else if (key==="parent") {
-    //        this.setParent(val as IShape);//why val.parent????
-    //    }
-    //    else {
-    //        this[key as keyof IShapeConfig] = val;
-    //    }
-    //}
-    //
-    //private getConfigAttr(key: keyof IShapeConfig) {
-    //    return this[key];
-    //}
     setParent(parent) {
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        if (this.parent.children.indexOf(this) != -1) {
+            this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        }
         parent.children.push(this);
-        boundingShape.draw();
     }
-    setIndex(index) {
+    assignChildrenToNew(newParent) {
+        for (const child of this.children) {
+            child.addConfig({
+                parent: newParent
+            });
+        }
+    }
+    replace(newObj) {
+        console.log("rep");
+        console.log(this.children.length);
+        console.log(this.children);
+        const childrenLenght = this.children.length;
+        for (var i = 0; i < childrenLenght; i++) {
+            console.log("do");
+            const obj = this.children[0];
+            obj.addConfig({
+                parent: newObj
+            });
+        }
+        this.destroy();
+    }
+    setIndexInParent(index) {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
         this.parent.children.splice(index, 0, this);
+        console.log("yeeehhh");
+        console.log(this);
     }
-    draw(parent) {
-        const sorted = this.children.slice().sort(function (a, b) {
-            if (a.zIndex - b.zIndex != 0) {
-            }
-            return a.zIndex - b.zIndex;
-        });
+    resize() {
         for (const child of this.children) {
-            child.draw(this);
+            child.resize();
         }
     }
-    drawRect() {
+    draw() {
     }
     destroy() {
         this.destroyChildrenOnly();
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        boundingShape.allShapes.splice(boundingShape.allShapes.indexOf(this), 1);
-        boundingShape.draw();
+        boundingRect.allShapes.splice(boundingRect.allShapes.indexOf(this), 1);
+        boundingRect.draw();
     }
     destroyChildrenOnly() {
         const childLength = this.children.length;

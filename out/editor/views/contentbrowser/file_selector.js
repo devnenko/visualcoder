@@ -1,11 +1,10 @@
-import { HoverPressButton, ToggleButton } from "../../../ui_components/ui_components.js";
 import { Rect, colorCreator } from "../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../../../ui/types/types.js";
 import { allFiles, CBFile, FileTypes } from "../cb_file.js";
 import { TextInput } from "../../../ui_components/text_input.js";
 import { ERectType } from "../../../ui/shape.js";
-import { ToggleButtonGroup } from "../../../ui_components/button.js";
-import { Clickable } from "../../../ui/clickable.js";
+import { HoverPressButton, ToggleButton, ToggleButtonGroup } from "../../../ui_components/button.js";
+import { Clickable } from "../../../ui/clickable_rect.js";
 export class FileSelector extends Clickable {
     constructor(contentBrowser) {
         super();
@@ -58,7 +57,7 @@ export class FileSelector extends Clickable {
             });
             button.createTitle();
             button.title?.setText(fileType);
-            group.addButton(button);
+            group.addButtons(button);
         }
         group.setCurrentToggled(this.fileTypeHzBox.children[0]);
         this.bottomHzBox = new Rect({

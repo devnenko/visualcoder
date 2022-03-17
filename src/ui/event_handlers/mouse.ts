@@ -1,329 +1,304 @@
+import { IPos } from "../../util/transform.js";
+import { boundingRect } from "../bounding_rect.js";
+import { CLickableMixinClass } from "../clickable_rect.js";
 
 
-import { Canvas } from "../canvas.js";
-import { Rect } from "../rect.js";
-import { IPos } from "../types/pos.js";
-import { EMouseType } from "../types/mouse.js";
-import { boundingShape, IShape } from "../ui.js";
-import { ToggleButton } from "../../ui_components/button.js";
-import { Clickable } from "../clickable.js";
-//import { components } from "../../main.js";
-
-//need to rework the mouse logic in a more readable way and better structure with more static classes for usefull functions
-
-export interface IMouseHandler{
-    onMouseDown?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
-    onMouseMoveDown?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
-    onMouseUp?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
-    onMouseHoverBegin?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
-    onMouseHoverEnd?(type:EMouseType,pos:IPos,isTopMost:boolean):void;
+export enum EMouseType {
+    left = 0,
+    middle = 1,
+    right = 2,
+    touch = 3
 }
 
-export function isIMouseHandler(arg:any):arg is IMouseHandler{
-    if (typeof arg.onMouseDown == 'function') { 
-        return true;
+class CTouch {
+    identifier;
+    x;
+    y;
+    touchDownRects;
+    topMostRect;
+    parent;
+    constructor(identifier: number, x: number, y: number, parent: MouseHandler) {
+        this.identifier = identifier;
+        this.x = x;
+        this.y = y;
+        this.touchDownRects = parent.getOverlapping({ x: x, y: y });
+        this.topMostRect = parent.getTop(this.touchDownRects);
+        this.parent = parent;
     }
-    return false;
+
 }
 
-export class MouseHandler{
-    public static actifInputField:ToggleButton|null=null;
-    public static canvases:Canvas[]=[];
-    public static currentPos:IPos={x:0,y:0};
-    public static mouseDownRects:Clickable[]=[];
-    public static mouseHoverRects:Clickable[]=[];
-    public static isMouseDown=false;
-    public static topMostSave:Rect[]=[];
+export class MouseHandler {
 
-    static callbackObjects:Clickable[]=[];
+    mousePos: IPos = { x: 0, y: 0 };
 
-    public static init(){
-        //window.addEventListener('click', this.mouseClick.bind(this));
-        window.addEventListener('touchstart', MouseHandler.touchDown.bind(this),{ passive: false });
-        window.addEventListener('touchmove', MouseHandler.touchMove.bind(this),{ passive: false });
-        window.addEventListener('touchend', MouseHandler.touchUp.bind(this),{ passive: false });
-        window.addEventListener('mousedown', MouseHandler.mouseDown.bind(this));
-        window.addEventListener('mousemove', MouseHandler.mouseMove.bind(this));
-        window.addEventListener('mouseup', MouseHandler.mouseUp.bind(this));
-        document.getElementById("keyboardHack")?.addEventListener('focusout', MouseHandler.focuseOut.bind(this));
+    ongoingTouches: CTouch[] = []
+
+    touchesDownAmount: number = 0;
+
+    hover: CTouch | null = null;
+
+    callbackObjects: CLickableMixinClass[] = [];
+
+    varrr: number = 0;
+
+    isMouse: boolean = true;
+
+    constructor() {
+        window.addEventListener('touchstart', this.touchStart.bind(this), { passive: false });
+        window.addEventListener('mousedown', this.mouseDown.bind(this));
+        window.addEventListener('touchmove', this.touchMove.bind(this), { passive: false });
+        window.addEventListener('mousemove', this.mouseMove.bind(this));
+        window.addEventListener('touchend', this.touchEnd.bind(this), { passive: false });
+        window.addEventListener('mouseup', this.mouseUp.bind(this));
+
+        window.addEventListener('blur', this.visiChange.bind(this));
+        window.addEventListener('focus', this.visiChange.bind(this));
+
+
     }
-    
 
-    static subscribe(object:Clickable){
+
+    subscribe(object: CLickableMixinClass) {
         this.callbackObjects.push(object);
-        //create dom here stuff for later optimization with collision checking
+        //could be optimized here with dom-like checking
     }
-
-    static unsubscribe(object:Clickable){
-        if(this.callbackObjects.indexOf(object)!=-1){
+    unsubscribe(object: CLickableMixinClass) {
+        if (this.callbackObjects.indexOf(object) != -1) {
             this.callbackObjects.splice(this.callbackObjects.indexOf(object), 1);
 
         }
-        else{
-            console.log("unsubscription failed")
+        else {
+            console.error("unsubscription failed")
         }
     }
-    static focuseOut(){
-        MouseHandler.actifInputField?.toggle(false);
+
+    visiChange(e: any) {
+        this.cancelAll();
+        console.log("blur")
     }
 
-    public static getOverlapp(pos:IPos){
-        const mousePos=pos;
-        let objs:Clickable[]=[];
-        
-        for(const obj of this.callbackObjects){
-            if(obj.absEdges.left<mousePos.x&&obj.absEdges.right>mousePos.x&&obj.absEdges.top<mousePos.y&&obj.absEdges.bottom>mousePos.y){
+    isOverlapping(obj: CLickableMixinClass){
+        return obj.absEdges.left < this.mousePos.x && obj.absEdges.right > this.mousePos.x && obj.absEdges.top < this.mousePos.y && obj.absEdges.bottom > this.mousePos.y;
+    }
+
+    getOverlapping(pos: IPos) {
+        let objs: CLickableMixinClass[] = [];
+
+        for (const obj of this.callbackObjects) {
+            if (obj.absEdges.left < pos.x && obj.absEdges.right > pos.x && obj.absEdges.top < pos.y && obj.absEdges.bottom > pos.y) {
                 //is overlapping$
                 objs.push(obj);
             }
         }
         return objs;
     }
+    getTop(overlap: CLickableMixinClass[]) {
+        if (overlap.length == 0) {
+            return null;
+        }
+        let winnerRect: CLickableMixinClass = overlap[0];
+        for (const obj of overlap) {
+            if (boundingRect.allShapes.indexOf(obj) > boundingRect.allShapes.indexOf(winnerRect)) {
+                winnerRect = obj;
+            }
+        }
 
-    private static touchDown(e:TouchEvent){
+        return winnerRect;
+    }
+    getConsidered(rects: CLickableMixinClass[]) {
+        const consRects: CLickableMixinClass[] = [];
+        const top = this.getTop(rects);
+        for (const rect of rects) {
+            if (rect.mouseOnlyIfTopMost == false && rect != top) {
+                consRects.push(rect);
+            }
+        }
+        if (top != null) {
+            consRects.push(top);
+        }
+        return consRects;
+    }
+
+    cancelAll() {
+        for (const touch of this.ongoingTouches) {
+            this.up(touch)
+            this.ongoingTouches.splice(this.ongoingTouches.indexOf(touch), 1);  // remove it; we're done
+
+        }
+        if (this.hover != null) {
+            const hover = this.hover as CTouch;
+
+            this.getConsidered(hover.touchDownRects).forEach(el => {
+                hover.touchDownRects.splice(hover.touchDownRects.indexOf(el), 1)
+                el.onMouseHoverEnd(this);
+            })
+            this.hover = null;
+
+            this.hover = hover;
+        }
+    }
+
+
+
+    touchStart(e: TouchEvent) {
         e.preventDefault();
-        this.down(EMouseType.touch,{x:e.touches[0].clientX,y:e.touches[0].clientY});
+
+        if (this.isMouse == true)//edgecase mouse down and then touch down
+        {
+            this.cancelAll();
+            this.isMouse = false;
+        }
+
+        const ctx = boundingRect.canvas.ctx
+        var touches = e.changedTouches;
+
+        for (var i = 0; i < touches.length; i++) {
+            console.log("touchstart:" + i);
+            const touchClass = this.copyTouch(touches[i]);
+            this.touchesDownAmount = this.ongoingTouches.push(touchClass);//copy cause of weird behaviour with safari else
+            this.down(touchClass);
+        }
+        ctx.fillStyle = "red"
+        ctx.font = 14 + "px Sans-Serif";
+        this.varrr += 40;
+        console.log(this.ongoingTouches[0].touchDownRects)
+        this.mousePos={x:this.ongoingTouches[0].x,y:this.ongoingTouches[0].y}
     }
-    private static mouseDown(e:MouseEvent) {
-        this.down(e.button,{x:e.x,y:e.y});
-    }
-    private static touchMove(e:TouchEvent){
+    mouseDown(e: MouseEvent) {
         e.preventDefault();
-        this.move(EMouseType.touch,{x:e.touches[0].clientX,y:e.touches[0].clientY});
+        
+
+        if (this.isMouse == false)//edgecase touch down and then mouse down
+        {
+            this.cancelAll();
+            this.isMouse = true;
+        }
+
+        this.ongoingTouches = [];//clear in case was using touches before 
+        const touchClass = new CTouch(0, e.clientX, e.clientY, this)
+        this.touchesDownAmount = this.ongoingTouches.push(touchClass);
+        this.down(touchClass);
+        this.hover = null;
+        this.mousePos={x:this.ongoingTouches[0].x,y:this.ongoingTouches[0].y}
     }
-    private static mouseMove(e:MouseEvent) {
-        this.move(e.button,{x:e.x,y:e.y});
-    }
-    private static touchUp(e:TouchEvent){
+
+    touchMove(e: TouchEvent) {
+
         e.preventDefault();
-        this.up(EMouseType.touch,{x:e.changedTouches[0].clientX,y:e.changedTouches[0].clientY});
+        this.mousePos={x:this.ongoingTouches[0].x,y:this.ongoingTouches[0].y}
+        var touches = e.changedTouches;
+
+        for (const touch of touches) {
+            var idx = this.ongoingTouchIndexById(touch.identifier);
+            const changedTouchClass = this.ongoingTouches[idx];
+            changedTouchClass.x = touch.clientX;
+            changedTouchClass.y = touch.clientY;
+
+            this.moveDown(changedTouchClass);
+        }
     }
-    private static mouseUp(e:MouseEvent) {
-        this.up(e.button,{x:e.x,y:e.y});
-    }
+    mouseMove(e: MouseEvent) {
+        e.preventDefault();
+        this.mousePos={x:e.clientX,y:e.clientY}
+        if (this.ongoingTouches[0])//has a touch
+        {
+            e.preventDefault();
+            const changedTouchClass = this.ongoingTouches[0];
+            changedTouchClass.x = e.clientX;
+            changedTouchClass.y = e.clientY;
 
-    private static execIfAvailable(fn?:any){
-        //if (typeof fn == 'function') { 
-            
-        //}
-    }
+            this.moveDown(changedTouchClass);
+        }
+        else {
+            if (this.hover == null) {
+                this.hover = new CTouch(1, e.clientX, e.clientY, this)
+                this.hover.touchDownRects.forEach(el => el.onMouseHoverBegin(this))
+            }
+
+            const hover = this.hover as CTouch;
+            hover.x = e.clientX;
+            hover.y = e.clientY;
+            const overlap = this.getConsidered(this.getOverlapping({ x: e.clientX, y: e.clientY }))
 
 
-    private static down(e:EMouseType,pos:IPos){
-        this.isMouseDown=true;
-
-        const overlObjs=this.getOverlapp(pos);
-        const topMost=this.getTopMost(overlObjs);
-        this.topMostSave=topMost;
-        for(const overlObj of overlObjs){
-            if (typeof overlObj.onMouseDown == 'function') { 
-                if(!(overlObj.fireOnlyTopMost==true&&(overlObj as Rect)!=topMost[0])){
-                    overlObj.onMouseDown(e,pos,topMost.includes(overlObj));
+            overlap.forEach(el => {
+                if (!(hover.touchDownRects.includes(el))) {
+                    this.hover?.touchDownRects.push(el);
+                    el.onMouseHoverBegin(this);
                 }
-                //overlObj.onMouseDown(e,pos,topMost.includes(overlObj));
-            }
-            this.mouseDownRects.push(overlObj);
-        }
-        if(this.actifInputField!=null){
-            if(!overlObjs.includes(this.actifInputField)){
-                this.actifInputField.toggle(false);
-            }
-        }
-        //boundingShape.draw();
-        //var overlapping=boundingShape.overlappHierarchy(pos);
+            })
 
-        //if(overlapping[0]){
-        //    this.activeRect?.onMouseHoverEnd(e,pos);
-        //    (overlapping[0] as Button).onMouseDown(e,pos);
-        //    this.activeRect=overlapping[0] as Button; //make this better later
-        //}
-        //else{
-        //    this.activeRect=null;
-        //}
-//
-        boundingShape.draw();
-        //this.currentPos=pos;
-
-    }
-    private static move(e:EMouseType,pos:IPos){
-        //this runs to slowly (probably topmost is to power intensive function or smething else)
-        this.currentPos=pos;
-        const overlObjs=this.getOverlapp(pos);
-        let topMost:Rect[]=[];
-        let topMostDone:boolean=false;
-
-        if(this.isMouseDown==true){
-
-            for(const downRect of this.mouseDownRects){
-                if (typeof downRect.onMouseMoveDown == 'function') { 
-                    if(topMostDone==false){
-                        topMost=this.getTopMost(overlObjs);
-                        topMostDone=true;
-                    }
-                    downRect.onMouseMoveDown(e,pos,this.topMostSave.includes(downRect));
+            hover.touchDownRects.forEach(el => {
+                if (!(overlap.includes(el))) {
+                    hover.touchDownRects.splice(hover.touchDownRects.indexOf(el), 1)
+                    el.onMouseHoverEnd(this);
                 }
-            }
+            })
 
-        }
-        else{
-
-            for(const overlObj of overlObjs){
-                if(this.mouseHoverRects.includes(overlObj)==false){   
-                    if(topMostDone==false){
-                        topMost=this.getTopMost(overlObjs);
-                        topMostDone=true;
-                    };
-                    if(overlObj.fireOnlyTopMost==true&&(overlObj as Rect)==topMost[0] as any){
-                        if (typeof overlObj.onMouseHoverBegin == 'function') { 
-                            overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
-                        }
-                        this.mouseHoverRects.push(overlObj);
-                    }
-                    if(overlObj.fireOnlyTopMost==false){
-                        if (typeof overlObj.onMouseHoverBegin == 'function') { 
-                            overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
-                        }
-                        this.mouseHoverRects.push(overlObj);
-                    }
-
-                    
-                    for(const hoverObj of this.mouseHoverRects){
-                        //console.log(hoverObj!=topMost as any)
-                        if(hoverObj.fireOnlyTopMost==true&&(hoverObj as Rect)!=topMost[0] as any){
-                            if (typeof hoverObj.onMouseHoverEnd == 'function') { 
-                                hoverObj.onMouseHoverEnd(e,pos,topMost.includes(hoverObj));
-                            }
-            
-                            this.mouseHoverRects.splice(this.mouseHoverRects.indexOf(hoverObj),1);
-                        }
-                        
-                    }
-                }
-            }
-
-            for(const hoverObj of this.mouseHoverRects){
-                if(overlObjs.includes(hoverObj)==false){
-    
-                    if (typeof hoverObj.onMouseHoverEnd == 'function') { 
-                        if(topMostDone==false){
-                            topMost=this.getTopMost(overlObjs);
-                            topMostDone=true;
-                        }
-                        hoverObj.onMouseHoverEnd(e,pos,topMost.includes(hoverObj));
-                    }
-    
-                    this.mouseHoverRects.splice(this.mouseHoverRects.indexOf(hoverObj),1);
-                }
-            }
-        }
-
-        boundingShape.draw();
-    }
-    private static up(e:EMouseType,pos:IPos){
-        this.currentPos=pos;
-        this.isMouseDown=false;
-        const overlObjs=this.getOverlapp(pos);
-        const topMost=this.getTopMost(overlObjs);
-
-        //for(const overlObj of overlObjs){
-//
-        //    if(this.mouseDownRects.includes(overlObj)==true){
-        //        if (typeof overlObj.onMouseUp == 'function') { 
-        //            overlObj.onMouseUp(e,pos,topMost.includes(overlObj));
-        //        }
-        //        if(e!=EMouseType.touch)//check if not mobile
-        //        {
-        //            if (typeof overlObj.onMouseHoverBegin == 'function') { 
-        //                overlObj.onMouseHoverBegin(e,pos,topMost.includes(overlObj));
-        //            }
-        //        }
-//
-        //        this.mouseDownRects.splice(this.mouseDownRects.indexOf(overlObj),1);
-    //
-        //    }
-        //    else  if(this.mouseDownRects.includes(overlObj)==false){
-        //        if (typeof overlObj.onMouseUp == 'function') { 
-        //            overlObj.onMouseUp(e,pos,topMost.includes(overlObj));
-        //        }
-        //    }
-        //}
-        for(const mouseDownRect of this.mouseDownRects){
-
-
-            if (typeof mouseDownRect.onMouseUp == 'function') { 
-                mouseDownRect.onMouseUp(e,pos,topMost.includes(mouseDownRect));
-            }
-            if(e!=EMouseType.touch)//check if not mobile
-            {
-                if(mouseDownRect.fireOnlyTopMost==true&&(mouseDownRect as Rect)==topMost[0]){
-                    if (typeof mouseDownRect.onMouseHoverBegin == 'function') { 
-                        mouseDownRect.onMouseHoverBegin(e,pos,topMost.includes(mouseDownRect));
-                    }
-                }
-            }
-
-
-        }
-        this.mouseDownRects.splice(0,this.mouseDownRects.length);
-
-
-        boundingShape.draw();
-    }
-
-
-    public static getMousePos(){
-        return this.currentPos;
-    }
-
-    public static getRelativeMousePos(rect:Rect,pos:IPos){
-        return {x:pos.x-rect.absEdges.left,y:pos.y-rect.absEdges.top};
-    }
-
-    public static posOnRects(rect:Rect){
-        return {x:this.currentPos.x-rect.absEdges.left,y:this.currentPos.y-rect.absEdges.top}
-    }
-
-    public static getTopMostObject(pos:IPos){
-        let overlapp=this.getOverlapp(pos);
-        let topMost:(IMouseHandler&Rect);
-        for (const over of overlapp){
+            this.hover = hover;
         }
     }
 
-    public static distanceFromBoundingShape(shape:IShape){
-        let distanceFound=false;
-        let distance:number=0;
-        let currentShape:IShape=shape
-        while(distanceFound==false){
-            distance ++;
-            if(currentShape.parent!=undefined){
-                currentShape=currentShape.parent;
-            }
-            else{
-                distanceFound=true;
+    touchEnd(e: TouchEvent) {
+        e.preventDefault();
+        const ctx = boundingRect.canvas.ctx
+        var touches = e.changedTouches;
+
+        for (var i = 0; i < touches.length; i++) {
+            var idx = this.ongoingTouchIndexById(touches[i].identifier);
+            this.up(this.ongoingTouches[idx])
+
+
+            if (idx >= 0) {
+                this.ongoingTouches.splice(idx, 1);  // remove it; we're done
+                this.touchesDownAmount = this.ongoingTouches.length;
+            } else {
+                console.log("can't figure out which touch to end");
             }
         }
-        return distance-1;
+        this.varrr += 40;
+        ctx.fillStyle = "blue"
     }
-    public static getTopMost(rects:Rect[]){
+    mouseUp(e: MouseEvent) {
+        e.preventDefault();
+        this.up(this.ongoingTouches[0])
+        if (this.hover == null) {
+            this.hover = new CTouch(1, e.clientX, e.clientY, this)
+            this.getConsidered(this.hover.touchDownRects).forEach(el => el.onMouseHoverBegin(this))
+        }
+        this.ongoingTouches = [];
+    }
 
-        let previousWinner=0;
-        let winnerRects:Rect[]=[];
-        for(const rect of rects){
-            if(this.distanceFromBoundingShape(rect)>previousWinner){
-                previousWinner=this.distanceFromBoundingShape(rect);
-                winnerRects.splice(0,winnerRects.length)
-                winnerRects.push(rect);
-            }
-            else if(this.distanceFromBoundingShape(rect)==previousWinner){
-                winnerRects.push(rect);
+    down(touch: CTouch) {
+        this.getConsidered(touch.touchDownRects).forEach(el => el.onMouseDown(this))
+    }
+
+    moveDown(touch: CTouch) {
+        this.getConsidered(touch.touchDownRects).forEach(el => el.onMouseMoveDown(this))
+    }
+
+    up(touch: CTouch) {
+        this.getConsidered(touch.touchDownRects).forEach(el => {
+            el.onMouseUp(this);
+        })
+    }
+
+
+    copyTouch({ identifier, clientX, clientY }: Touch): CTouch {
+        return new CTouch(identifier, clientX, clientY, this);
+    }
+
+    ongoingTouchIndexById(idToFind: number) {
+        for (var i = 0; i < this.ongoingTouches.length; i++) {
+            var id = this.ongoingTouches[i].identifier;
+
+            if (id == idToFind) {
+                return i;
             }
         }
-
-        return winnerRects;
+        return -1;    // not found
     }
-
-    //public static getOverlapping(pos:IPos){
-    //    return boundingShape.overlappHierarchy(pos);
-    //}
 }
+
+export const mouseHandler = new MouseHandler();

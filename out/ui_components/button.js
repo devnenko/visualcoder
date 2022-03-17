@@ -1,141 +1,132 @@
-import { Rect, TextBox, colorCreator } from "../ui/ui.js";
-import { EConstraintsX, EConstraintsY } from "../ui/types/types.js";
-import { Clickable } from "../ui/clickable.js";
-import { boundingShape } from "../ui/bounding_rect.js";
-export class HoverPressButton extends Clickable {
-    constructor(config) {
-        super();
-        this.hoverColor = colorCreator.colorByBrightness(28);
-        this.pressColor = colorCreator.colorByBrightness(70);
-        this.title = null;
-        this.icon = null;
-        this.onPress = (type, pos, isTopMost) => { };
-        this.onRelease = (type, pos, isTopMost) => { };
-        this.constraintX = EConstraintsX.scale;
-        this.constraintY = EConstraintsY.scale;
-        this.color = colorCreator.darkColorDef;
-        this.notPressedColor = this.color;
-        this.setAttrs(config);
-    }
-    addConfig(config) {
-        super.addConfig(config);
-    }
-    createTitle() {
-        this.title = new TextBox();
-        this.title.addConfig({
-            parent: this,
-            constraintX: EConstraintsX.center,
-            constraintY: EConstraintsY.center,
-            color: "white",
-            size: 24,
-        });
-    }
-    createIcon() {
-        this.icon = new Rect();
-        this.icon.addConfig({
-            imageSrc: "trash.svg",
-            constraintX: EConstraintsX.scale,
-            constraintY: EConstraintsY.scale,
-            parent: this
-        });
-    }
-    onMouseHoverBegin(type, pos, isTopMost) {
-        this.addConfig({
-            color: this.hoverColor
-        });
-        super.onMouseHoverBegin(type, pos, isTopMost);
-    }
-    onMouseHoverEnd(type, pos, isTopMost) {
-        this.addConfig({
-            color: this.notPressedColor
-        });
-        super.onMouseHoverEnd(type, pos, isTopMost);
-    }
-    onMouseDown(type, pos, isTopMost) {
-        this.addConfig({
-            color: this.pressColor
-        });
-        this.onPress(type, pos, isTopMost);
-        super.onMouseDown(type, pos, isTopMost);
-    }
-    onMouseMoveDown(type, pos, isTopMost) {
-        super.onMouseMoveDown(type, pos, isTopMost);
-    }
-    onMouseUp(type, pos, isTopMost) {
-        this.addConfig({
-            color: this.notPressedColor
-        });
-        this.onRelease(type, pos, isTopMost);
-        super.onMouseUp(type, pos, isTopMost);
-    }
+import { boundingRect } from "../ui/bounding_rect.js";
+import { MakeClickable } from "../ui/clickable_rect.js";
+import { Rect } from "../ui/rect.js";
+import { colorCreator } from "../util/color.js";
+export function MakeHoverPressButton(base) {
+    return class extends base {
+        constructor(...args) {
+            super(...args);
+            this.idleColor = colorCreator.colorByBrightness(40);
+            this.hoverColor = colorCreator.colorByBrightness(70);
+            this.pressColor = colorCreator.colorByBrightness(90);
+            this.forgetOnMouseLeave = true;
+            this.onPress = (mouseHandler) => { };
+            this.onRelease = (mouseHandler) => { };
+            this.color = this.idleColor;
+            this.setConfigAttrs(args[0]);
+        }
+        addConfig(config) {
+            super.addConfig(config);
+        }
+        setAttr(key, value) {
+            if (key === "idleColor") {
+                this.color = value;
+            }
+            super.setAttr(key, value);
+        }
+        onMouseHoverBegin(mouseHandler) {
+            this.addConfig({
+                color: this.hoverColor
+            });
+            super.onMouseHoverBegin(mouseHandler);
+        }
+        onMouseHoverEnd(mouseHandler) {
+            this.addConfig({
+                color: this.idleColor
+            });
+            super.onMouseHoverEnd(mouseHandler);
+        }
+        onMouseDown(mouseHandler) {
+            this.addConfig({
+                color: this.pressColor
+            });
+            this.onPress(mouseHandler);
+            super.onMouseDown(mouseHandler);
+        }
+        onMouseMoveDown(mouseHandler) {
+            super.onMouseMoveDown(mouseHandler);
+        }
+        onMouseUp(mouseHandler) {
+            this.addConfig({
+                color: this.idleColor
+            });
+            if (this.forgetOnMouseLeave == true && mouseHandler.isOverlapping(this) == false) {
+            }
+            else {
+                this.onRelease(mouseHandler);
+            }
+            super.onMouseUp(mouseHandler);
+        }
+    };
 }
-export class ToggleButton extends HoverPressButton {
-    constructor(config) {
-        super();
-        this.isOn = false;
-        this.onToggle = () => { };
-        this.onToggle2 = () => { };
-        this.canClickToggleOf = true;
-        this.group = null;
-        this.onMouseHoverBegin = (type, pos, isTopMost) => {
-            if (this.isOn == false) {
+export function MakeToggleButton(base) {
+    return class extends base {
+        constructor(...args) {
+            super(...args);
+            this.hoverColor = colorCreator.colorByBrightness(28);
+            this.pressColor = colorCreator.colorByBrightness(70);
+            this.onPress = (mouseHandler) => { };
+            this.onRelease = (mouseHandler) => { };
+            this.isToggleOn = false;
+            this.onToggle = () => { };
+            this.onGroupToggle = () => { };
+            this.canClickToggleOf = true;
+            this.assignedGroup = null;
+            this.color = colorCreator.darkColorDef;
+            this.idleColor = this.color;
+            this.setConfigAttrs(args[0]);
+        }
+        addConfig(config) {
+            super.addConfig(config);
+        }
+        toggle(newToggleState) {
+            this.isToggleOn = newToggleState;
+            if (this.isToggleOn == true) {
+                this.addConfig({
+                    color: this.pressColor
+                });
+            }
+            else {
+                this.addConfig({
+                    color: this.idleColor
+                });
+                //because need to be hovering over in order to be able to do that anyway
+            }
+            this.onToggle(this.isToggleOn);
+            this.onGroupToggle(this.isToggleOn);
+            boundingRect.draw();
+        }
+        onMouseHoverBegin(mouseHandler) {
+            if (this.isToggleOn == false) {
                 this.addConfig({
                     color: this.hoverColor
                 });
             }
-            //super.onMouseHoverBegin(type,pos,isTopMost);
-        };
-        this.onMouseHoverEnd = (type, pos, isTopMost) => {
-            if (this.isOn == false) {
+        }
+        onMouseHoverEnd(mouseHandler) {
+            if (this.isToggleOn == false) {
                 this.addConfig({
-                    color: this.notPressedColor
+                    color: this.idleColor
                 });
             }
-            //super.onMouseHoverEnd(type,pos,isTopMost);
-        };
-        this.onMouseDown = (type, pos, isTopMost) => {
-            if (!(this.isOn == true && this.canClickToggleOf == false)) {
-                this.isOn = !this.isOn;
-                this.toggle(this.isOn);
+        }
+        onMouseDown(mouseHandler) {
+            if (!(this.isToggleOn == true && this.canClickToggleOf == false)) {
+                this.isToggleOn = !this.isToggleOn;
+                this.toggle(this.isToggleOn);
             }
-            this.onPress(type, pos, isTopMost);
-            //super.onMouseDown(type,pos,isTopMost);
-        };
-        this.setAttrs(config);
-    }
-    addConfig(config) {
-        super.addConfig(config);
-    }
-    toggle(onOrOff) {
-        console.log("tog");
-        console.log(this);
-        this.isOn = onOrOff;
-        if (onOrOff == true) {
-            this.addConfig({
-                color: this.pressColor
-            });
+            this.onPress(mouseHandler);
         }
-        else {
-            this.addConfig({
-                color: this.notPressedColor
-            });
-            //because need to be hovering over in order to be able to do that anyway
+        onMouseUp(mouseHandler) {
+            this.onRelease(mouseHandler);
         }
-        this.onToggle(this.isOn);
-        this.onToggle2(this.isOn);
-        boundingShape.draw();
-    }
-    onMouseMoveDown(type, pos, isTopMost) {
-        //super.onMouseMoveDown(type,pos,isTopMost);
-    }
-    onMouseUp(type, pos, isTopMost) {
-        //super.onMouseUp(type,pos,isTopMost);
-    }
-    destroy() {
-        this.group?.removeButton(this);
-        super.destroy();
-    }
+        destroy() {
+            this.assignedGroup?.removeButton(this);
+            super.destroy();
+        }
+    };
 }
+const DefClass1 = (MakeToggleButton(MakeClickable(Rect)));
 export class ToggleButtonGroup {
     constructor() {
         this.buttons = [];
@@ -146,18 +137,20 @@ export class ToggleButtonGroup {
             button.toggle(true);
         }
     }
-    addButton(button) {
-        this.buttons.push(button);
-        button.group = this;
-        button.addConfig({
-            canClickToggleOf: false,
+    addButtons(buttons) {
+        buttons.forEach(button => {
+            this.buttons.push(button);
+            button.assignedGroup = this;
+            button.addConfig({
+                canClickToggleOf: false
+            });
+            button.onGroupToggle = (newToggleState) => {
+                if (newToggleState == true) {
+                    this.currentToggled?.toggle(false);
+                    this.currentToggled = button;
+                }
+            };
         });
-        button.onToggle2 = (isOn) => {
-            if (isOn) {
-                this.currentToggled?.toggle(false);
-                this.currentToggled = button;
-            }
-        };
     }
     removeButton(button) {
         this.buttons.slice(this.buttons.indexOf(button), 1);

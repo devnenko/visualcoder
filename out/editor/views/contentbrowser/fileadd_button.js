@@ -1,7 +1,7 @@
-import { HoverPressButton } from "../../../ui_components/ui_components.js";
 import { boundingShape } from "../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../../../ui/types/types.js";
 import { FileSelector } from "./file_selector.js";
+import { HoverPressButton } from "../../../ui_components/button.js";
 export class FileAddButton extends HoverPressButton {
     constructor(contentBrowser) {
         super();
@@ -24,7 +24,7 @@ export class FileAddButton extends HoverPressButton {
             snapMargin: 5,
             fixedSizeH: 70,
             onPress: () => {
-                this.color = this.notPressedColor;
+                this.color = this.idleColor;
                 boundingShape.draw();
                 new FileSelector(contentBrowser);
             }

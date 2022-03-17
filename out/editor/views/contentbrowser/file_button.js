@@ -1,4 +1,3 @@
-import { HoverPressButton, ToggleButton } from "../../../ui_components/ui_components.js";
 import { Rect, TextBox } from "../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../../../ui/types/types.js";
 import { allFiles, FileTypes, mapStartFile, setMapStartFile } from "../cb_file.js";
@@ -6,6 +5,7 @@ import { BlockEditor } from "../script/block/block_editor.js";
 import { ERectType } from "../../../ui/shape.js";
 import { PixelImage } from "../image/image.js";
 import { Level } from "../level/level.js";
+import { HoverPressButton, ToggleButton } from "../../../ui_components/button.js";
 export class FileButton extends HoverPressButton {
     //type:Text;
     constructor(file, contentBrowser) {
@@ -95,7 +95,7 @@ export class FileButton extends HoverPressButton {
                 imageSrc: "flag.square.fill.svg",
                 snapMargin: 5
             });
-            this.contentBrowser.startFlagGroup.addButton(setStartButton);
+            this.contentBrowser.startFlagGroup.addButtons(setStartButton);
             this.setStartButton = setStartButton;
             if (mapStartFile == file) {
                 this.contentBrowser.startFlagGroup.setCurrentToggled(setStartButton);

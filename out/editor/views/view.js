@@ -1,14 +1,14 @@
-import { HoverPressButton } from "../../ui_components/ui_components.js";
 import { Rect, TextBox, colorCreator } from "../../ui/ui.js";
 import { EConstraintsX, EConstraintsY } from "../../ui/types/types.js";
 import { TwoViewRect } from "../editor.js";
 import { ERectType } from "../../ui/shape.js";
-import { Clickable } from "../../ui/clickable.js";
+import { Clickable } from "../../ui/clickable_rect.js";
+import { HoverPressButton } from "../../ui_components/button.js";
 class ViewTopBar extends Rect {
-    constructor(view) {
+    constructor(viewOutline) {
         super();
         this.addConfig({
-            parent: view,
+            parent: viewOutline,
             color: colorCreator.colorByBrightness(25),
             fixedSizeH: 50,
         });
@@ -29,7 +29,7 @@ class ViewTopBar extends Rect {
             fixedSizeW: 50,
             onPress: () => {
                 //destroyScript();
-                view.destroy();
+                viewOutline.destroy();
             }
         });
         this.deleteButton.createIcon();
@@ -69,11 +69,8 @@ export class ViewOutline extends Rect {
         //this.editor.removeView(this);
         if (this.parent instanceof TwoViewRect) {
             const twoViewRect = this.parent;
-            console.log("twoviewRect");
-            console.log(twoViewRect.children);
+            this.parent.removeSideBar();
             this.parent.removeSelf();
-            console.log("now");
-            console.log(twoViewRect.children);
         }
         super.destroy();
     }

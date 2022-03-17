@@ -1,1 +1,0 @@
-{"version":3,"file":"vertical_box.js","sourceRoot":"","sources":["../../src/ui/vertical_box.ts"],"names":[],"mappings":"AACA,OAAO,EAAa,IAAI,EAAC,MAAM,WAAW,CAAC;AAC3C,OAAO,EAAE,WAAW,EAAE,MAAM,YAAY,CAAC;AAGzC,MAAM,OAAO,WAAY,SAAQ,IAAI;IAEjC,YAAY,IAAc;QACtB,KAAK,CAAC,IAAI,CAAC,CAAC;QAFhB,SAAI,GAAc,WAAW,CAAC,KAAK,CAAC;IAGpC,CAAC;CACJ"}

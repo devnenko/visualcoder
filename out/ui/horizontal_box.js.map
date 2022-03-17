@@ -1,1 +1,0 @@
-{"version":3,"file":"horizontal_box.js","sourceRoot":"","sources":["../../src/ui/horizontal_box.ts"],"names":[],"mappings":"AACA,OAAO,EAAG,WAAW,EAAS,MAAM,YAAY,CAAC;AACjD,OAAO,EAAa,IAAI,EAAC,MAAM,WAAW,CAAC;AAK3C,MAAM,OAAO,aAAc,SAAQ,IAAI;IAEnC,YAAY,IAAc;QACtB,KAAK,CAAC,IAAI,CAAC,CAAC;QAFhB,SAAI,GAAc,WAAW,CAAC,KAAK,CAAC;IAGpC,CAAC;CACJ"}

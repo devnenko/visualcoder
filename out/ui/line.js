@@ -9,7 +9,7 @@ export class Line extends Shape {
         //additional display options 
         this.isVisible = true;
         this.color = "pink";
-        this.setAttrs(config);
+        this.setConfigAttrs(config);
     }
     draw() {
         if (this.isVisible == true) {

@@ -1,3 +1,5 @@
+-fixx double todo needed bug
+
 -create default view for plain text
 -decouple images code and make into a class
 -figure out view refreshing and loading

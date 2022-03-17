@@ -4,6 +4,7 @@
         "start": "node ."
     },
     "dependencies": {
-        "connect-livereload": "^0.6.1"
+        "connect-livereload": "^0.6.1",
+        "eruda": "^2.4.1"
     }
 }

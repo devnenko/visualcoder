@@ -3,7 +3,7 @@ import { HoverPressButton } from "../../../../ui_components/ui_components.js";
 import { Rect, TextBox, Line, colorCreator, boundingShape } from "../../../../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType } from "../../../../ui/types/types.js";
 import { MouseHandler, KeypressHandler } from "../../../../ui/event_handlers/event_handlers.js";
-import { Clickable } from "../../../../ui/clickable.js";
+import { Clickable } from "../../../../ui/clickable_rect.js";
 import { View } from "../../view.js";
 import { ERectType } from "../../../../ui/shape.js";
 export class Pin extends Clickable {

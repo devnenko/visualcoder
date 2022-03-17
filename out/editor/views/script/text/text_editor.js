@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { KeypressHandler } from "../../../../ui/event_handlers/keypress.js";
 import { boundingShape } from "../../../../ui/shape.js";
-import { Text } from "../../../../ui/text_box.js";
+import { Text } from "../../../../ui/text_rect.js";
 import { EConstraintsX, EConstraintsY } from "../../../../ui/types/constraints.js";
 import { VerticalBox } from "../../../../ui/vertical_box.js";
 export class TextEditor extends VerticalBox {

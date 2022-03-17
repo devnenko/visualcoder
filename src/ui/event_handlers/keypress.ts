@@ -1,11 +1,5 @@
-
-
 import { Canvas } from "../canvas.js";
 import { Rect } from "../rect.js";
-import { boundingShape, IShape } from "../ui.js";
-
-//add info here
-//
 
 export interface IKeyPressHandler{
     onKeyPress(key:string):void;

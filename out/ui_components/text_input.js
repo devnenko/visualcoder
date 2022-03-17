@@ -34,7 +34,7 @@ export class TextInput extends ToggleButton {
             constraintX: EConstraintsX.left,
             text: "untitled"
         });
-        this.setAttrs(config);
+        this.setConfigAttrs(config);
     }
     addConfig(config) {
         super.addConfig(config);

@@ -1,9 +1,8 @@
 import { editor } from "../../main.js";
-import { ERectType } from "../shape.js";
-import { EConstraintsX, EConstraintsY } from "../types/constraints.js";
-import { boundingShape } from "../ui.js";
-//add info here
-//
+import { boundingRect } from "../bounding_rect.js";
+/**
+ *
+ */
 export class ResizeHandler {
     static init() {
         this.resizeWindow();
@@ -23,42 +22,14 @@ export class ResizeHandler {
         for (const canvas of this.canvases) {
             canvas.resize();
         }
-        boundingShape.draw();
+        boundingRect.draw();
     }
     static visibilityChange(e) {
         this.mobileRes();
         this.resizeWindow();
     }
     static mobileRes() {
-        console.log(window.orientation);
-        if (window.orientation == 90) {
-            editor.addConfig({
-                rectType: ERectType.HzBox
-            });
-            editor.topbar.addConfig({
-                rectType: ERectType.VtBox,
-                constraintX: EConstraintsX.left,
-                constraintY: EConstraintsY.scale
-            });
-            editor.topbar.children.forEach(e => e.addConfig({
-                constraintX: EConstraintsX.scale,
-                constraintY: EConstraintsY.top
-            }));
-        }
-        else {
-            editor.addConfig({
-                rectType: ERectType.VtBox
-            });
-            editor.topbar.addConfig({
-                rectType: ERectType.HzBox,
-                constraintX: EConstraintsX.scale,
-                constraintY: EConstraintsY.top
-            });
-            editor.topbar.children.forEach(e => e.addConfig({
-                constraintX: EConstraintsX.left,
-                constraintY: EConstraintsY.scale
-            }));
-        }
+        editor.recreateSideBar();
     }
 }
 ResizeHandler.canvases = [];
