@@ -2,137 +2,126 @@ import { boundingRect, BoundingRect } from "./bounding_rect.js";
 import { Canvas } from "./canvas.js";
 
 
+export abstract class Shape {
 
-export interface IShapeConfig {
-    parent?: Shape | BoundingRect,
-    canvas?: Canvas,
-    zIndex?: number
-}
-
-
-export abstract class Shape<Config = IShapeConfig> {
-    
     protected parent: Shape | BoundingRect = boundingRect;
-    public children: Shape[] = [];
-    protected canvas: Canvas = boundingRect.canvas;
-    public zIndex = 0;
+    protected children: Shape[] = [];
+    public canvas: Canvas = boundingRect.canvas;
+    private zIndex = 0;
+    protected isVisible = true;
 
     constructor() {
         boundingRect.allShapes.push(this);
-
-        this.setParent(this.parent);
+        this.sParent(this.parent);
+        return this;
     }
 
-    setParent(){
-
-    }
-    getParent(){
-        
+    sVisible(isVisible: boolean) {
+        this.isVisible = isVisible;
     }
 
-    public addConfig(config: IShapeConfig) {
-        this.setConfigAttrs(config);
-        boundingRect.draw();
-    }
+    sParent(parent: Shape | BoundingRect) {
+        const parentChidren = this.parent.getChildren();
 
-    protected setConfigAttrs(config: any) {
-        if (config) {
-            for (const opt in config) {
-                this.setAttr(opt, config[opt])
-            }
+        if (parentChidren.indexOf(this) != -1) {
+            parentChidren.splice(this.parent.getChildren().indexOf(this), 1)
         }
+        this.parent = parent;
+        parent.getChildren().push(this);
+        return this;
+    }
+    getParent() {
+        return this.parent;
     }
 
-    protected setAttr(key: any, value: any) {
-        if (key === "parent") {
-            this.setParent(value);
+    getCanvas() {
+        return this.canvas;
+    }
+
+    sChildren(children: Shape[]) {
+        this.children = children
+        return this;
+    }
+    getChildren() {
+        return this.children;
+    }
+
+    replace(newObj: Shape) {
+        newObj.sParent(this.parent);
+        const childrenLenght = this.children.length;
+        for (var i = 0; i < childrenLenght; i++) {
+            const obj = this.children[0]
+            obj.sParent(newObj);
         }
-        else if (key === "zIndex") {
-            this.setZIndex(value);
+        this.destroySelf();
+    }
+
+    popOut() {
+        const childrenLenght = this.children.length;
+        for (var i = 0; i < childrenLenght; i++) {
+            const obj = this.children[0]
+            obj.sParent(this.parent)
         }
-
-        // @ts-ignore: to ignore next line in ts
-        this[key] = value;
+        this.destroySelf();
     }
 
-    public getAttr(key: string) {
+    sIndexInParent(index: number) {
+        const parentChidren = this.parent.getChildren();
 
-        // @ts-ignore: to ignore next line in ts
-        return this[key];
+        parentChidren.splice(parentChidren.indexOf(this), 1)
+        parentChidren.splice(index, 0, this);
+        return this;
     }
 
-    private setZIndex(index: number) {
+    sZIndex(index: number) {
         this.zIndex = index;
         for (const child of this.children) {
-            child.setZIndex(this.zIndex);
+            child.sZIndex(this.zIndex);
         }
+        return this;
     }
 
-    private setParent(parent: Shape | BoundingRect) {
-        if (this.parent.children.indexOf(this) != -1) {
-            this.parent.children.splice(this.parent.children.indexOf(this), 1)
-        }
-        parent.children.push(this);
+    gZIndex() {
+        return this.zIndex;
     }
 
-
-    public setIndexInParent(index: number) {
-        this.parent.children.splice(this.parent.children.indexOf(this), 1)
-        this.parent.children.splice(index, 0, this);
-        console.log("yeeehhh")
-        console.log(this)
+    resAndDraw() {
+        this.resize();
+        this.draw();
     }
 
-    public resize() {
+    resAndDrawSelf(){
+        this.resizeSelf();
+        //no drawing yet
+    }
+
+    draw() {
+    }
+
+    resize() {
+        this.resizeSelf();
         for (const child of this.children) {
             child.resize();
         }
     }
+    resizeSelf() {
 
-    public draw() {
     }
 
-    public replace(newObj: Shape){
-        newObj.addConfig({parent:this.parent});
-        const childrenLenght=this.children.length;
-        for(var i=0;i<childrenLenght;i++){
-            const obj=this.children[0]
-            obj.addConfig({
-                parent:newObj
-            })
-        }
-        this.destroySelf();
-    }
-
-    public popOut(){
-        const childrenLenght=this.children.length;
-        for(var i=0;i<childrenLenght;i++){
-            const obj=this.children[0]
-            obj.addConfig({
-                parent:this.parent
-            })
-        }
-        this.destroySelf();
-    }
-
-    public destroySelfAndChildren() {
-
-        this.destroyAllChildren();
-        this.destroySelf();
-        boundingRect.draw();
-    }
-
-    public destroySelf(){
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        boundingRect.allShapes.splice(boundingRect.allShapes.indexOf(this), 1)
-        boundingRect.draw();
-    }
-
-    public destroyAllChildren() {
-        const childLength = this.children.length
+    destroy() {
+        const childLength = this.children.length;//cause they get removed with time
 
         for (let i = 0; i < childLength; i++) {
-            this.children[0].destroySelfAndChildren();
+            this.children[0].destroy();
         }
+        this.destroySelf();
+
+    }
+
+    destroySelf() {
+        const parentChidren = this.parent.getChildren();
+
+        parentChidren.splice(parentChidren.indexOf(this), 1);
+        boundingRect.allShapes.splice(boundingRect.allShapes.indexOf(this), 1)
     }
 }

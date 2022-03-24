@@ -1,27 +1,31 @@
 import { ViewTopBar } from './topbar.js';
-import { VtBox } from '../../ui/vt_box.js';
 import { ViewContentArea } from './content_area.js';
 import { Direction } from '../../util/transform.js';
 import { boundingRect } from '../../ui/bounding_rect.js';
-import { Box } from '../../ui/box.js';
+import { Box, BoxType } from '../../ui/box.js';
 export class ViewConnector extends Box {
-    constructor(isHz, parent) {
-        super(isHz);
+    constructor(boxType, parent) {
+        super(boxType);
         this.canDestroy = true;
-        this.addConfig({
-            parent: parent,
-            fillSpace: true,
-            isVisible: false
-        });
-        //this.addInBetweenRect({
-        //    fixedSizeW:10,
-        //    color:colorCreator.colorByBrightness(40),
-        //});
+        this
+            .sParent(parent)
+            .sFillSpace()
+            .sVisible(false);
+    }
+    checkIfChildren(amount) {
+        if (this.getChildren().length == amount) //if only 1 children
+         {
+            if (this.canDestroy == true) //if is not topmost viewConnector
+             {
+                return true;
+            }
+        }
+        return false;
     }
 }
-export class View extends VtBox {
+export class View extends Box {
     constructor(editor, name, origin, dir) {
-        super();
+        super(BoxType.vt);
         this.parent = boundingRect;
         this.name = name;
         this.editor = editor;
@@ -34,23 +38,22 @@ export class View extends VtBox {
         else {
             newParent = editor.viewBox;
         }
-        this.addConfig({
-            parent: newParent,
-            fillSpace: true,
-            isVisible: false
-        });
+        this
+            .sParent(newParent)
+            .sFillSpace()
+            .sVisible(true);
         this.topBar = new ViewTopBar(this);
         this.contArea = new ViewContentArea(this);
         //so created children can inherit zindex behaviour
         //maybe code that always take highest in hierarchy
-        this.addConfig({
-            zIndex: 1
-        });
+        this.sZIndex(1);
+        this.topBar.sZIndex(20);
+        boundingRect.draw();
     }
     addViewInDir(origin, dir) {
         const originConnector = origin.parent;
         let viewConnector;
-        if (originConnector.isHz) {
+        if (originConnector.boxType == BoxType.hz) {
             switch (dir) {
                 case Direction.left:
                     viewConnector = origin.parent;
@@ -60,20 +63,20 @@ export class View extends VtBox {
                     ;
                     break;
                 case Direction.top:
-                    viewConnector = new ViewConnector(false, originConnector);
+                    viewConnector = new ViewConnector(BoxType.vt, originConnector);
                     break;
                 case Direction.bottom:
-                    viewConnector = new ViewConnector(false, originConnector);
+                    viewConnector = new ViewConnector(BoxType.vt, originConnector);
                     break;
             }
         }
         else {
             switch (dir) {
                 case Direction.left:
-                    viewConnector = new ViewConnector(true, originConnector);
+                    viewConnector = new ViewConnector(BoxType.hz, originConnector);
                     break;
                 case Direction.right:
-                    viewConnector = new ViewConnector(true, originConnector);
+                    viewConnector = new ViewConnector(BoxType.hz, originConnector);
                     break;
                 case Direction.top:
                     viewConnector = origin.parent;
@@ -85,30 +88,28 @@ export class View extends VtBox {
                     break;
             }
         }
-        origin.addConfig({
-            parent: viewConnector
-        });
+        origin.sParent(viewConnector);
+        boundingRect.draw();
         return viewConnector;
     }
     setName(name) {
         this.name = name;
-        this.topBar.title.addConfig({
-            text: name
-        });
     }
     getName() {
         return this.name;
     }
     destroy() {
-        if (this.parent.children.length == 2) //if only 2 children
-         {
-            if (this.parent.canDestroy == true) //if is not topmost viewConnector
-             {
-                this.parent.popOut();
-            }
-        }
+        let parent = this.parent;
         this.editor.views.splice(this.editor.views.indexOf(this), 1);
-        super.destroySelfAndChildren();
+        super.destroy();
+        if (parent.checkIfChildren(1) == true) {
+            if (parent.getChildren()[0] instanceof ViewConnector) {
+                if (parent.getChildren()[0].boxType == parent.getParent().boxType) {
+                    parent.getChildren()[0].popOut();
+                }
+            }
+            parent.popOut();
+        }
         boundingRect.draw();
     }
 }

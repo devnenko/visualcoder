@@ -14,6 +14,7 @@ export class BoundingRect {
 
     draw() {
 
+        //console.log("drawing scene")
         this.absEdges = { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight }
         this.canvas.ctx.clearRect(this.absEdges.left, this.absEdges.top, this.absEdges.right, this.absEdges.bottom);
 
@@ -28,15 +29,19 @@ export class BoundingRect {
         }
     }
 
+    getChildren(){
+        return this.children;
+    }
+
     private setDrawOrder(){
         this.allShapes.sort(function(a, b){
-            return a.zIndex - b.zIndex //smaller number first
+            return a.gZIndex() - b.gZIndex() //smaller number first
         })
     }
 
     destroy() {
         for (const child of this.children) {
-            child.destroySelfAndChildren();
+            child.destroy();
         }
     }
 }

@@ -1,23 +1,13 @@
 import { boundingRect } from "../ui/bounding_rect.js";
-import { CLickableMixinClass, IClickableConfig, MakeClickable } from "../ui/clickable_rect.js";
+import { CLickableMixinClass,  MakeClickable } from "../ui/clickable_rect.js";
 import { MouseHandler } from "../ui/event_handlers/mouse.js";
 import { SvgRect } from "../ui/svg_rect.js";
-import { EConstraintsX, EConstraintsY, IRectConfig, Rect } from "../ui/rect.js";
+import { EConstraintsX, EConstraintsY, Rect } from "../ui/rect.js";
 import { colorCreator } from "../util/color.js";
 
 export type Class<T = CLickableMixinClass> = new (...args: any[]) => T;
 
-export interface IHoverPressButtonConfig extends IClickableConfig {
-    idleColor?:string,
-    hoverColor?: string,
-    pressColor?: string,
-    forgetOnMouseLeave?:boolean;
-    onPress?: (mouseHandler: MouseHandler) => void,
-    onRelease?: (mouseHandler: MouseHandler) => void;
-
-}
-
-export function MakeHoverPressButton<Base extends Class, Config extends IHoverPressButtonConfig>(base: Base) {
+export function MakeHoverPressButton<Base extends Class>(base: Base) {
 
     return class extends base {
         idleColor: string= colorCreator.colorByBrightness(40);
@@ -29,37 +19,29 @@ export function MakeHoverPressButton<Base extends Class, Config extends IHoverPr
 
         constructor(...args: any[]) {
             super(...args);
-            this.color = this.idleColor;
-            this.setConfigAttrs(args[0]);
+            this.sColor(this.idleColor);
         }
 
-        public addConfig(config: Config | IHoverPressButtonConfig): void {
-            super.addConfig(config);
-        }
-
-        protected setAttr(key: any, value: any): void {
-            if(key==="idleColor"){
-                this.color=value;
-            }
-            super.setAttr(key,value);
+        sForgetOnLeave(forget:boolean){
+            this.forgetOnMouseLeave=forget;
+            return this;
         }
 
         onMouseHoverBegin(mouseHandler: MouseHandler) {
-            this.addConfig({
-                color: this.hoverColor
-            })
+            this.sColor(this.hoverColor);
+            boundingRect.draw();
+            document.body.style.cursor = "pointer";
             super.onMouseHoverBegin(mouseHandler);
         }
         onMouseHoverEnd(mouseHandler: MouseHandler) {
-            this.addConfig({
-                color: this.idleColor
-            })
+            this.sColor(this.idleColor)
+            boundingRect.draw();
+            document.body.style.cursor = "default";
             super.onMouseHoverEnd(mouseHandler);
         }
         onMouseDown(mouseHandler: MouseHandler) {
-            this.addConfig({
-                color: this.pressColor
-            })
+            this.sColor(this.pressColor);
+            boundingRect.draw();
             this.onPress(mouseHandler);
             super.onMouseDown(mouseHandler);
         }
@@ -67,15 +49,15 @@ export function MakeHoverPressButton<Base extends Class, Config extends IHoverPr
             super.onMouseMoveDown(mouseHandler);
         }
         onMouseUp(mouseHandler: MouseHandler) {
-            this.addConfig({
-                color: this.idleColor
-            })
+            this.sColor(this.idleColor)
+            boundingRect.draw();
             if(this.forgetOnMouseLeave==true&&mouseHandler.isOverlapping(this)==false){
 
             }
             else{
                 this.onRelease(mouseHandler);
             }
+            document.body.style.cursor = "default";
             super.onMouseUp(mouseHandler);
         }
     }

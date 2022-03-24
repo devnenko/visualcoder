@@ -1,25 +1,28 @@
 import { boundingRect } from "./ui/bounding_rect.js";
 import { MakeClickable } from "./ui/clickable_rect.js";
 import { MouseHandler, mouseHandler } from "./ui/event_handlers/mouse.js";
-import { ResizeHandler } from "./ui/event_handlers/resize.js";
-import { HzBox } from "./ui/hz_box.js";
 import { SvgRect, SvgObj } from "./ui/svg_rect.js";
 import { EConstraintsX, EConstraintsY, Rect } from "./ui/rect.js";
 import { TextRect } from "./ui/text_rect.js";
-import { VtBox } from "./ui/vt_box.js";
 import { MakeHoverPressButton, MakeToggleButton, ToggleButtonGroup } from "./ui_components/button.js";
 import { BrowserSpec } from "./util/browser_spec.js";
 import { Editor } from "./editor/editor.js";
+import { ResizeHandler } from "./ui/event_handlers/resize.js";
 
 
 BrowserSpec.initDocBody();
 ResizeHandler.init();
+console.log("hi")
+
+//const r1=new Rect
+//r1.resAndDraw(false);
+//const r2=new Rect
 
 export const editor=new Editor();
 
 
 
-//for debugging with keypresses
+////for debugging with keypresses
 document.addEventListener('keypress', logKey);
 function logKey(e: KeyboardEvent) {
     if (e.code == "KeyQ") {
@@ -27,7 +30,7 @@ function logKey(e: KeyboardEvent) {
         console.log(nextBox.children)
     }
     if (e.code == "KeyR") {
-        console.log(boundingRect.children)
+        console.log(boundingRect.allShapes)
     }
 }
 

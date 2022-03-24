@@ -25,40 +25,74 @@ export class Rect extends Shape {
         this.fixedOffsetY = 0;
         this.fixedSizeW = 100;
         this.fixedSizeH = 100;
-        this.snapMargin = 0;
-        this.color = "orange";
+        this._snapMargin = 0;
+        this._color = "orange";
         this.boxProportion = 100;
-        this.isVisible = true;
-        this.fillSpace = false;
-        this.fixedSpace = false;
-        this.topLeftSize = 0;
-        this.topLeftSpace = false;
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
     }
-    setAttr(key, value) {
-        if (key === "fillSpace") {
-            this.constraintX = EConstraintsX.scale;
-            this.constraintY = EConstraintsY.scale;
-        }
-        else if (key === "topLeftSpace") {
-            this.constraintX = EConstraintsX.left;
-            this.constraintY = EConstraintsY.top;
-        }
-        else if (key === "fixedSize") {
-            this.fixedSizeW = value;
-            this.fixedSizeH = value;
-        }
-        super.setAttr(key, value);
+    sFillSpace() {
+        this.constraintX = EConstraintsX.scale;
+        this.constraintY = EConstraintsY.scale;
+        return this;
     }
-    addConfig(config) {
-        super.addConfig(config);
+    sConstX(constX) {
+        this.constraintX = constX;
+        return this;
     }
-    resize() {
-        this.resizeSelf();
-        super.resize();
+    sConstY(constY) {
+        this.constraintY = constY;
+        return this;
+    }
+    gConsts() {
+        return { x: this.constraintX, y: this.constraintY };
+    }
+    sFixedOffsetX(offsetX) {
+        this.fixedOffsetX = offsetX;
+        return this;
+    }
+    sFixedOffsetY(offsetY) {
+        this.fixedOffsetY = offsetY;
+        return this;
+    }
+    sFixedSize(size) {
+        this.fixedSizeW = size;
+        this.fixedSizeH = size;
+        return this;
+    }
+    get fixedSize() {
+        return { w: this.fixedSizeW, h: this.fixedSizeH };
+    }
+    sFixedSizeW(sizeW) {
+        this.fixedSizeW = sizeW;
+        return this;
+    }
+    setFixedSizeH(sizeH) {
+        this.fixedSizeH = sizeH;
+        return this;
+    }
+    sSnapMargin(margin) {
+        this._snapMargin = margin;
+        return this;
+    }
+    get snapMargin() {
+        return this._snapMargin;
+    }
+    sColor(color) {
+        this._color = color;
+        return this;
+    }
+    get color() {
+        return this._color;
+    }
+    sBoxProp(prop) {
+        this.boxProportion = prop;
+        return this;
+    }
+    get boxProp() {
+        return this.boxProportion;
     }
     resizeSelf() {
-        if (typeof this.parent.resizeWithBox === 'function') {
+        if (typeof this.parent.resizeWithBox === "function") {
             this.parent.resizeWithBox(this);
         }
         else {
@@ -103,22 +137,22 @@ export class Rect extends Shape {
                     break;
             }
         }
-        //this.applySnapMargin();
     }
     applySnapMargin() {
-        this.absEdges.left += this.snapMargin;
-        this.absEdges.right -= this.snapMargin;
-        this.absEdges.top += this.snapMargin;
-        this.absEdges.bottom -= this.snapMargin;
+        this.absEdges.left += this._snapMargin;
+        this.absEdges.right -= this._snapMargin;
+        this.absEdges.top += this._snapMargin;
+        this.absEdges.bottom -= this._snapMargin;
     }
     draw() {
         this.applySnapMargin();
         if (this.isVisible) {
             const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
-            this.canvas.ctx.beginPath();
-            this.canvas.ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.ceil(posAndSize.size.w), Math.ceil(posAndSize.size.h));
-            this.canvas.ctx.fillStyle = this.color;
-            this.canvas.ctx.fill();
+            const ctx = this.getCanvas().ctx;
+            ctx.beginPath();
+            ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.ceil(posAndSize.size.w), Math.ceil(posAndSize.size.h));
+            ctx.fillStyle = this._color;
+            ctx.fill();
         }
     }
 }

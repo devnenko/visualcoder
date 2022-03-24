@@ -6,7 +6,6 @@ export function MakeClickable(base) {
             super(...args);
             this.mouseOnlyIfTopMost = true;
             mouseHandler.subscribe(this);
-            this.setConfigAttrs(args[0]);
         }
         onMouseDown(mouseHandler) { }
         ;
@@ -18,12 +17,12 @@ export function MakeClickable(base) {
         ;
         onMouseHoverEnd(mouseHandler) { }
         ;
-        addConfig(config) {
-            super.addConfig(config);
-        }
-        destroySelfAndChildren() {
+        destroy() {
             mouseHandler.unsubscribe(this);
-            super.destroySelfAndChildren();
+            super.destroy();
+        }
+        sMouseOnlyTopMost(isTrue) {
+            this.mouseOnlyIfTopMost = isTrue;
         }
     };
 }

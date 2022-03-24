@@ -12,34 +12,27 @@ export function MakeHoverPressButton(base) {
             this.forgetOnMouseLeave = true;
             this.onPress = (mouseHandler) => { };
             this.onRelease = (mouseHandler) => { };
-            this.color = this.idleColor;
-            this.setConfigAttrs(args[0]);
+            this.sColor(this.idleColor);
         }
-        addConfig(config) {
-            super.addConfig(config);
-        }
-        setAttr(key, value) {
-            if (key === "idleColor") {
-                this.color = value;
-            }
-            super.setAttr(key, value);
+        sForgetOnLeave(forget) {
+            this.forgetOnMouseLeave = forget;
+            return this;
         }
         onMouseHoverBegin(mouseHandler) {
-            this.addConfig({
-                color: this.hoverColor
-            });
+            this.sColor(this.hoverColor);
+            boundingRect.draw();
+            document.body.style.cursor = "pointer";
             super.onMouseHoverBegin(mouseHandler);
         }
         onMouseHoverEnd(mouseHandler) {
-            this.addConfig({
-                color: this.idleColor
-            });
+            this.sColor(this.idleColor);
+            boundingRect.draw();
+            document.body.style.cursor = "default";
             super.onMouseHoverEnd(mouseHandler);
         }
         onMouseDown(mouseHandler) {
-            this.addConfig({
-                color: this.pressColor
-            });
+            this.sColor(this.pressColor);
+            boundingRect.draw();
             this.onPress(mouseHandler);
             super.onMouseDown(mouseHandler);
         }
@@ -47,14 +40,14 @@ export function MakeHoverPressButton(base) {
             super.onMouseMoveDown(mouseHandler);
         }
         onMouseUp(mouseHandler) {
-            this.addConfig({
-                color: this.idleColor
-            });
+            this.sColor(this.idleColor);
+            boundingRect.draw();
             if (this.forgetOnMouseLeave == true && mouseHandler.isOverlapping(this) == false) {
             }
             else {
                 this.onRelease(mouseHandler);
             }
+            document.body.style.cursor = "default";
             super.onMouseUp(mouseHandler);
         }
     };

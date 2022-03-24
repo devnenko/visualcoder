@@ -5,71 +5,42 @@ export class Shape {
         this.children = [];
         this.canvas = boundingRect.canvas;
         this.zIndex = 0;
+        this.isVisible = true;
         boundingRect.allShapes.push(this);
-        this.setParent(this.parent);
+        this.sParent(this.parent);
+        return this;
     }
-    setParent() {
+    sVisible(isVisible) {
+        this.isVisible = isVisible;
+    }
+    sParent(parent) {
+        const parentChidren = this.parent.getChildren();
+        if (parentChidren.indexOf(this) != -1) {
+            parentChidren.splice(this.parent.getChildren().indexOf(this), 1);
+        }
+        this.parent = parent;
+        parent.getChildren().push(this);
+        return this;
     }
     getParent() {
+        return this.parent;
     }
-    addConfig(config) {
-        this.setConfigAttrs(config);
-        boundingRect.draw();
+    getCanvas() {
+        return this.canvas;
     }
-    setConfigAttrs(config) {
-        if (config) {
-            for (const opt in config) {
-                this.setAttr(opt, config[opt]);
-            }
-        }
+    sChildren(children) {
+        this.children = children;
+        return this;
     }
-    setAttr(key, value) {
-        if (key === "parent") {
-            this.setParent(value);
-        }
-        else if (key === "zIndex") {
-            this.setZIndex(value);
-        }
-        // @ts-ignore: to ignore next line in ts
-        this[key] = value;
-    }
-    getAttr(key) {
-        // @ts-ignore: to ignore next line in ts
-        return this[key];
-    }
-    setZIndex(index) {
-        this.zIndex = index;
-        for (const child of this.children) {
-            child.setZIndex(this.zIndex);
-        }
-    }
-    setParent(parent) {
-        if (this.parent.children.indexOf(this) != -1) {
-            this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        }
-        parent.children.push(this);
-    }
-    setIndexInParent(index) {
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
-        this.parent.children.splice(index, 0, this);
-        console.log("yeeehhh");
-        console.log(this);
-    }
-    resize() {
-        for (const child of this.children) {
-            child.resize();
-        }
-    }
-    draw() {
+    getChildren() {
+        return this.children;
     }
     replace(newObj) {
-        newObj.addConfig({ parent: this.parent });
+        newObj.sParent(this.parent);
         const childrenLenght = this.children.length;
         for (var i = 0; i < childrenLenght; i++) {
             const obj = this.children[0];
-            obj.addConfig({
-                parent: newObj
-            });
+            obj.sParent(newObj);
         }
         this.destroySelf();
     }
@@ -77,26 +48,54 @@ export class Shape {
         const childrenLenght = this.children.length;
         for (var i = 0; i < childrenLenght; i++) {
             const obj = this.children[0];
-            obj.addConfig({
-                parent: this.parent
-            });
+            obj.sParent(this.parent);
         }
         this.destroySelf();
     }
-    destroySelfAndChildren() {
-        this.destroyAllChildren();
+    sIndexInParent(index) {
+        const parentChidren = this.parent.getChildren();
+        parentChidren.splice(parentChidren.indexOf(this), 1);
+        parentChidren.splice(index, 0, this);
+        return this;
+    }
+    sZIndex(index) {
+        this.zIndex = index;
+        for (const child of this.children) {
+            child.sZIndex(this.zIndex);
+        }
+        return this;
+    }
+    gZIndex() {
+        return this.zIndex;
+    }
+    resAndDraw() {
+        this.resize();
+        this.draw();
+    }
+    resAndDrawSelf() {
+        this.resizeSelf();
+        //no drawing yet
+    }
+    draw() {
+    }
+    resize() {
+        this.resizeSelf();
+        for (const child of this.children) {
+            child.resize();
+        }
+    }
+    resizeSelf() {
+    }
+    destroy() {
+        const childLength = this.children.length; //cause they get removed with time
+        for (let i = 0; i < childLength; i++) {
+            this.children[0].destroy();
+        }
         this.destroySelf();
-        boundingRect.draw();
     }
     destroySelf() {
-        this.parent.children.splice(this.parent.children.indexOf(this), 1);
+        const parentChidren = this.parent.getChildren();
+        parentChidren.splice(parentChidren.indexOf(this), 1);
         boundingRect.allShapes.splice(boundingRect.allShapes.indexOf(this), 1);
-        boundingRect.draw();
-    }
-    destroyAllChildren() {
-        const childLength = this.children.length;
-        for (let i = 0; i < childLength; i++) {
-            this.children[0].destroySelfAndChildren();
-        }
     }
 }

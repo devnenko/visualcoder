@@ -7,6 +7,7 @@ export class BoundingRect {
         this.allShapes = [];
     }
     draw() {
+        //console.log("drawing scene")
         this.absEdges = { left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight };
         this.canvas.ctx.clearRect(this.absEdges.left, this.absEdges.top, this.absEdges.right, this.absEdges.bottom);
         for (const child of this.children) {
@@ -17,14 +18,17 @@ export class BoundingRect {
             this.allShapes[i].draw();
         }
     }
+    getChildren() {
+        return this.children;
+    }
     setDrawOrder() {
         this.allShapes.sort(function (a, b) {
-            return a.zIndex - b.zIndex; //smaller number first
+            return a.gZIndex() - b.gZIndex(); //smaller number first
         });
     }
     destroy() {
         for (const child of this.children) {
-            child.destroySelfAndChildren();
+            child.destroy();
         }
     }
 }

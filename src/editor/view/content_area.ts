@@ -1,8 +1,6 @@
 import { colorCreator } from '../../util/color.js';
 import { MouseHandler } from '../../ui/event_handlers/mouse.js';
 import { SvgRect } from '../../ui/svg_rect.js';
-import { HzBox } from '../../ui/hz_box.js';
-import { VtBox } from '../../ui/vt_box.js';
 import { EConstraintsX, EConstraintsY, Rect } from "../../ui/rect.js";
 import { Editor } from "../editor.js";
 import { MakeClickable } from '../../ui/clickable_rect.js';
@@ -15,10 +13,9 @@ export class ViewContentArea{
     boundBox;
     constructor(view:View){
         this.boundBox=new (MakeClickable(Rect))
-        this.boundBox.addConfig({
-            parent:view,
-            fillSpace:true,
-            color:colorCreator.colorByBrightness(10)
-        })
+        this.boundBox
+            .sParent(view)
+            .sFillSpace()
+            .sColor(colorCreator.colorByBrightness(10))
     }
 }

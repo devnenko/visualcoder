@@ -1,10 +1,9 @@
 
 
 
-import { IShapeConfig, Shape } from "./shape.js";
+import { Shape } from "./shape.js";
 import { IEdges, TransformConversions } from "../util/transform.js";
 import { BoundingRect, boundingRect } from "./bounding_rect.js";
-import { Box } from "./box.js";
 
 export enum EConstraintsX {
     left = "left",
@@ -20,49 +19,19 @@ export enum EConstraintsY {
     scale = "scale"
 }
 
-export interface IRectConfig extends IShapeConfig {
-    constraintX?: EConstraintsX,
-    constraintY?: EConstraintsY,
-    snapMargin?: number,
-    fixedOffsetX?: number,
-    fixedOffsetY?: number,
-    fixedSizeW?: number,
-    fixedSizeH?: number,
-    isVisible?: boolean,
-    color?: string,
-    boxProportionX?: number,
-    boxProportionY?: number,
-    imageSrc?: string,
-    hasStroke?: boolean,
-    strokeSize?: number,
-    strokeColor?: string,
-    boxChildrenDirectionX?: EConstraintsX,
-    boxChildrenDirectionY?: EConstraintsY,
-    resizeBoxToContent?: boolean,
-    boxProportion?: number;
-    fillSpace?: boolean,
-    fixedSize?: number,
-    topLeftSpace?: boolean;
-}
+export class Rect extends Shape{
 
-export class Rect<Config extends IRectConfig = IRectConfig> extends Shape<Config>{
+    protected parent: Rect | BoundingRect = boundingRect;
 
-    public parent: Rect | BoundingRect = boundingRect;
-
-    public constraintX = EConstraintsX.left;
-    public constraintY = EConstraintsY.top;
-    public fixedOffsetX = 0
-    public fixedOffsetY = 0;
-    public fixedSizeW = 100;
-    public fixedSizeH = 100;
-    protected snapMargin = 0;
-    protected color = "orange";
-    boxProportion = 100;
-    public isVisible = true;
-    private fillSpace = false;
-    private fixedSpace = false;
-    private topLeftSize = 0;
-    topLeftSpace = false;
+    private constraintX = EConstraintsX.left;
+    private constraintY = EConstraintsY.top;
+    private fixedOffsetX = 0
+    private fixedOffsetY = 0;
+    private fixedSizeW = 100;
+    private fixedSizeH = 100;
+    private _snapMargin = 0;
+    private _color = "orange";
+    private boxProportion = 100;
 
     public absEdges: IEdges = { left: 0, right: 0, top: 0, bottom: 0 };
 
@@ -70,34 +39,87 @@ export class Rect<Config extends IRectConfig = IRectConfig> extends Shape<Config
         super()
     }
 
-    protected setAttr(key: any, value: any) {
-        if (key === "fillSpace") {
-            this.constraintX = EConstraintsX.scale;
-            this.constraintY = EConstraintsY.scale;
-        }
-        else if (key === "topLeftSpace") {
-            this.constraintX = EConstraintsX.left;
-            this.constraintY = EConstraintsY.top;
-        }
-        else if (key === "fixedSize") {
-            this.fixedSizeW = value;
-            this.fixedSizeH = value;
-        }
-
-        super.setAttr(key, value);
+    sFillSpace(){
+        this.constraintX=EConstraintsX.scale;
+        this.constraintY=EConstraintsY.scale;
+        return this;
     }
 
-    public addConfig(config: Config) {
-        super.addConfig(config)
+    sConstX(constX:EConstraintsX){
+        this.constraintX=constX;
+        return this;
     }
 
-    public resize(): void {
-        this.resizeSelf();
-        super.resize();
+    sConstY(constY:EConstraintsY){
+        this.constraintY=constY;
+        return this;
     }
 
-    public resizeSelf() {
-        if (typeof this.parent.resizeWithBox === 'function') {
+
+
+    gConsts(){
+        return {x:this.constraintX,y:this.constraintY}
+    }
+
+    sFixedOffsetX(offsetX:number){
+        this.fixedOffsetX=offsetX;
+        return this;
+    }
+
+    sFixedOffsetY(offsetY:number){
+        this.fixedOffsetY=offsetY;
+        return this;
+    }
+
+    sFixedSize(size:number){
+        this.fixedSizeW=size;
+        this.fixedSizeH=size;
+        return this;
+    }
+
+    get fixedSize(){
+        return {w:this.fixedSizeW,h:this.fixedSizeH}
+    }
+
+    sFixedSizeW(sizeW:number){
+        this.fixedSizeW=sizeW;
+        return this;
+    }
+
+    setFixedSizeH(sizeH:number){
+        this.fixedSizeH=sizeH;
+        return this;
+    }
+
+    sSnapMargin(margin:number){
+        this._snapMargin=margin;
+        return this;
+    }
+
+    get snapMargin(){
+        return this._snapMargin
+    }
+
+    sColor(color:string){
+        this._color=color;
+        return this;
+    }
+
+    get color(){
+        return this._color;
+    }
+
+    sBoxProp(prop:number){
+        this.boxProportion=prop;
+        return this;
+    }
+
+    get boxProp() {
+        return this.boxProportion;
+    }
+
+    resizeSelf() {
+        if (typeof this.parent.resizeWithBox==="function") {
             this.parent.resizeWithBox(this);
         }
         else {
@@ -144,26 +166,25 @@ export class Rect<Config extends IRectConfig = IRectConfig> extends Shape<Config
                     break;
             }
         }
-
-        //this.applySnapMargin();
     }
 
-    applySnapMargin() {
-        this.absEdges.left += this.snapMargin;
-        this.absEdges.right -= this.snapMargin;
-        this.absEdges.top += this.snapMargin;
-        this.absEdges.bottom -= this.snapMargin;
+    protected applySnapMargin() {
+        this.absEdges.left += this._snapMargin;
+        this.absEdges.right -= this._snapMargin;
+        this.absEdges.top += this._snapMargin;
+        this.absEdges.bottom -= this._snapMargin;
     }
 
-    public draw() {
+    draw() {
         this.applySnapMargin();
         if (this.isVisible) {
             const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
+            const ctx=this.getCanvas().ctx;
 
-            this.canvas.ctx.beginPath();
-            this.canvas.ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.ceil(posAndSize.size.w), Math.ceil(posAndSize.size.h));
-            this.canvas.ctx.fillStyle = this.color;
-            this.canvas.ctx.fill();
+            ctx.beginPath();
+            ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.ceil(posAndSize.size.w), Math.ceil(posAndSize.size.h));
+            ctx.fillStyle = this._color;
+            ctx.fill();
         }
     }
 }
