@@ -19,8 +19,15 @@ export abstract class Shape<Config = IShapeConfig> {
 
     constructor() {
         boundingRect.allShapes.push(this);
+
         this.setParent(this.parent);
-        this.setZIndex(this.zIndex);
+    }
+
+    setParent(){
+
+    }
+    getParent(){
+        
     }
 
     public addConfig(config: IShapeConfig) {
@@ -57,9 +64,7 @@ export abstract class Shape<Config = IShapeConfig> {
     private setZIndex(index: number) {
         this.zIndex = index;
         for (const child of this.children) {
-            child.addConfig({
-                zIndex: this.zIndex
-            })
+            child.setZIndex(this.zIndex);
         }
     }
 
@@ -70,27 +75,6 @@ export abstract class Shape<Config = IShapeConfig> {
         parent.children.push(this);
     }
 
-    public assignChildrenToNew(newParent: Shape | BoundingRect){
-        for(const child of this.children){
-            child.addConfig({
-                parent:newParent
-            })
-        }
-    }
-    public replace(newObj: Shape){
-        console.log("rep")
-        console.log(this.children.length)
-        console.log(this.children)
-        const childrenLenght=this.children.length;
-        for(var i=0;i<childrenLenght;i++){
-            console.log("do")
-            const obj=this.children[0]
-            obj.addConfig({
-                parent:newObj
-            })
-        }
-        this.destroy();
-    }
 
     public setIndexInParent(index: number) {
         this.parent.children.splice(this.parent.children.indexOf(this), 1)
@@ -108,19 +92,47 @@ export abstract class Shape<Config = IShapeConfig> {
     public draw() {
     }
 
-    public destroy() {
+    public replace(newObj: Shape){
+        newObj.addConfig({parent:this.parent});
+        const childrenLenght=this.children.length;
+        for(var i=0;i<childrenLenght;i++){
+            const obj=this.children[0]
+            obj.addConfig({
+                parent:newObj
+            })
+        }
+        this.destroySelf();
+    }
 
-        this.destroyChildrenOnly();
+    public popOut(){
+        const childrenLenght=this.children.length;
+        for(var i=0;i<childrenLenght;i++){
+            const obj=this.children[0]
+            obj.addConfig({
+                parent:this.parent
+            })
+        }
+        this.destroySelf();
+    }
+
+    public destroySelfAndChildren() {
+
+        this.destroyAllChildren();
+        this.destroySelf();
+        boundingRect.draw();
+    }
+
+    public destroySelf(){
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
         boundingRect.allShapes.splice(boundingRect.allShapes.indexOf(this), 1)
         boundingRect.draw();
     }
 
-    public destroyChildrenOnly() {
+    public destroyAllChildren() {
         const childLength = this.children.length
 
         for (let i = 0; i < childLength; i++) {
-            this.children[0].destroy();
+            this.children[0].destroySelfAndChildren();
         }
     }
 }
