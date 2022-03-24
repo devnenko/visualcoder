@@ -23,8 +23,8 @@ export class BoundingRect {
 
         this.setDrawOrder();
 
-        for(const shape of this.allShapes){
-            shape.draw();
+        for(var i=0;i<this.allShapes.length;i++){
+            this.allShapes[i].draw();
         }
     }
 
@@ -36,7 +36,7 @@ export class BoundingRect {
 
     destroy() {
         for (const child of this.children) {
-            child.destroy();
+            child.destroySelfAndChildren();
         }
     }
 }

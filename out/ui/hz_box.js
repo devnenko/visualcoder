@@ -12,6 +12,48 @@ export class HzBox extends Rect {
     addConfig(config) {
         super.addConfig(config);
     }
+    addInBetweenRect(rect) {
+        function childPush(args, thisObj) {
+            const changedShape = args[0];
+            const index = thisObj.indexOf(changedShape);
+            if (thisObj[index - 1]) {
+                const r1 = new Rect;
+                // @ts-ignore: to ignore next line in ts
+                r1["hi"] = true;
+                r1.addConfig(rect);
+                r1.addConfig({
+                    parent: thisObj[0].parent
+                });
+                r1.setIndexInParent(index);
+            }
+        }
+        function childSplice(args, thisObj) {
+            console.log("destroy3");
+            const changedIndex = args[0];
+            console.log(args);
+            //const index = thisObj.indexOf(changedShape);
+            if (thisObj[changedIndex - 1].hi == true) {
+                thisObj[changedIndex - 1].destroySelfAndChildren();
+            }
+        }
+        // @ts-ignore: to ignore next line in ts
+        this.children.push = function () {
+            // @ts-ignore: to ignore next line in ts
+            Array.prototype.push.apply(this, arguments);
+            if (!(arguments[0].hi == true)) {
+                childPush(arguments, this);
+            }
+        };
+        // @ts-ignore: to ignore next line in ts
+        this.children.splice = function () {
+            // @ts-ignore: to ignore next line in ts
+            Array.prototype.splice.apply(this, arguments);
+            // @ts-ignore: to ignore next line in ts
+            if (!(arguments[0].hi == true)) {
+                childSplice(arguments, this);
+            }
+        };
+    }
     resize() {
         if (!(this.parent instanceof HzBox || this.parent instanceof VtBox)) {
             super.resizeSelf(); //resize hzbox

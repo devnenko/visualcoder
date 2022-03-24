@@ -29,9 +29,9 @@ export function MakeClickable<Base extends Class,Config extends IClickableConfig
         public addConfig(config: Config): void {
             super.addConfig(config);
         }
-        destroy(){
+        destroySelfAndChildren(){
             mouseHandler.unsubscribe(this);
-            super.destroy();
+            super.destroySelfAndChildren();
         }
     }
 }

@@ -5,7 +5,7 @@ export class ViewContentArea {
     constructor(view) {
         this.boundBox = new (MakeClickable(Rect));
         this.boundBox.addConfig({
-            parent: view.boundBox,
+            parent: view,
             fillSpace: true,
             color: colorCreator.colorByBrightness(10)
         });

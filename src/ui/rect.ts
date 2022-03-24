@@ -1,8 +1,10 @@
 
 
+
 import { IShapeConfig, Shape } from "./shape.js";
 import { IEdges, TransformConversions } from "../util/transform.js";
 import { BoundingRect, boundingRect } from "./bounding_rect.js";
+import { Box } from "./box.js";
 
 export enum EConstraintsX {
     left = "left",
@@ -95,50 +97,55 @@ export class Rect<Config extends IRectConfig = IRectConfig> extends Shape<Config
     }
 
     public resizeSelf() {
-        let absEdges = this.absEdges;
-        const parentAbsEdges = this.parent.absEdges;
+        if (typeof this.parent.resizeWithBox === 'function') {
+            this.parent.resizeWithBox(this);
+        }
+        else {
+            let absEdges = this.absEdges;
+            const parentAbsEdges = this.parent.absEdges;
 
-        switch (this.constraintX) {
-            case EConstraintsX.left:
-                absEdges.left = parentAbsEdges.left + this.fixedOffsetX;
-                absEdges.right = absEdges.left + this.fixedSizeW;
-                break;
-            case EConstraintsX.right:
-                absEdges.right = parentAbsEdges.right - this.fixedOffsetX;
-                absEdges.left = absEdges.right - this.fixedSizeW;
-                break;
-            case EConstraintsX.center:
-                const middle = TransformConversions.average(parentAbsEdges.left, parentAbsEdges.right);
-                absEdges.left = middle - this.fixedSizeW / 2 + this.fixedOffsetX;
-                absEdges.right = absEdges.left + this.fixedSizeW;
-                break;
-            case EConstraintsX.scale:
-                absEdges.left = parentAbsEdges.left;
-                absEdges.right = parentAbsEdges.right;
-                break;
+            switch (this.constraintX) {
+                case EConstraintsX.left:
+                    absEdges.left = parentAbsEdges.left + this.fixedOffsetX;
+                    absEdges.right = absEdges.left + this.fixedSizeW;
+                    break;
+                case EConstraintsX.right:
+                    absEdges.right = parentAbsEdges.right - this.fixedOffsetX;
+                    absEdges.left = absEdges.right - this.fixedSizeW;
+                    break;
+                case EConstraintsX.center:
+                    const middle = TransformConversions.average(parentAbsEdges.left, parentAbsEdges.right);
+                    absEdges.left = middle - this.fixedSizeW / 2 + this.fixedOffsetX;
+                    absEdges.right = absEdges.left + this.fixedSizeW;
+                    break;
+                case EConstraintsX.scale:
+                    absEdges.left = parentAbsEdges.left;
+                    absEdges.right = parentAbsEdges.right;
+                    break;
+            }
+
+            switch (this.constraintY) {
+                case EConstraintsY.top:
+                    absEdges.top = parentAbsEdges.top + this.fixedOffsetY;
+                    absEdges.bottom = absEdges.top + this.fixedSizeH;
+                    break;
+                case EConstraintsY.bottom:
+                    absEdges.bottom = parentAbsEdges.bottom - this.fixedOffsetY;
+                    absEdges.top = absEdges.bottom - this.fixedSizeH;
+                    break;
+                case EConstraintsY.center:
+                    const middle = TransformConversions.average(parentAbsEdges.top, parentAbsEdges.bottom);
+                    absEdges.top = middle - this.fixedSizeH / 2 + this.fixedOffsetY;
+                    absEdges.bottom = absEdges.top + this.fixedSizeH;
+                    break;
+                case EConstraintsY.scale:
+                    absEdges.top = parentAbsEdges.top;
+                    absEdges.bottom = parentAbsEdges.bottom;
+                    break;
+            }
         }
 
-        switch (this.constraintY) {
-            case EConstraintsY.top:
-                absEdges.top = parentAbsEdges.top + this.fixedOffsetY;
-                absEdges.bottom = absEdges.top + this.fixedSizeH;
-                break;
-            case EConstraintsY.bottom:
-                absEdges.bottom = parentAbsEdges.bottom - this.fixedOffsetY;
-                absEdges.top = absEdges.bottom - this.fixedSizeH;
-                break;
-            case EConstraintsY.center:
-                const middle = TransformConversions.average(parentAbsEdges.top, parentAbsEdges.bottom);
-                absEdges.top = middle - this.fixedSizeH / 2 + this.fixedOffsetY;
-                absEdges.bottom = absEdges.top + this.fixedSizeH;
-                break;
-            case EConstraintsY.scale:
-                absEdges.top = parentAbsEdges.top;
-                absEdges.bottom = parentAbsEdges.bottom;
-                break;
-        }
-
-        this.applySnapMargin();
+        //this.applySnapMargin();
     }
 
     applySnapMargin() {
@@ -149,11 +156,12 @@ export class Rect<Config extends IRectConfig = IRectConfig> extends Shape<Config
     }
 
     public draw() {
+        this.applySnapMargin();
         if (this.isVisible) {
             const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
 
             this.canvas.ctx.beginPath();
-            this.canvas.ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.floor(posAndSize.size.w), Math.floor(posAndSize.size.h));
+            this.canvas.ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.ceil(posAndSize.size.w), Math.ceil(posAndSize.size.h));
             this.canvas.ctx.fillStyle = this.color;
             this.canvas.ctx.fill();
         }

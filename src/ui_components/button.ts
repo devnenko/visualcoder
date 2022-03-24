@@ -161,7 +161,7 @@ export function MakeToggleButton<Base extends Class, Config extends IToggleButto
         }
         destroy(): void {
             this.assignedGroup?.removeButton(this);
-            super.destroy();
+            super.destroySelfAndChildren();
         }
 
     }

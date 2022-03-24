@@ -36,6 +36,7 @@ export class SvgRect<Config = SvgRectConfig> extends Rect<Config> {
     }
 
     draw() {
+        this.applySnapMargin();
 
         if(this.isVisible){
             const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);

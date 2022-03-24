@@ -20,6 +20,7 @@ export class SvgRect extends Rect {
         super.addConfig(config);
     }
     draw() {
+        this.applySnapMargin();
         if (this.isVisible) {
             const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
             const path = new Path2D(this.svg.source);

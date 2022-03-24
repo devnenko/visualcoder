@@ -1,7 +1,11 @@
--fixx double todo needed bug
+-figure our parenting and children assign functions and add them and use them
+-system where hzbox can auto add rect between each rect also has to do with parenting stuff having to be more clear
+-make sidebartogglebuttons which react if instance of view has been created
+-figure out view syncing and refreshing
+-create content browser view (has no source file, create easy to code system for both) 
+-create plain text view (has source file, create easy to code system for both)
 
--create default view for plain text
--decouple images code and make into a class
+
 -figure out view refreshing and loading
 
 -refactor rect  resizing code (hzbox from both directions)

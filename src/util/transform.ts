@@ -21,6 +21,13 @@ export interface IEdges {
     bottom: number;
 }
 
+export enum Direction{
+    left="left",
+    right="right",
+    top="top",
+    bottom="bottom"
+}
+
 export abstract class TransformConversions{
     static edgesToPosAndSize(edges:IEdges){
         //convert absolute edges to position and size

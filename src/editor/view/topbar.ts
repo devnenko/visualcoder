@@ -13,21 +13,20 @@ import { TextRect } from '../../ui/text_rect.js';
 import { View } from './view.js';
 import { AllSvg } from '../../util/allsvg.js';
 
-export class ViewTopBar{
-    topBar;
+export class ViewTopBar extends Rect{
     title;
     delButton;
     constructor(view:View){
-        this.topBar=new Rect;
-        this.topBar.addConfig({
-            parent:view.boundBox,
-            fixedSizeH:55,
+        super();
+        this.addConfig({
+            parent:view,
+            fixedSizeH:50,
             color:colorCreator.colorByBrightness(5)
         })
 
         this.title=new TextRect;
         this.title.addConfig({
-            parent:this.topBar,
+            parent:this,
             constraintY:EConstraintsY.center,
             fixedOffsetX:5,
             size:28,
@@ -36,14 +35,14 @@ export class ViewTopBar{
 
         this.delButton=new (MakeHoverPressButton(MakeClickable(SvgRect)))
         this.delButton.addConfig({
-            parent:this.topBar,
+            parent:this,
             constraintX:EConstraintsX.right,
             constraintY:EConstraintsY.scale,
-            fixedSizeW:this.topBar.fixedSizeH,
+            fixedSizeW:this.fixedSizeH,
             snapMargin:5,
             forgetOnMouseLeave:true,
             onRelease:(mouseHandler:MouseHandler)=>{
-                view.boundBox.destroy();
+                view.destroy();
             },
         })
         this.delButton.addConfig({

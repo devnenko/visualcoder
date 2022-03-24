@@ -38,6 +38,6 @@ export abstract class ResizeHandler {
     }
 
     static mobileRes() {
-        editor.recreateSideBar();
+        editor.orientSideBar();
     }
 }

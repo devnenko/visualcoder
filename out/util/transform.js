@@ -1,3 +1,10 @@
+export var Direction;
+(function (Direction) {
+    Direction["left"] = "left";
+    Direction["right"] = "right";
+    Direction["top"] = "top";
+    Direction["bottom"] = "bottom";
+})(Direction || (Direction = {}));
 export class TransformConversions {
     static edgesToPosAndSize(edges) {
         //convert absolute edges to position and size

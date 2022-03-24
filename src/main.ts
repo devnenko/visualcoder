@@ -23,6 +23,21 @@ export const editor=new Editor();
 document.addEventListener('keypress', logKey);
 function logKey(e: KeyboardEvent) {
     if (e.code == "KeyQ") {
+        let nextBox=boundingRect.children[0].children[1];
+        console.log(nextBox.children)
+    }
+    if (e.code == "KeyR") {
         console.log(boundingRect.children)
     }
+}
+
+function logNextGen(obj:Rect,allShapesStr:string){
+    allShapesStr=allShapesStr.concat("=>");
+    obj.children.forEach(el=>{
+        allShapesStr=allShapesStr.concat(el.constructor.name);
+        el.children.forEach(el=>{
+            allShapesStr=logNextGen(el as Rect,allShapesStr)
+        })
+    })
+    return allShapesStr;
 }

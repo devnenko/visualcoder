@@ -21,9 +21,9 @@ export function MakeClickable(base) {
         addConfig(config) {
             super.addConfig(config);
         }
-        destroy() {
+        destroySelfAndChildren() {
             mouseHandler.unsubscribe(this);
-            super.destroy();
+            super.destroySelfAndChildren();
         }
     };
 }

@@ -7,7 +7,10 @@ export class Shape {
         this.zIndex = 0;
         boundingRect.allShapes.push(this);
         this.setParent(this.parent);
-        this.setZIndex(this.zIndex);
+    }
+    setParent() {
+    }
+    getParent() {
     }
     addConfig(config) {
         this.setConfigAttrs(config);
@@ -37,9 +40,7 @@ export class Shape {
     setZIndex(index) {
         this.zIndex = index;
         for (const child of this.children) {
-            child.addConfig({
-                zIndex: this.zIndex
-            });
+            child.setZIndex(this.zIndex);
         }
     }
     setParent(parent) {
@@ -47,27 +48,6 @@ export class Shape {
             this.parent.children.splice(this.parent.children.indexOf(this), 1);
         }
         parent.children.push(this);
-    }
-    assignChildrenToNew(newParent) {
-        for (const child of this.children) {
-            child.addConfig({
-                parent: newParent
-            });
-        }
-    }
-    replace(newObj) {
-        console.log("rep");
-        console.log(this.children.length);
-        console.log(this.children);
-        const childrenLenght = this.children.length;
-        for (var i = 0; i < childrenLenght; i++) {
-            console.log("do");
-            const obj = this.children[0];
-            obj.addConfig({
-                parent: newObj
-            });
-        }
-        this.destroy();
     }
     setIndexInParent(index) {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
@@ -82,16 +62,41 @@ export class Shape {
     }
     draw() {
     }
-    destroy() {
-        this.destroyChildrenOnly();
+    replace(newObj) {
+        newObj.addConfig({ parent: this.parent });
+        const childrenLenght = this.children.length;
+        for (var i = 0; i < childrenLenght; i++) {
+            const obj = this.children[0];
+            obj.addConfig({
+                parent: newObj
+            });
+        }
+        this.destroySelf();
+    }
+    popOut() {
+        const childrenLenght = this.children.length;
+        for (var i = 0; i < childrenLenght; i++) {
+            const obj = this.children[0];
+            obj.addConfig({
+                parent: this.parent
+            });
+        }
+        this.destroySelf();
+    }
+    destroySelfAndChildren() {
+        this.destroyAllChildren();
+        this.destroySelf();
+        boundingRect.draw();
+    }
+    destroySelf() {
         this.parent.children.splice(this.parent.children.indexOf(this), 1);
         boundingRect.allShapes.splice(boundingRect.allShapes.indexOf(this), 1);
         boundingRect.draw();
     }
-    destroyChildrenOnly() {
+    destroyAllChildren() {
         const childLength = this.children.length;
         for (let i = 0; i < childLength; i++) {
-            this.children[0].destroy();
+            this.children[0].destroySelfAndChildren();
         }
     }
 }

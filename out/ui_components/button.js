@@ -122,7 +122,7 @@ export function MakeToggleButton(base) {
         }
         destroy() {
             this.assignedGroup?.removeButton(this);
-            super.destroy();
+            super.destroySelfAndChildren();
         }
     };
 }

@@ -29,7 +29,7 @@ export class ResizeHandler {
         this.resizeWindow();
     }
     static mobileRes() {
-        editor.recreateSideBar();
+        editor.orientSideBar();
     }
 }
 ResizeHandler.canvases = [];
