@@ -1,4 +1,4 @@
-import { Asset, AssetType } from "../../editor/asset.js";
+import { Asset } from "../../editor/asset.js";
 import { IPos } from "../../util/transform.js";
 import { boundingRect } from "../bounding_rect.js";
 import { CLickableMixin } from "../clickable_rect.js";
@@ -17,34 +17,25 @@ export enum EMouseType {
 class Touch {
     pos;
     type;
-    downRects;
+    mouseHandler;
+    //down;
     //topMostRect;
     constructor(pos: IPos, type: EMouseType, mouseHandler: MouseHandler) {
         this.pos = pos;
         this.type = type;
-        this.downRects=mouseHandler.getAffectedRects(pos);
+        this.mouseHandler = mouseHandler;
         //this.touchDownRects = mouseHandler.getOverlapping({ x: x, y: y });
         //this.topMostRect = mouseHandler.getTopMostRect(this.touchDownRects);
     }
 
 }
 
-export interface IDragHandler{
-    onDrag(asset:Asset):void;
-    acceptedTypes:AssetType[];
-}
-
-export class MouseHandler {
+class MouseHandler {
 
     currentTouch: Touch | null = null;
     isDown = false;
-    hoveredRects:CLickableMixin[]=[];
-
-    draggedAsset:Asset| null = null;
-    private assetRect:Rect| null = null;
 
     subscribedRects: CLickableMixin[] = [];
-    dragInRects: (IDragHandler&Rect)[] = [];
 
     constructor() {
         window.addEventListener('mousedown', this.mouseDown.bind(this));
@@ -74,17 +65,7 @@ export class MouseHandler {
         }
     }
 
-    subscribeDrag(object:(IDragHandler&Rect)){
-        this.dragInRects.push(object);
-    }
-
-    unsubscribeDrag(object:(IDragHandler&Rect)){
-        if(this.dragInRects.indexOf(object)!=-1){
-            this.dragInRects.splice(this.dragInRects.indexOf(object), 1);
-        }
-    }
-
-    isOverlapping(obj: Rect, screenPos: IPos) {
+    isOverlapping(obj: CLickableMixin, screenPos: IPos) {
         const objEdges = obj.gAbsEdges();
         return objEdges.left < screenPos.x && objEdges.right > screenPos.x && objEdges.top < screenPos.y && objEdges.bottom > screenPos.y;
     }
@@ -114,8 +95,7 @@ export class MouseHandler {
 
         return winnerRect;
     }
-    getAffectedRects(pos:IPos) {
-        const rects=this.getOverlappingRects(pos);
+    getAffectedRects(rects: CLickableMixin[]) {
         const consRects: CLickableMixin[] = [];
         const top = this.getTopMostRect(rects);
         for (const rect of rects) {
@@ -156,29 +136,18 @@ export class MouseHandler {
     }
 
     //--------------------------------
-    
-    private touchEToTouch(e: TouchEvent) {
-        const pos: IPos = { x: e.touches[0].clientX, y: e.touches[0].clientY }
-        return new Touch(pos, EMouseType.touch, this);
-    }
 
     touchStart(e: TouchEvent) {
         e.preventDefault(); //disables long click select with canvas but also events from passing through to div
-        this.down(this.touchEToTouch(e));
-
-        //if(e.changedTouches[0].identifier==0){
-        //}
 
     }
     touchMove(e: TouchEvent) {
         //e.preventDefault();
-        this.move({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+
     }
     touchEnd(e: TouchEvent) {
         //e.preventDefault();
-        if(this.currentTouch){
-            this.up(this.currentTouch.pos);
-        }
+
     }
 
     //--------------------------------
@@ -186,8 +155,6 @@ export class MouseHandler {
     move(pos: IPos) {
         if (this.isDown == true) {
             this.moveDown(pos);
-        }else{
-            this.moveUp(pos);
         }
     }
 
@@ -196,95 +163,19 @@ export class MouseHandler {
     down(touch: Touch) {
         this.isDown = true;
         this.currentTouch = touch;
-        touch.downRects.forEach(el=>{
-            el.onMouseDown(this);
-        })
-    }
-
-    moveUp(pos:IPos){
-        const overlRects=this.getAffectedRects(pos);
-
-        //add any newly-overlapping rects
-        overlRects.forEach(overl=>{
-            if(this.hoveredRects.includes(overl)==false){
-                this.hoveredRects.push(overl);
-                overl.onMouseHoverBegin(this);
-            }
-        })
-
-        //remove not-overlapping-anymore rects
-        this.hoveredRects.forEach(hover=>{
-            if(overlRects.includes(hover)==false){
-                this.hoveredRects.splice(this.hoveredRects.indexOf(hover),1);
-                hover.onMouseHoverEnd(this);
-            }
-        })
-
-
     }
 
     moveDown(pos: IPos) {
         if(this.currentTouch){
             this.currentTouch.pos=pos;
         }
-
-        this.currentTouch?.downRects.forEach(el=>{
-            el.onMouseMoveDown(this);
-        })
-
-        if(this.draggedAsset!=null){
-            if(this.assetRect==null){
-                this.assetRect=new Rect;
-                this.assetRect.sZIndex(100)
-                            .sColor("red")//red == not droppable here
-            }
-            this.assetRect.sFixedOffsetX(pos.x);
-            this.assetRect.sFixedOffsetY(pos.y);
-            
-            let overl;
-            this.dragInRects.forEach(el=>{
-                if(this.isOverlapping(el,pos)){
-                    overl=el;
-                }
-            })
-
-            if(overl){
-                if((overl as (IDragHandler&Rect)).acceptedTypes.includes(this.draggedAsset.type)){
-                    this.assetRect.sColor("green");
-                }
-            }else{
-                this.assetRect.sColor("red");
-            }
-
-            boundingRect.draw();
-        }
     }
 
     up(pos: IPos) {
         this.isDown = false;
         if(this.currentTouch){
-            this.currentTouch.downRects.forEach(el=>{
-                el.onMouseUp(this);
-            })
             this.currentTouch=null;
         }
-
-        let overl;
-        this.dragInRects.forEach(el=>{
-            if(this.isOverlapping(el,pos)){
-                overl=el;
-            }
-        })
-
-        if(overl&&this.draggedAsset){
-            if((overl as (IDragHandler&Rect)).acceptedTypes.includes(this.draggedAsset.type)){
-                (overl as (IDragHandler&Rect)).onDrag(this.draggedAsset);
-            }
-        }
-
-        this.assetRect?.destroy();
-        this.assetRect=null;
-        this.draggedAsset=null;
     }
 }
 

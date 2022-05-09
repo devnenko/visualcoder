@@ -1,7 +1,8 @@
 import { boundingRect } from "../ui/bounding_rect.js";
 import { MakeClickable } from "../ui/clickable_rect.js";
-import { Rect } from "../ui/rect.js";
+import { EConstraintsX, EConstraintsY, Rect } from "../ui/rect.js";
 import { colorCreator } from "../util/color.js";
+import { TextRect } from "../ui/text_rect.js";
 export function MakeHoverPressButton(base) {
     return class extends base {
         constructor(...args) {
@@ -9,26 +10,31 @@ export function MakeHoverPressButton(base) {
             this.idleColor = colorCreator.colorByBrightness(40);
             this.hoverColor = colorCreator.colorByBrightness(70);
             this.pressColor = colorCreator.colorByBrightness(90);
-            this.forgetOnMouseLeave = true;
             this.onPress = (mouseHandler) => { };
             this.onMovePressed = (mouseHandler) => { };
             this.onRelease = (mouseHandler) => { };
             this.sColor(this.idleColor);
         }
-        sForgetOnLeave(forget) {
-            this.forgetOnMouseLeave = forget;
-            return this;
+        addText() {
+            const t = new TextRect();
+            t.sParent(this)
+                .sConsts(EConstraintsX.center, EConstraintsY.center);
+            return t;
         }
+        //sForgetOnLeave(forget:boolean){
+        //    this.forgetOnMouseLeave=forget;
+        //    return this;
+        //}
         onMouseHoverBegin(mouseHandler) {
             this.sColor(this.hoverColor);
             boundingRect.draw();
-            document.body.style.cursor = "pointer";
+            //document.body.style.cursor = "pointer";
             super.onMouseHoverBegin(mouseHandler);
         }
         onMouseHoverEnd(mouseHandler) {
             this.sColor(this.idleColor);
             boundingRect.draw();
-            document.body.style.cursor = "default";
+            //document.body.style.cursor = "default";
             super.onMouseHoverEnd(mouseHandler);
         }
         onMouseDown(mouseHandler) {
@@ -44,12 +50,8 @@ export function MakeHoverPressButton(base) {
         onMouseUp(mouseHandler) {
             this.sColor(this.idleColor);
             boundingRect.draw();
-            if (this.forgetOnMouseLeave == true && mouseHandler.isOverlapping(this) == false) {
-            }
-            else {
-                this.onRelease(mouseHandler);
-            }
-            document.body.style.cursor = "default";
+            this.onRelease(mouseHandler);
+            //document.body.style.cursor = "default";
             super.onMouseUp(mouseHandler);
         }
     };
@@ -70,6 +72,12 @@ export function MakeToggleButton(base) {
             this.assignedGroup = null;
             this.sColor(this.idleColor);
         }
+        addText() {
+            const t = new TextRect();
+            t.sParent(this)
+                .sConsts(EConstraintsX.center, EConstraintsY.center);
+            return t;
+        }
         toggle(newToggleState) {
             this.isToggleOn = newToggleState;
             if (this.isToggleOn == true) {
@@ -86,14 +94,14 @@ export function MakeToggleButton(base) {
             boundingRect.draw();
         }
         onMouseHoverBegin(mouseHandler) {
-            document.body.style.cursor = "pointer";
+            //document.body.style.cursor = "pointer";
             if (this.isToggleOn == false) {
                 this.sColor(this.hoverColor);
                 boundingRect.draw();
             }
         }
         onMouseHoverEnd(mouseHandler) {
-            document.body.style.cursor = "default";
+            //document.body.style.cursor = "default";
             if (this.isToggleOn == false) {
                 this.sColor(this.idleColor);
                 boundingRect.draw();
@@ -101,6 +109,10 @@ export function MakeToggleButton(base) {
         }
         onMouseDown(mouseHandler) {
             this.onPress(mouseHandler);
+            if (this.isToggleOn == false) {
+                this.sColor(this.hoverColor);
+                boundingRect.draw();
+            }
         }
         onMouseUp(mouseHandler) {
             if (!(this.isToggleOn == true && this.canClickToggleOf == false)) {
@@ -108,7 +120,7 @@ export function MakeToggleButton(base) {
                 this.toggle(this.isToggleOn);
             }
             this.onRelease(mouseHandler);
-            document.body.style.cursor = "default";
+            //document.body.style.cursor = "default";
         }
         destroySelf() {
             this.assignedGroup?.removeButton(this);
@@ -127,22 +139,22 @@ export class ToggleButtonGroup {
             button.toggle(true);
         }
     }
-    addButtons(buttons) {
-        buttons.forEach(button => {
-            this.buttons.push(button);
-            button.assignedGroup = this;
-            button.canClickToggleOf = false;
-            button.onGroupToggle = (newToggleState) => {
-                if (newToggleState == true) {
-                    this.currentToggled?.toggle(false);
-                    this.currentToggled = button;
-                }
-            };
-        });
+    addButton(button) {
+        this.buttons.push(button);
+        button.assignedGroup = this;
+        button.canClickToggleOf = false;
+        button.onGroupToggle = (newToggleState) => {
+            if (newToggleState == true) {
+                this.currentToggled?.toggle(false);
+                this.currentToggled = button;
+            }
+        };
     }
     removeButton(button) {
         this.buttons.slice(this.buttons.indexOf(button), 1);
     }
+}
+export function MakeBoxButton(baseObj) {
 }
 /**
 

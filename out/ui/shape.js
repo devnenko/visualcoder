@@ -104,6 +104,7 @@ export class Shape {
     destroy() {
         this.destroyChildren();
         this.destroySelf();
+        boundingRect.draw();
     }
     destroyChildren() {
         const childLength = this.children.length; //cause they get removed with time

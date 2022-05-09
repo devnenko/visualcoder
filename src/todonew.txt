@@ -1,0 +1,3 @@
+-add sidebar to levelview
+-add drag and drop info ui if can drop
+-refine mousehandler for moment only 1 touch handled

@@ -2,6 +2,7 @@ import { boundingRect } from "../ui/bounding_rect.js";
 export class ViewController {
     constructor(editor) {
         this.availableViews = [];
+        this.defaultViewIndex = 0;
         this.views = [];
         this.editor = editor;
         //this.getAvailViewNames()
@@ -13,10 +14,10 @@ export class ViewController {
     }
     addView(origin, dir) {
         if (origin && dir) {
-            return new this.availableViews[0](this);
+            return new this.availableViews[this.defaultViewIndex](this);
         }
         else {
-            return new this.availableViews[0](this);
+            return new this.availableViews[this.defaultViewIndex](this);
         }
     }
     removeView(view) {

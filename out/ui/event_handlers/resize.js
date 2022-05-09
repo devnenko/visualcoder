@@ -28,7 +28,6 @@ export class ResizeHandler {
         }
     }
     static visibilityChange(e) {
-        this.mobileRes();
         this.resizeWindow();
     }
     static mobileRes() {

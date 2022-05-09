@@ -1,23 +1,19 @@
 
 
 import { TransformConversions } from "../util/transform.js";
-import { EConstraintsX, EConstraintsY, Rect } from "./rect.js";
+import { BoxType, EConstraintsX, EConstraintsY, Rect } from "./rect.js";
 import { boundingRect } from './bounding_rect.js';
 import { Shape } from "./shape.js";
 
 
-export enum BoxType {
-    hz = "hz",
-    vt = "vt"
-}
 
 export class Box extends Rect {
     protected children: Rect[] = [];
-    private boxType;
     private availableSpace = 0;
     public childProportionsSumm = 0;
     private resizeBoxToContent = false; //need to implement this
     public  isBetStartEnd=false;
+    //public boxType;
 
     private inBetweenClass: (new () => Rect) | null = null;
     private fnToApply: (rect: any) => void  = (rect: any)=>{};
@@ -87,6 +83,7 @@ export class Box extends Rect {
                 r2.indexInParent(this.gChildren().length);
             }
         }
+        boundingRect.draw();
     }
 
     pushChild(child: Rect): void {

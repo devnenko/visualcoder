@@ -1,10 +1,6 @@
 import { TransformConversions } from "../util/transform.js";
-import { EConstraintsX, EConstraintsY, Rect } from "./rect.js";
-export var BoxType;
-(function (BoxType) {
-    BoxType["hz"] = "hz";
-    BoxType["vt"] = "vt";
-})(BoxType || (BoxType = {}));
+import { BoxType, EConstraintsX, EConstraintsY, Rect } from "./rect.js";
+import { boundingRect } from './bounding_rect.js';
 export class Box extends Rect {
     constructor(boxType) {
         super();
@@ -13,6 +9,7 @@ export class Box extends Rect {
         this.childProportionsSumm = 0;
         this.resizeBoxToContent = false; //need to implement this
         this.isBetStartEnd = false;
+        //public boxType;
         this.inBetweenClass = null;
         this.fnToApply = (rect) => { };
         this.boxType = boxType;
@@ -73,6 +70,7 @@ export class Box extends Rect {
                 r2.indexInParent(this.gChildren().length);
             }
         }
+        boundingRect.draw();
     }
     pushChild(child) {
         //this.refreshInBetween();

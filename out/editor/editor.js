@@ -1,151 +1,157 @@
 import { AllSvg } from './../util/allsvg.js';
 import { SvgRect } from '../ui/svg_rect.js';
 import { colorCreator } from './../util/color.js';
-import { Rect } from "../ui/rect.js";
+import { BoxType, Rect } from "../ui/rect.js";
 import { MakeClickable } from '../ui/clickable_rect.js';
-import { MakeToggleButton } from '../ui_components/button.js';
-import { Direction } from '../util/transform.js';
+import { MakeHoverPressButton, MakeToggleButton } from '../ui_components/button.js';
+import { ViewController } from './view_controller.js';
 import { boundingRect } from '../ui/bounding_rect.js';
-import { Box, BoxType } from '../ui/box.js';
-import { ContentBrowser } from './content_browser/content_browser.js';
-import { ViewController } from './view_cont.js';
-import { ContentBrowser1 } from './content_browser.js';
+import { Box } from '../ui/box.js';
+import { ContentBrowser } from './cont_brow.js';
+import { uniform } from '../util/uniform.js';
+import { allAssets, AssetType } from './asset.js';
+import { BrowserSpec } from '../util/browser_spec.js';
+import { LevelView } from './level_view.js';
 export class SideBarViewButton extends (MakeToggleButton(MakeClickable(SvgRect))) {
-    constructor(editor, icon, viewToAdd, dir) {
+    constructor(editor, icon, contToAdd) {
         super();
-        this.sSnapMargin(5)
+        this.currView = null;
+        this.sSnapMargin(uniform.defSnapMargin)
             .sParent(editor.sideBar)
             .sFixedSize(editor.sideBar.gFixedSize().w)
             .sZIndex(10)
             .sSvg(icon);
-        this.canClickToggleOf = false;
-        this.viewToAdd = viewToAdd;
+        //this.canClickToggleOf = false
         this.onToggle = (isOn) => {
             if (isOn) {
-                let view = editor.addView(editor.contBrowserCont);
-                view.removeCallback = () => {
-                    this.toggle(false);
+                const view = contToAdd.createView();
+                this.currView = view;
+                //let view = editor.addView(editor.contBrowserCont);
+                const viewDest = view.destroy;
+                view.destroy = () => {
+                    if (this.isToggleOn == true) {
+                        this.currView = null;
+                        this.toggle(false);
+                    }
+                    console.log("de");
+                    viewDest.call(view);
                 };
+            }
+            else {
+                if (this.currView) {
+                    contToAdd.destroyView(this.currView);
+                }
             }
         };
     }
 }
-//class ViewAddPreview{
-//    viewBox;
-//    rects:Rect[]=[];
-//    constructor(viewBox:ViewConnector){
-//        this.viewBox=viewBox;
-//    }
-//    show(selectedView:View){
-//        const parentConnector=selectedView.gParent() as ViewConnector;
-//        if(parentConnector.gChildren().length!=1){
-//            if(parentConnector.gChildren().indexOf(selectedView)==0){
-//                this.rects.push(new Rect);
-//                this.rects[this.rects.length-1].sZIndex(20)
-//                    .sConstY(EConstraintsY.center)
-//                    .sConstX(EConstraintsX.right)
-//            }
-//            if(parentConnector.gChildren().indexOf(selectedView)==2){
-//                this.rects.push(new Rect);
-//                this.rects[this.rects.length-1].sZIndex(20)
-//                    .sConstY(EConstraintsY.center)
-//            }
-//        }
-//
-//        boundingRect.draw();
-//    }
-//
-//    hide(){
-//        this.rects.forEach(el=>el.destroy())
-//        this.rects=[];
-//        boundingRect.draw();
-//    }
-//}
 export class Editor {
     constructor() {
-        this.boundBox = new Box(BoxType.vt);
-        this.boundBox
-            .sFillSpace()
-            .sIsVisible(false);
+        this.selectedView = null;
+        this.boundBox = uniform.makeInvisFill(new Box(BoxType.vt));
         this.sideBar = new Box(BoxType.hz);
         this.sideBar
             .sParent(this.boundBox)
             .sFixedSize(75)
-            .sColor(colorCreator.colorByBrightness(22));
-        this.sideBar.setInBetween(Rect, (rect) => {
-            rect.sFixedSize(7)
-                .sColor(colorCreator.colorByBrightness(40));
+            .sColor(colorCreator.brightColorDef);
+        this.viewBox = uniform.makeInvisFill(new Box(BoxType.hz), this.boundBox);
+        this.viewBox.setInBetween(MakeHoverPressButton(MakeClickable(Rect)), (rect) => {
+            rect.sFixedSize(8)
+                .sBoxProp(0)
+                .sColor(colorCreator.darkColorDef);
+            rect.idleColor = colorCreator.darkColorDef;
+            rect.hoverColor = colorCreator.highlightColor;
+            //let initPos:IPos;
+            //rect.onMouseDown=(handler:MouseHandler)=>{
+            //    initPos=handler.mousePos;
+            //    const index=rect.parent.gChildren().indexOf(rect)
+            //    console.log(index);
+            //    (rect.parent.gChildren()[index-1] as Rect).sBoxProp(TransformConversions.edgesToPosAndSize((rect.parent.gChildren()[index-1] as Rect).gAbsEdges()).size.w);
+            //    (rect.parent.gChildren()[index+1] as Rect).sBoxProp(TransformConversions.edgesToPosAndSize((rect.parent.gChildren()[index+1] as Rect).gAbsEdges()).size.w);
+            //}
+            //rect.onMouseMoveDown=(handler:MouseHandler)=>{
+            //    const deltaX=handler.mousePos.x-initPos.x;
+            //    const index=rect.parent.gChildren().indexOf(rect);
+            //    console.log((rect.parent.gChildren()[index-1] as Rect).gBoxProp()+ " "+(rect.parent.gChildren()[index+1] as Rect).gBoxProp());
+            //    (rect.parent.gChildren()[index-1] as Rect).sBoxProp(TransformConversions.edgesToPosAndSize((rect.parent.gChildren()[index-1] as Rect).gAbsEdges()).size.w+deltaX);
+            //    (rect.parent.gChildren()[index+1] as Rect).sBoxProp(TransformConversions.edgesToPosAndSize((rect.parent.gChildren()[index+1] as Rect).gAbsEdges()).size.w-deltaX);
+            //    initPos=handler.mousePos;
+            //    boundingRect.draw();
+            //}
         });
-        this.orientSideBar();
-        this.viewBox = new Box(BoxType.hz);
-        this.viewBox.sParent(this.boundBox)
-            .sFillSpace()
-            .sIsVisible(false);
-        //this.viewBox.canDestroy = false;
-        //const backButton = new SideBarViewButton(this, AllSvg.folder, ContentBrowser, Direction.left)
-        const cbButton = new SideBarViewButton(this, AllSvg.folder, ContentBrowser, Direction.left);
-        this.sideBar.refreshInBetween();
+        if (BrowserSpec.isMobile()) {
+            this.orientSideBar();
+        }
+        //this.orientSideBar();
         boundingRect.draw();
-        this.contBrowserCont = new ViewController(this);
-        this.contBrowserCont.availableViews.push(ContentBrowser1);
-    }
-    createController() {
-        return new ViewController(this);
-    }
-    addView(cont) {
-        const view = cont.addView();
+        this.contBrowCont = new ViewController(this);
+        this.contBrowCont.addAvailable(ContentBrowser, true);
+        //this.contBrowCont.createView()
+        new SideBarViewButton(this, AllSvg.folder, this.contBrowCont);
+        const b2 = new (MakeToggleButton(MakeClickable(SvgRect)));
+        b2.sSnapMargin(uniform.defSnapMargin)
+            .sParent(this.sideBar)
+            .sFixedSize(this.sideBar.gFixedSize().w)
+            .sZIndex(10)
+            .sSvg(AllSvg.play)
+            .onToggle = (isOn) => {
+            if (isOn) {
+                b2.sSvg(AllSvg.pause);
+                boundingRect.draw();
+                const r = allAssets.find(el => el.type == AssetType.level);
+                if (r) {
+                    const view = r.cont.createdViews[0];
+                    if (view) {
+                        if (view instanceof LevelView) {
+                            view.play();
+                        }
+                        else {
+                            r.cont.replaceView(view, 1);
+                            const view2 = r.cont.createdViews[0];
+                            if (view2 instanceof LevelView) {
+                                view2.play();
+                            }
+                        }
+                    }
+                    else {
+                        const v2 = r.cont.createView();
+                        if (v2 instanceof LevelView) {
+                            v2.play();
+                        }
+                        else {
+                            r.cont.replaceView(v2, 1);
+                            const view2 = r.cont.createdViews[0];
+                            if (view2 instanceof LevelView) {
+                                view2.play();
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                b2.sSvg(AllSvg.play);
+                boundingRect.draw();
+            }
+        };
         boundingRect.draw();
-        return view;
     }
-    //addViewGeneric(type:(new (editor: Editor, origin?: View, dir?: Direction)=>View),dir?:Direction) {
-    //    //check if space is to small on x and y axis
-    //    if (false) {
-    //        return null;
-    //    }
-    //    let view;
-    //    if (this.views.length == 0) {
-    //        view = new type(this)
-    //    }
-    //    else if (this.views.length<=1) {
-    //        if(dir){
-    //            view = new type(this, this.views[this.views.length - 1], dir);
-    //        }
-    //        else{
-    //            view = new type(this, this.views[this.views.length - 1], Direction.right);
-    //        }
-    //    }
-    //    return view
-    //    //return view or null if no view created cause not possible
-    //}
-    //addFileViewGeneric(type:new (editor: Editor,file:CbFile, origin?: View, dir?: Direction)=>FileView,file:CbFile,dir?:Direction) {
-    //    //check if space is to small on x and y axis
-    //    if (false) {
-    //        return null;
-    //    }
-    //    let view;
-    //    if (this.views.length == 0) {
-    //        view = new type(this,file)
-    //    }
-    //    else if (this.views.length<=1) {
-    //        if(dir){
-    //            view = new type(this,file, this.views[this.views.length - 1], dir);
-    //        }
-    //        else{
-    //            view = new type(this,file, this.views[this.views.length - 1], Direction.right);
-    //        }
-    //    }
-    //    return view
-    //    //return view or null if no view created cause not possible
-    //}
+    changeSelectedView(newView) {
+        this.selectedView?.topBar.text.sColor(colorCreator.textColor);
+        newView.topBar.text.sColor(colorCreator.selectColor);
+        boundingRect.draw();
+        this.selectedView = newView;
+    }
     orientSideBar() {
         if (window.orientation == 90) //landscape
          {
             this.boundBox.sBoxType(BoxType.hz);
             this.sideBar.sBoxType(BoxType.vt);
+            this.viewBox.sBoxType(BoxType.hz);
         }
         else {
             this.boundBox.sBoxType(BoxType.vt);
             this.sideBar.sBoxType(BoxType.hz);
+            this.viewBox.sBoxType(BoxType.vt);
         }
     }
 }

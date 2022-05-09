@@ -1,5 +1,4 @@
 import { boundingRect } from "../bounding_rect.js";
-import { Rect } from "../rect.js";
 //for now mousehandler should only handle one touch event as if it was a mouse event and the only one on screen 
 //implement multitouch later
 export var EMouseType;
@@ -10,24 +9,21 @@ export var EMouseType;
     EMouseType[EMouseType["touch"] = 3] = "touch";
 })(EMouseType || (EMouseType = {}));
 class Touch {
+    //down;
     //topMostRect;
     constructor(pos, type, mouseHandler) {
         this.pos = pos;
         this.type = type;
-        this.downRects = mouseHandler.getAffectedRects(pos);
+        this.mouseHandler = mouseHandler;
         //this.touchDownRects = mouseHandler.getOverlapping({ x: x, y: y });
         //this.topMostRect = mouseHandler.getTopMostRect(this.touchDownRects);
     }
 }
-export class MouseHandler {
+class MouseHandler {
     constructor() {
         this.currentTouch = null;
         this.isDown = false;
-        this.hoveredRects = [];
-        this.draggedAsset = null;
-        this.assetRect = null;
         this.subscribedRects = [];
-        this.dragInRects = [];
         window.addEventListener('mousedown', this.mouseDown.bind(this));
         window.addEventListener('mousemove', this.mouseMove.bind(this));
         window.addEventListener('mouseup', this.mouseUp.bind(this));
@@ -48,14 +44,6 @@ export class MouseHandler {
         }
         else {
             console.error("unsubscription failed");
-        }
-    }
-    subscribeDrag(object) {
-        this.dragInRects.push(object);
-    }
-    unsubscribeDrag(object) {
-        if (this.dragInRects.indexOf(object) != -1) {
-            this.dragInRects.splice(this.dragInRects.indexOf(object), 1);
         }
     }
     isOverlapping(obj, screenPos) {
@@ -85,8 +73,7 @@ export class MouseHandler {
         }
         return winnerRect;
     }
-    getAffectedRects(pos) {
-        const rects = this.getOverlappingRects(pos);
+    getAffectedRects(rects) {
         const consRects = [];
         const top = this.getTopMostRect(rects);
         for (const rect of rects) {
@@ -121,114 +108,36 @@ export class MouseHandler {
         this.up({ x: e.clientX, y: e.clientY });
     }
     //--------------------------------
-    touchEToTouch(e) {
-        const pos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        return new Touch(pos, EMouseType.touch, this);
-    }
     touchStart(e) {
         e.preventDefault(); //disables long click select with canvas but also events from passing through to div
-        this.down(this.touchEToTouch(e));
-        //if(e.changedTouches[0].identifier==0){
-        //}
     }
     touchMove(e) {
         //e.preventDefault();
-        this.move({ x: e.touches[0].clientX, y: e.touches[0].clientY });
     }
     touchEnd(e) {
         //e.preventDefault();
-        if (this.currentTouch) {
-            this.up(this.currentTouch.pos);
-        }
     }
     //--------------------------------
     move(pos) {
         if (this.isDown == true) {
             this.moveDown(pos);
         }
-        else {
-            this.moveUp(pos);
-        }
     }
     //--------------------------------
     down(touch) {
         this.isDown = true;
         this.currentTouch = touch;
-        touch.downRects.forEach(el => {
-            el.onMouseDown(this);
-        });
-    }
-    moveUp(pos) {
-        const overlRects = this.getAffectedRects(pos);
-        //add any newly-overlapping rects
-        overlRects.forEach(overl => {
-            if (this.hoveredRects.includes(overl) == false) {
-                this.hoveredRects.push(overl);
-                overl.onMouseHoverBegin(this);
-            }
-        });
-        //remove not-overlapping-anymore rects
-        this.hoveredRects.forEach(hover => {
-            if (overlRects.includes(hover) == false) {
-                this.hoveredRects.splice(this.hoveredRects.indexOf(hover), 1);
-                hover.onMouseHoverEnd(this);
-            }
-        });
     }
     moveDown(pos) {
         if (this.currentTouch) {
             this.currentTouch.pos = pos;
         }
-        this.currentTouch?.downRects.forEach(el => {
-            el.onMouseMoveDown(this);
-        });
-        if (this.draggedAsset != null) {
-            if (this.assetRect == null) {
-                this.assetRect = new Rect;
-                this.assetRect.sZIndex(100)
-                    .sColor("red"); //red == not droppable here
-            }
-            this.assetRect.sFixedOffsetX(pos.x);
-            this.assetRect.sFixedOffsetY(pos.y);
-            let overl;
-            this.dragInRects.forEach(el => {
-                if (this.isOverlapping(el, pos)) {
-                    overl = el;
-                }
-            });
-            if (overl) {
-                if (overl.acceptedTypes.includes(this.draggedAsset.type)) {
-                    this.assetRect.sColor("green");
-                }
-            }
-            else {
-                this.assetRect.sColor("red");
-            }
-            boundingRect.draw();
-        }
     }
     up(pos) {
         this.isDown = false;
         if (this.currentTouch) {
-            this.currentTouch.downRects.forEach(el => {
-                el.onMouseUp(this);
-            });
             this.currentTouch = null;
         }
-        let overl;
-        this.dragInRects.forEach(el => {
-            if (this.isOverlapping(el, pos)) {
-                overl = el;
-            }
-        });
-        if (overl && this.draggedAsset) {
-            if (overl.acceptedTypes.includes(this.draggedAsset.type)) {
-                overl.onDrag(this.draggedAsset);
-            }
-        }
-        this.assetRect?.destroy();
-        this.assetRect = null;
-        this.draggedAsset = null;
     }
 }
 export const mouseHandler = new MouseHandler();

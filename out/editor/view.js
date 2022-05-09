@@ -1,105 +1,151 @@
 import { boundingRect } from "../ui/bounding_rect.js";
-import { Box, BoxType } from "../ui/box.js";
+import { Box } from "../ui/box.js";
 import { MakeClickable } from "../ui/clickable_rect.js";
-import { EConstraintsX, EConstraintsY, Rect } from "../ui/rect.js";
+import { BoxType, EConstraintsX, EConstraintsY, Rect } from "../ui/rect.js";
 import { SvgRect } from "../ui/svg_rect.js";
 import { TextRect } from "../ui/text_rect.js";
-import { MakeHoverPressButton } from "../ui_components/button.js";
+import { MakeHoverPressButton, MakeToggleButton } from "../ui_components/button.js";
 import { AllSvg } from "../util/allsvg.js";
 import { colorCreator } from "../util/color.js";
-import { FileViewController } from "./view_cont.js";
-class ViewTopBarButton extends (MakeHoverPressButton(MakeClickable(SvgRect))) {
-    constructor(topbar, icon) {
+import { uniform } from "../util/uniform.js";
+class ViewSelectorButton extends (MakeHoverPressButton(MakeClickable(Rect))) {
+    constructor(selector, viewClass) {
         super();
-        this.sParent(topbar)
-            .sConsts(EConstraintsX.right, EConstraintsY.scale)
-            .sFixedSize(topbar.gFixedSize().h)
-            .sSvg(icon)
-            .sSnapMargin(3)
-            .sFixedOffsetX(6);
+        this.sParent(selector)
+            .setFixedSizeH(42)
+            .sColor(colorCreator.darkColorDef);
+        this.idleColor = colorCreator.darkColorDef;
+        this.t = new TextRect;
+        this.t.sParent(this)
+            .sText(viewClass.name) //really hacky way to do this for now
+            .sTextSize(18);
+        this.onRelease = () => {
+            console.log(viewClass.name);
+            selector.view.cont.replaceView(selector.view, this.gIndexInParent());
+        };
+    }
+}
+class ViewSelector extends Box {
+    constructor(view) {
+        super(BoxType.vt);
+        this.view = view;
+        this.sParent(view.contArea)
+            .sConstX(EConstraintsX.right)
+            .sIsVisible(false);
+        if (view.topBar.changebutton) {
+            this.sFixedOffsetX(view.topBar.changebutton.gFixedOffset().x - view.topBar.changebutton.gFixedSize().w / 2);
+        }
+        view.cont.availableViews.forEach(el => {
+            const b = new ViewSelectorButton(this, el);
+            if (el.name == view.viewName) {
+                b.t.sColor(colorCreator.selectColor);
+                boundingRect.draw();
+            }
+        });
     }
 }
 class ViewTopBar extends Rect {
     constructor(view) {
         super();
+        this.selector = null;
+        this.view = view;
         this.sParent(view)
-            .setFixedSizeH(50)
-            .sColor(colorCreator.colorByBrightness(5));
-        this.title = new TextRect;
-        this.title.sParent(this)
-            .sConstY(EConstraintsY.center)
-            .sText(view.title)
-            .sTextSize(28)
-            .sFixedOffsetX(7);
-        this.delButton = new ViewTopBarButton(this, AllSvg.xMark);
-        this.delButton.onRelease = () => {
-            view.controller.removeView(view);
-            boundingRect.draw();
+            .sFixedSize(50)
+            .sColor(colorCreator.darkColorDef);
+        this.text = new TextRect;
+        this.text.sParent(this)
+            .sText(view.viewName)
+            .sTextSize(32)
+            .sConstX(EConstraintsX.left)
+            .applyOffsetSnap();
+        this.delButton = new (MakeHoverPressButton(MakeClickable(SvgRect)));
+        this.delButton.sParent(this)
+            .sConsts(EConstraintsX.right, EConstraintsY.scale)
+            .sFixedSize(this.gFixedSize().h)
+            .sSvg(AllSvg.xMark)
+            .applyOffsetSnap()
+            .onRelease = () => {
+            this.view.cont.destroyView(this.view);
         };
-        if (view.controller.availableViews.length != 1) {
-            const viewSelButton = new ViewTopBarButton(this, AllSvg.folder);
-            viewSelButton
-                .sFixedOffsetX(this.gFixedSize().h)
-                .onRelease = () => {
-                const changeViewBox = new Box(BoxType.vt);
-                changeViewBox
-                    .sParent(viewSelButton)
-                    .sConsts(EConstraintsX.center, EConstraintsY.bottom)
-                    .setFixedSizeH(0)
-                    .sFixedOffsetY(-changeViewBox.gFixedSize().h)
-                    .sIsVisible(false);
-                //mouseHandler.activepointer=changeViewBox
-                const names = view.controller.getAvailViewNames();
-                for (var i = 0; i < names.length; i++) {
-                    const button = new (MakeHoverPressButton(MakeClickable(Rect)));
-                    button
-                        .sParent(changeViewBox)
-                        .setFixedSizeH(50)
-                        .onRelease = () => {
-                        view.controller.replaceView(view, button.gIndexInParent());
-                    };
-                    const text = new TextRect;
-                    text.sParent(button)
-                        .sText(names[i]);
+        if (this.view.cont.availableViews.length > 1) {
+            this.changebutton = new (MakeToggleButton(MakeClickable(SvgRect)));
+            this.changebutton.sParent(this)
+                .sConsts(EConstraintsX.right, EConstraintsY.scale)
+                .sFixedSize(this.gFixedSize().h)
+                .sSvg(AllSvg.folder)
+                .applyOffsetSnap()
+                .sFixedOffsetX(this.delButton.gFixedSize().w)
+                .onToggle = (isOn) => {
+                if (isOn) {
+                    this.selector = new ViewSelector(this.view);
+                    //mouseHandler.mouseDownCallbacks.push({thisFunc:()=>{
+                    //    this.changebutton.toggle(false);
+                    //},thisObj:this})
+                }
+                else {
+                    this.selector?.destroy();
+                    this.selector = null;
+                    boundingRect.draw();
                 }
                 boundingRect.draw();
             };
-            this.viewSelButton = viewSelButton;
         }
     }
 }
-export class View extends Box {
-    constructor(controller) {
+export class View extends MakeClickable(Box) {
+    constructor(cont) {
         super(BoxType.vt);
-        this.title = "view";
-        this.removeCallback = () => { };
-        this.controller = controller;
-        controller.views.push(this);
-        this.sParent(controller.editor.viewBox)
-            .sFillSpace()
-            .sIsVisible(false);
+        this.viewName = "View";
+        this.cont = cont;
+        this.sStrokeSize(3)
+            .sStrokeColor(colorCreator.highlightColor);
+        uniform.makeInvisFill(this, cont.editor.viewBox);
+        this.sMouseOnlyTopMost(false);
         this.topBar = new ViewTopBar(this);
-        this.changeTitle();
-        this.contentArea = new Rect;
-        this.contentArea.sParent(this)
+        this.contArea = new Rect;
+        this.contArea.sParent(this)
             .sFillSpace()
-            .sColor(colorCreator.colorByBrightness(10));
+            .sColor(colorCreator.midColorDef);
+        //this.sBoxProp(((this.gParent() as Box).gChildren()[0] as Rect).gBoxProp());
+        boundingRect.draw();
+        //this.sBoxProp(TransformConversions.edgesToPosAndSize(this.gAbsEdges()).size.w);
+        //boundingRect.draw();
     }
-    changeTitle() {
-        if (this.controller instanceof FileViewController) {
-            this.topBar.title.sText(this.controller.file.name + " " + this.title);
-        }
-        else {
-            this.topBar.title.sText(this.title);
-        }
+    refreshContent() {
+        //dispatched to all views once something changes
+        //should only be called from controller. never individually call!
+    }
+    setTitle() {
+        this.topBar.text.sText(this.viewName);
         boundingRect.draw();
     }
-    otherfunc() { }
-    remove() {
-        this.controller.views.splice(this.controller.views.indexOf(this));
-        this.removeCallback();
-        this.destroy();
+    onMouseUp(mouseHandler) {
+        this.cont.editor.changeSelectedView(this);
     }
-    refresh() {
+    destroy() {
+        //should only be called from controller. never call from somewhere else!
+        super.destroy();
+    }
+}
+View.data = "data";
+export class AssetView extends View {
+    constructor(cont) {
+        super(cont);
+        this.viewName = "AssetView";
+        //this.viewName = "AssetView " + "(" + cont.getAsset()?.name + ")";
+        this.setTitle();
+        this.sourceText = new TextRect;
+        this.sourceText
+            .sParent(this.contArea)
+            .sConsts(EConstraintsX.left, EConstraintsY.top)
+            .sFixedOffset(uniform.defEdgeDist);
+        this.refreshContent();
+    }
+    refreshContent() {
+        const asset = this.cont.getAsset();
+        if (asset) {
+            this.sourceText.sText(asset.source);
+        }
+        boundingRect.draw();
     }
 }

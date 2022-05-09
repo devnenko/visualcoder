@@ -6,12 +6,8 @@ import { EConstraintsX, EConstraintsY, Rect } from "../../ui/rect.js";
 import { TextRect } from "../../ui/text_rect.js";
 import { MakeHoverPressButton } from "../../ui_components/button.js";
 import { View } from "../view/view.js";
-import { FileTypeE, fileTypes } from "../view/view_connections.js";
+import { fileTypes } from "../view/view_connections.js";
 import { FileAddTab } from "./fileadd_tab.js";
-export const allFiles = [
-    { name: "testName1", type: FileTypeE.text, source: "testSource1" },
-    { name: "testName2", type: FileTypeE.empty, source: "testSource2" },
-];
 class FileButton extends MakeHoverPressButton(MakeClickable(Rect)) {
     constructor(contBrow, file) {
         super();

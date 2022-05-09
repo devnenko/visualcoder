@@ -21,7 +21,7 @@ export abstract class ResizeHandler {
     static changeOrientation(e: any) {
         this.resizeWindow();
         this.mobileRes();
-        boundingRect.draw();
+        boundingRect.draw(); 
     }
 
     static resizeWindow() {
@@ -37,7 +37,6 @@ export abstract class ResizeHandler {
     }
 
     static visibilityChange(e: any) {
-        this.mobileRes();
         this.resizeWindow();
     }
 

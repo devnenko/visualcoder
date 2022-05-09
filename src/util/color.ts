@@ -1,11 +1,11 @@
 class ColorCreator{
-    darkColorDef=this.colorByBrightness(20);
-    midColorDef=this.colorByBrightness(40);
-    brightColorDef=this.colorByBrightness(60);
+    darkColorDef=this.colorByBrightness(5);
+    midColorDef=this.colorByBrightness(14);
+    brightColorDef=this.colorByBrightness(22);
 
-    darkBackground=this.colorByBrightness(10);
-    midUiElements=this.colorByBrightness(30);
-    highlightColor="orange";
+    highlightColor="lightblue";
+    selectColor="orange";
+    textColor="white";
 
     colorByBrightness(brightness:number){//number between 0 and 100
         const value=brightness/100*255;

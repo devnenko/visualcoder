@@ -3,7 +3,6 @@ import { MakeClickable } from "../../ui/clickable_rect.js";
 import { EConstraintsX, EConstraintsY, Rect } from "../../ui/rect.js";
 import { MakeHoverPressButton } from "../../ui_components/button.js";
 import { FileTypeE } from "../view/view_connections.js";
-import { allFiles } from "./content_browser.js";
 export class FileAddTab extends Rect {
     constructor(contBrow) {
         super();

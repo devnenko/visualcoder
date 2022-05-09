@@ -129,6 +129,7 @@ export abstract class Shape {
     destroy() {
         this.destroyChildren();
         this.destroySelf();
+        boundingRect.draw();
     }
 
     destroyChildren(){

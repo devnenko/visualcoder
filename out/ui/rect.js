@@ -1,6 +1,7 @@
 import { Shape } from "./shape.js";
 import { TransformConversions } from "../util/transform.js";
 import { boundingRect } from "./bounding_rect.js";
+import { uniform } from "../util/uniform.js";
 export var EConstraintsX;
 (function (EConstraintsX) {
     EConstraintsX["left"] = "left";
@@ -15,6 +16,11 @@ export var EConstraintsY;
     EConstraintsY["center"] = "center";
     EConstraintsY["scale"] = "scale";
 })(EConstraintsY || (EConstraintsY = {}));
+export var BoxType;
+(function (BoxType) {
+    BoxType["hz"] = "hz";
+    BoxType["vt"] = "vt";
+})(BoxType || (BoxType = {}));
 export class Rect extends Shape {
     constructor() {
         super();
@@ -33,6 +39,17 @@ export class Rect extends Shape {
         this.strokeColor = "pink";
         this.strokeSize = 10;
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
+        this.boxType = BoxType.hz;
+    }
+    applyOffsetSnap() {
+        this.sSnapMargin(uniform.defSnapMargin);
+        if (this.parent.boxType == BoxType.hz) {
+            this.sFixedOffsetX(uniform.defEdgeDist);
+        }
+        else {
+            this.sFixedOffsetY(uniform.defEdgeDist);
+        }
+        return this;
     }
     sHasStroke(val) {
         this.hasStroke = val;
@@ -88,6 +105,9 @@ export class Rect extends Shape {
         this.fixedOffsetX = offset;
         return this;
     }
+    gFixedOffset() {
+        return { x: this.fixedOffsetX, y: this.fixedOffsetY };
+    }
     sFixedSize(size) {
         this.fixedSizeW = size;
         this.fixedSizeH = size;
@@ -131,6 +151,10 @@ export class Rect extends Shape {
     }
     gAbsEdges() {
         return this.absEdges;
+    }
+    gAbsTransform() {
+        boundingRect.draw();
+        TransformConversions.edgesToPosAndSize(this.gAbsEdges());
     }
     resizeSelf() {
         if (typeof this.gParent().resizeWithBox === "function") {
@@ -187,20 +211,20 @@ export class Rect extends Shape {
         this.absEdges.bottom -= this.snapMargin;
     }
     draw() {
+        const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
+        const ctx = this.gCanvas().ctx;
         if (this.gIsVisible()) {
-            const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
-            const ctx = this.gCanvas().ctx;
             ctx.beginPath();
             ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.ceil(posAndSize.size.w), Math.ceil(posAndSize.size.h));
             ctx.fillStyle = this.color;
             ctx.fill();
-            if (this.hasStroke == true) {
-                ctx.beginPath();
-                ctx.rect(Math.floor(posAndSize.pos.x) + this.strokeSize / 2, Math.floor(posAndSize.pos.y) + this.strokeSize / 2, Math.ceil(posAndSize.size.w) - this.strokeSize, Math.ceil(posAndSize.size.h) - this.strokeSize);
-                ctx.strokeStyle = this.strokeColor;
-                ctx.lineWidth = this.strokeSize;
-                ctx.stroke();
-            }
+        }
+        if (this.hasStroke == true) {
+            ctx.beginPath();
+            ctx.rect(Math.floor(posAndSize.pos.x) + this.strokeSize / 2, Math.floor(posAndSize.pos.y) + this.strokeSize / 2, Math.ceil(posAndSize.size.w) - this.strokeSize, Math.ceil(posAndSize.size.h) - this.strokeSize);
+            ctx.strokeStyle = this.strokeColor;
+            ctx.lineWidth = this.strokeSize;
+            ctx.stroke();
         }
     }
 }
