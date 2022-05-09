@@ -1,5 +1,4 @@
 
-import { Level } from "../../old/editor/views/level/level.js.js";
 
 //single canvas or multicanvas (single canvas big screen)
 //draw commands automatic or issued by lib (by lib every time there is a change)

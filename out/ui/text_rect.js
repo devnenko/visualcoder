@@ -8,33 +8,37 @@ export class TextRect extends Rect {
         this.size = 20;
         this.sColor("white");
     }
-    setTextSize(size) {
+    sTextSize(size) {
         this.size = size;
         return this;
     }
-    setText(text) {
+    sText(text) {
         this.text = text;
         return this;
+    }
+    gText() {
+        return this.text;
     }
     resizeSelf() {
         if (this.gConsts().x == EConstraintsX.scale || this.gConsts().y == EConstraintsY.scale) {
             console.error("cannot scale text");
         }
         this.sSnapMargin(0);
-        this.canvas.ctx.font = this.size + "px Sans-Serif";
-        const measure = this.canvas.ctx.measureText(this.text);
+        this.gCanvas().ctx.font = this.size + "px Sans-Serif";
+        const measure = this.gCanvas().ctx.measureText(this.text);
         this.sFixedSizeW(measure.width);
         this.setFixedSizeH(measure.fontBoundingBoxAscent + measure.fontBoundingBoxDescent);
         super.resizeSelf();
     }
     draw() {
-        if (this.isVisible) {
-            const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
-            this.canvas.ctx.textAlign = "left";
-            this.canvas.ctx.textBaseline = "top";
-            this.canvas.ctx.fillStyle = this.color;
-            this.canvas.ctx.font = this.size + "px Sans-Serif";
-            this.canvas.ctx.fillText(this.text, posAndSize.pos.x, posAndSize.pos.y);
+        if (this.gIsVisible()) {
+            const posAndSize = TransformConversions.edgesToPosAndSize(this.gAbsEdges());
+            const ctx = this.gCanvas().ctx;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.fillStyle = this.color;
+            ctx.font = this.size + "px Sans-Serif";
+            ctx.fillText(this.text, posAndSize.pos.x, posAndSize.pos.y);
         }
     }
 }

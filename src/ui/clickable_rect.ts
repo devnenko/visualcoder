@@ -6,7 +6,7 @@ export type Class<T =Rect> = new (...args: any[]) => T;
 export function MakeClickable<Base extends Class>(base: Base) {
 
     return class extends base {
-        mouseOnlyIfTopMost:boolean=true;
+        private mouseOnlyIfTopMost:boolean=true;
         onMouseDown(mouseHandler:MouseHandler) { };
         onMouseMoveDown(mouseHandler:MouseHandler) { };
         onMouseUp(mouseHandler:MouseHandler) { };
@@ -16,6 +16,11 @@ export function MakeClickable<Base extends Class>(base: Base) {
             super(...args);
             mouseHandler.subscribe(this);
         }
+
+        gMouseOnlyIfTopMost(){
+            return this.mouseOnlyIfTopMost;
+        }
+
         destroy(){
             mouseHandler.unsubscribe(this);
             super.destroy();
@@ -27,4 +32,4 @@ export function MakeClickable<Base extends Class>(base: Base) {
     }
 }
 const DefClass=(MakeClickable(Rect))
-export type CLickableMixinClass= InstanceType<typeof DefClass>;
+export type CLickableMixin= InstanceType<typeof DefClass>;

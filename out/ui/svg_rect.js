@@ -17,17 +17,18 @@ export class SvgRect extends Rect {
     }
     sSvg(svg) {
         this.svg = svg;
+        return this;
     }
     draw() {
-        this.applySnapMargin();
-        if (this.isVisible) {
-            const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
+        if (this.gIsVisible()) {
+            const posAndSize = TransformConversions.edgesToPosAndSize(this.gAbsEdges());
             const path = new Path2D(this.svg.source);
             const path2 = new Path2D;
             const matrix = new DOMMatrix([posAndSize.size.w / this.svg.width, 0, 0, posAndSize.size.h / this.svg.height, posAndSize.pos.x, posAndSize.pos.y]);
             path2.addPath(path, matrix);
-            this.canvas.ctx.fillStyle = this.color;
-            this.canvas.ctx.fill(path2);
+            const ctx = this.gCanvas().ctx;
+            ctx.fillStyle = this.color;
+            ctx.fill(path2);
         }
     }
 }

@@ -4,37 +4,45 @@ import { Canvas } from "./canvas.js";
 
 export abstract class Shape {
 
-    protected parent: Shape | BoundingRect = boundingRect;
-    protected children: Shape[] = [];
-    public canvas: Canvas = boundingRect.canvas;
+    protected parent: Shape | BoundingRect = boundingRect;//for override in parent classes
+    protected children: Shape[] = [];//for override in parent classes
+    private canvas: Canvas = boundingRect.canvas;
     private zIndex = 0;
-    protected isVisible = true;
+    private isVisible = true;
 
     constructor() {
         boundingRect.allShapes.push(this);
         this.sParent(this.parent);
+    }
+
+    sIsVisible(isVisible: boolean) {
+        this.isVisible = isVisible;
         return this;
     }
 
-    sVisible(isVisible: boolean) {
-        this.isVisible = isVisible;
+    gIsVisible(){
+        return this.isVisible;
     }
 
     sParent(parent: Shape | BoundingRect) {
-        const parentChidren = this.parent.getChildren();
+        const parentChidren = this.parent.gChildren();
 
         if (parentChidren.indexOf(this) != -1) {
-            parentChidren.splice(this.parent.getChildren().indexOf(this), 1)
+            this.parent.spliceChild(this)
         }
         this.parent = parent;
-        parent.getChildren().push(this);
+        parent.pushChild(this);
         return this;
     }
-    getParent() {
+    gParent() {
         return this.parent;
     }
 
-    getCanvas() {
+    sCanvas(canvas:Canvas){
+        this.canvas=canvas;
+    }
+
+    gCanvas() {
         return this.canvas;
     }
 
@@ -42,8 +50,30 @@ export abstract class Shape {
         this.children = children
         return this;
     }
-    getChildren() {
+    gChildren() {
         return this.children;
+    }
+    pushChild(child:Shape){
+        this.children.push(child);
+    }
+    spliceChild(child:Shape){
+        this.children.splice(this.children.indexOf(child),1)
+    }
+
+    sZIndex(index: number) {
+        this.zIndex = index;
+        for (const child of this.children) {
+            child.sZIndex(this.zIndex);
+        }
+        return this;
+    }
+
+    gZIndex() {
+        return this.zIndex;
+    }
+
+    gIndexInParent(){
+        return this.gParent().gChildren().indexOf(this);
     }
 
     replace(newObj: Shape) {
@@ -65,24 +95,12 @@ export abstract class Shape {
         this.destroySelf();
     }
 
-    sIndexInParent(index: number) {
-        const parentChidren = this.parent.getChildren();
+    indexInParent(index: number) {
+        const parentChidren = this.parent.gChildren();
 
         parentChidren.splice(parentChidren.indexOf(this), 1)
         parentChidren.splice(index, 0, this);
         return this;
-    }
-
-    sZIndex(index: number) {
-        this.zIndex = index;
-        for (const child of this.children) {
-            child.sZIndex(this.zIndex);
-        }
-        return this;
-    }
-
-    gZIndex() {
-        return this.zIndex;
     }
 
     resAndDraw() {
@@ -109,17 +127,20 @@ export abstract class Shape {
     }
 
     destroy() {
+        this.destroyChildren();
+        this.destroySelf();
+    }
+
+    destroyChildren(){
         const childLength = this.children.length;//cause they get removed with time
 
         for (let i = 0; i < childLength; i++) {
             this.children[0].destroy();
         }
-        this.destroySelf();
-
     }
 
     destroySelf() {
-        const parentChidren = this.parent.getChildren();
+        const parentChidren = this.parent.gChildren();
 
         parentChidren.splice(parentChidren.indexOf(this), 1);
         boundingRect.allShapes.splice(boundingRect.allShapes.indexOf(this), 1)

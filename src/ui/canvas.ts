@@ -8,7 +8,9 @@ export class Canvas {
     constructor() {
         //create canvas in Dom
         var canvas = document.createElement('canvas');
-        canvas.style.position = "absolute";
+        canvas.style.position = "fixed";
+        canvas.style.zIndex="1";
+        canvas.style.pointerEvents="none"
 
         document.body.appendChild(canvas);
         this.canvas = canvas;

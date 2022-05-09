@@ -1,4 +1,3 @@
-import { Canvas } from "../canvas.js";
 import { Rect } from "../rect.js";
 
 export interface IKeyPressHandler{

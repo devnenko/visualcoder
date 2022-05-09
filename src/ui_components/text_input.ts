@@ -1,3 +1,33 @@
+import { boundingRect } from "../ui/bounding_rect.js";
+import { MakeClickable } from "../ui/clickable_rect.js";
+import { MouseHandler } from "../ui/event_handlers/mouse.js";
+import { EConstraintsY, Rect } from "../ui/rect.js";
+import { TextRect } from "../ui/text_rect.js";
+
+
+export class TextInput extends MakeClickable(TextRect){
+    pointer:Rect|null=null;
+    onMouseDown(mouseHandler: MouseHandler): void {
+        this.pointer=new Rect
+        this.pointer.sParent(this)
+                    .sZIndex(60)
+                    .sFixedSizeW(3)
+                    .setFixedSizeH(this.gFixedSize().h)
+                    .sConstY(EConstraintsY.center)
+
+        boundingRect.draw();
+        mouseHandler.activepointer=this.pointer;
+        console.log(mouseHandler.posOnRect(this))
+    }
+
+    setPointerLocation(){
+
+    }
+}
+
+
+/**
+
 import { MouseHandler, IMouseHandler,IKeyPressHandler,KeypressHandler } from "../ui/event_handlers/event_handlers.js";
 import { Rect, Canvas, IShape, TextBox, colorCreator } from "../ui/ui.js";
 import { EConstraintsX, EConstraintsY, EMouseType, IPos } from "../ui/types/types.js";
@@ -71,3 +101,4 @@ export class TextInput extends ToggleButton implements IKeyPressHandler {
         this.title?.setText(text);
     }
 }
+*/

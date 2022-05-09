@@ -4,6 +4,7 @@
 import { Shape } from "./shape.js";
 import { IEdges, TransformConversions } from "../util/transform.js";
 import { BoundingRect, boundingRect } from "./bounding_rect.js";
+import { Box } from "./box.js";
 
 export enum EConstraintsX {
     left = "left",
@@ -19,7 +20,7 @@ export enum EConstraintsY {
     scale = "scale"
 }
 
-export class Rect extends Shape{
+export class Rect extends Shape {
 
     protected parent: Rect | BoundingRect = boundingRect;
 
@@ -29,102 +30,153 @@ export class Rect extends Shape{
     private fixedOffsetY = 0;
     private fixedSizeW = 100;
     private fixedSizeH = 100;
-    private _snapMargin = 0;
-    private _color = "orange";
+    private snapMargin = 0;
     private boxProportion = 100;
+    protected color = "orange";
+    public placeHolder = false;
+    public hasStroke = false;
+    public strokeColor = "pink";
+    public strokeSize = 10;
 
-    public absEdges: IEdges = { left: 0, right: 0, top: 0, bottom: 0 };
+    private absEdges: IEdges = { left: 0, right: 0, top: 0, bottom: 0 };
 
     constructor() {
         super()
     }
 
-    sFillSpace(){
-        this.constraintX=EConstraintsX.scale;
-        this.constraintY=EConstraintsY.scale;
+    sHasStroke(val: boolean) {
+        this.hasStroke = val
         return this;
     }
 
-    sConstX(constX:EConstraintsX){
-        this.constraintX=constX;
+    sStrokeColor(val: string) {
+        this.strokeColor=val
         return this;
     }
 
-    sConstY(constY:EConstraintsY){
-        this.constraintY=constY;
+    sStrokeSize(val: number) {
+        this.strokeSize=val
+        return this;
+    }
+
+
+    gParent() {
+        return super.gParent();
+    }
+
+    sFillSpace() {
+        this.constraintX = EConstraintsX.scale;
+        this.constraintY = EConstraintsY.scale;
+        return this;
+    }
+
+    sCenter() {
+        this.constraintX = EConstraintsX.center;
+        this.constraintY = EConstraintsY.center;
+        return this;
+    }
+
+    sConstX(constX: EConstraintsX) {
+        this.constraintX = constX;
+        return this;
+    }
+
+    sConstY(constY: EConstraintsY) {
+        this.constraintY = constY;
+        return this;
+    }
+
+    sConsts(constX: EConstraintsX, constY: EConstraintsY) {
+        this.constraintX = constX;
+        this.constraintY = constY;
         return this;
     }
 
 
 
-    gConsts(){
-        return {x:this.constraintX,y:this.constraintY}
+    gConsts() {
+        return { x: this.constraintX, y: this.constraintY }
     }
 
-    sFixedOffsetX(offsetX:number){
-        this.fixedOffsetX=offsetX;
+    sFixedOffsetX(offsetX: number) {
+        this.fixedOffsetX = offsetX;
         return this;
     }
 
-    sFixedOffsetY(offsetY:number){
-        this.fixedOffsetY=offsetY;
+    sFixedOffsetY(offsetY: number) {
+        this.fixedOffsetY = offsetY;
         return this;
     }
 
-    sFixedSize(size:number){
-        this.fixedSizeW=size;
-        this.fixedSizeH=size;
+    sFixedOffset(offset: number) {
+        this.fixedOffsetY = offset;
+        this.fixedOffsetX = offset;
         return this;
     }
 
-    get fixedSize(){
-        return {w:this.fixedSizeW,h:this.fixedSizeH}
-    }
-
-    sFixedSizeW(sizeW:number){
-        this.fixedSizeW=sizeW;
+    sFixedSize(size: number) {
+        this.fixedSizeW = size;
+        this.fixedSizeH = size;
         return this;
     }
 
-    setFixedSizeH(sizeH:number){
-        this.fixedSizeH=sizeH;
+    sFixedSizeW(sizeW: number) {
+        this.fixedSizeW = sizeW;
         return this;
     }
 
-    sSnapMargin(margin:number){
-        this._snapMargin=margin;
+    setFixedSizeH(sizeH: number) {
+        this.fixedSizeH = sizeH;
         return this;
     }
 
-    get snapMargin(){
-        return this._snapMargin
+    gFixedSize() {
+        return { w: this.fixedSizeW, h: this.fixedSizeH }
     }
 
-    sColor(color:string){
-        this._color=color;
+    sSnapMargin(margin: number) {
+        this.snapMargin = margin;
         return this;
     }
 
-    get color(){
-        return this._color;
+    gSnapMargin() {
+        return this.snapMargin;
     }
 
-    sBoxProp(prop:number){
-        this.boxProportion=prop;
+    sColor(color: string) {
+        this.color = color;
         return this;
     }
 
-    get boxProp() {
+    gColor() {
+        return this.color;
+    }
+
+    sBoxProp(prop: number) {
+        this.boxProportion = prop;
+        return this;
+    }
+
+    gBoxProp() {
         return this.boxProportion;
     }
 
+    sAbsEdges(absEdges: IEdges) {
+        this.absEdges = absEdges;
+        return this;
+    }
+
+    gAbsEdges() {
+        return this.absEdges;
+    }
+
     resizeSelf() {
-        if (typeof this.parent.resizeWithBox==="function") {
-            this.parent.resizeWithBox(this);
+        if (typeof (this.gParent() as Box).resizeWithBox === "function") {
+            (this.gParent() as Box).resizeWithBox(this);
         }
         else {
             let absEdges = this.absEdges;
-            const parentAbsEdges = this.parent.absEdges;
+            const parentAbsEdges = this.parent.gAbsEdges();
 
             switch (this.constraintX) {
                 case EConstraintsX.left:
@@ -166,25 +218,33 @@ export class Rect extends Shape{
                     break;
             }
         }
+        this.applySnapMargin();
     }
 
-    protected applySnapMargin() {
-        this.absEdges.left += this._snapMargin;
-        this.absEdges.right -= this._snapMargin;
-        this.absEdges.top += this._snapMargin;
-        this.absEdges.bottom -= this._snapMargin;
+    applySnapMargin() {
+        this.absEdges.left += this.snapMargin;
+        this.absEdges.right -= this.snapMargin;
+        this.absEdges.top += this.snapMargin;
+        this.absEdges.bottom -= this.snapMargin;
     }
 
     draw() {
-        this.applySnapMargin();
-        if (this.isVisible) {
+        if (this.gIsVisible()) {
             const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
-            const ctx=this.getCanvas().ctx;
+            const ctx = this.gCanvas().ctx;
 
             ctx.beginPath();
             ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.ceil(posAndSize.size.w), Math.ceil(posAndSize.size.h));
-            ctx.fillStyle = this._color;
+            ctx.fillStyle = this.color;
             ctx.fill();
+
+            if (this.hasStroke == true) {
+                ctx.beginPath();
+                ctx.rect(Math.floor(posAndSize.pos.x)+this.strokeSize/2, Math.floor(posAndSize.pos.y)+this.strokeSize/2, Math.ceil(posAndSize.size.w)-this.strokeSize, Math.ceil(posAndSize.size.h)-this.strokeSize);
+                ctx.strokeStyle = this.strokeColor;
+                ctx.lineWidth = this.strokeSize;
+                ctx.stroke();
+            }
         }
     }
 }

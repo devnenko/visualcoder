@@ -17,6 +17,9 @@ export function MakeClickable(base) {
         ;
         onMouseHoverEnd(mouseHandler) { }
         ;
+        gMouseOnlyIfTopMost() {
+            return this.mouseOnlyIfTopMost;
+        }
         destroy() {
             mouseHandler.unsubscribe(this);
             super.destroy();

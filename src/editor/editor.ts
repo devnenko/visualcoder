@@ -1,33 +1,56 @@
-
-
 import { SvgObj } from './../ui/svg_rect.js';
 import { AllSvg } from './../util/allsvg.js';
-import { MouseHandler, mouseHandler } from './../ui/event_handlers/mouse';
+import { MouseHandler, mouseHandler } from '../ui/event_handlers/mouse';
 import { SvgRect } from '../ui/svg_rect.js';
-
 import { colorCreator } from './../util/color.js';
-import { EConstraintsX, Rect } from "../ui/rect.js";
+import { BoxType, EConstraintsX, EConstraintsY, Rect } from "../ui/rect.js";
 import { MakeClickable } from '../ui/clickable_rect.js';
-import { MakeHoverPressButton } from '../ui_components/button.js';
-import { Direction, TransformConversions } from '../util/transform.js';
-import { View, ViewConnector } from './view/view.js';
+import { MakeHoverPressButton, MakeToggleButton } from '../ui_components/button.js';
+import { Direction, IPos, TransformConversions } from '../util/transform.js';
+import {ViewController} from './view_controller.js';
 import { boundingRect } from '../ui/bounding_rect.js';
-import { ResizeHandler } from '../ui/event_handlers/resize.js';
-import { Box, BoxType } from '../ui/box.js';
+import { Box} from '../ui/box.js';
+import { AssetView, View } from './view.js';
+import { ContentBrowser } from './cont_brow.js';
+import { uniform } from '../util/uniform.js';
+import { allAssets, AssetType, createAsset } from './asset.js';
+import { BrowserSpec } from '../util/browser_spec.js';
+import { LevelView } from './level_view.js';
 
-export class SideBarButton extends (MakeHoverPressButton(MakeClickable(SvgRect))) {
-    viewName = "hello1"
-    dir: Direction = Direction.right;
-    constructor(editor: Editor, icon: SvgObj) {
+
+
+export class SideBarViewButton extends (MakeToggleButton(MakeClickable(SvgRect))) {
+    currView:View|null=null;
+    constructor(editor: Editor, icon: SvgObj, contToAdd:ViewController) {
         super();
-        this.sSnapMargin(5)
+        this.sSnapMargin(uniform.defSnapMargin)
             .sParent(editor.sideBar)
-            .sFixedSize(editor.sideBar.fixedSize.w)
+            .sFixedSize(editor.sideBar.gFixedSize().w)
             .sZIndex(10)
             .sSvg(icon)
+        //this.canClickToggleOf = false
 
-        this.onRelease = (mouseHandler: MouseHandler) => {
-            editor.addViewGeneric(this.viewName, this.dir)
+
+
+        this.onToggle = (isOn: boolean) => {
+            if (isOn) {
+                const view=contToAdd.createView();
+                this.currView=view;
+                //let view = editor.addView(editor.contBrowserCont);
+                const viewDest=view.destroy;
+                view.destroy=()=>{
+                    if(this.isToggleOn==true){
+                        this.currView=null;
+                        this.toggle(false);
+                    }
+                    console.log("de")
+                    viewDest.call(view);
+                }
+            }else{
+                if(this.currView){
+                    contToAdd.destroyView(this.currView)
+                }
+            }
         }
 
     }
@@ -36,65 +59,130 @@ export class SideBarButton extends (MakeHoverPressButton(MakeClickable(SvgRect))
 export class Editor {
     boundBox: Box;
     sideBar: Box;
-    viewBox: ViewConnector;
+    viewBox: Box;
 
-    previousView: View | null = null;
-    views: View[] = [];
+    contBrowCont;
+
+    private selectedView:View|null=null;
+
     constructor() {
 
-        this.boundBox = new Box(BoxType.vt);
-        this.boundBox
-            .sFillSpace()
-            .sVisible(false)
+        this.boundBox = uniform.makeInvisFill(new Box(BoxType.vt));
 
         this.sideBar = new Box(BoxType.hz);
         this.sideBar
             .sParent(this.boundBox)
             .sFixedSize(75)
-            .sColor(colorCreator.colorByBrightness(22))
+            .sColor(colorCreator.brightColorDef)
 
-        this.orientSideBar();
+        this.viewBox = uniform.makeInvisFill(new Box(BoxType.hz),this.boundBox);
+        this.viewBox.setInBetween(MakeHoverPressButton(MakeClickable(Rect)),(rect)=>{
+            rect.sFixedSize(8)
+                .sBoxProp(0)
+                .sColor(colorCreator.darkColorDef)
+            rect.idleColor=colorCreator.darkColorDef;
+            rect.hoverColor=colorCreator.highlightColor;
+            //let initPos:IPos;
+            //rect.onMouseDown=(handler:MouseHandler)=>{
+            //    initPos=handler.mousePos;
+            //    const index=rect.parent.gChildren().indexOf(rect)
+            //    console.log(index);
+            //    (rect.parent.gChildren()[index-1] as Rect).sBoxProp(TransformConversions.edgesToPosAndSize((rect.parent.gChildren()[index-1] as Rect).gAbsEdges()).size.w);
+            //    (rect.parent.gChildren()[index+1] as Rect).sBoxProp(TransformConversions.edgesToPosAndSize((rect.parent.gChildren()[index+1] as Rect).gAbsEdges()).size.w);
+            //}
+            //rect.onMouseMoveDown=(handler:MouseHandler)=>{
+            //    const deltaX=handler.mousePos.x-initPos.x;
+            //    const index=rect.parent.gChildren().indexOf(rect);
+            //    console.log((rect.parent.gChildren()[index-1] as Rect).gBoxProp()+ " "+(rect.parent.gChildren()[index+1] as Rect).gBoxProp());
+            //    (rect.parent.gChildren()[index-1] as Rect).sBoxProp(TransformConversions.edgesToPosAndSize((rect.parent.gChildren()[index-1] as Rect).gAbsEdges()).size.w+deltaX);
+            //    (rect.parent.gChildren()[index+1] as Rect).sBoxProp(TransformConversions.edgesToPosAndSize((rect.parent.gChildren()[index+1] as Rect).gAbsEdges()).size.w-deltaX);
+            //    initPos=handler.mousePos;
+            //    boundingRect.draw();
+            //}
+        })
 
-        this.viewBox = new ViewConnector(BoxType.hz, this.boundBox)
-        this.viewBox.canDestroy = false;
+        if(BrowserSpec.isMobile()){
+            this.orientSideBar();
+        }
+        //this.orientSideBar();
 
-        const cbButton = new SideBarButton(this, AllSvg.folder)
-        const cbButton2 = new SideBarButton(this, AllSvg.play)
-        cbButton2.dir = Direction.bottom
 
 
         boundingRect.draw();
+
+        this.contBrowCont=new ViewController(this);
+        this.contBrowCont.addAvailable(ContentBrowser,true)
+        //this.contBrowCont.createView()
+
+        new SideBarViewButton(this,AllSvg.folder,this.contBrowCont)
+
+        const b2=new (MakeToggleButton(MakeClickable(SvgRect)))
+        b2.sSnapMargin(uniform.defSnapMargin)
+            .sParent(this.sideBar)
+            .sFixedSize(this.sideBar.gFixedSize().w)
+            .sZIndex(10)
+            .sSvg(AllSvg.play)
+            .onToggle=(isOn)=>{
+                if(isOn){
+                    b2.sSvg(AllSvg.pause)
+                    boundingRect.draw();
+
+                    const r=allAssets.find(el=>el.type==AssetType.level);
+                    if(r){
+                        const view=r.cont.createdViews[0];
+                        if(view){
+                            if(view instanceof LevelView){
+                                view.play();
+                            }else{
+                                r.cont.replaceView(view,1);
+                                const view2=r.cont.createdViews[0];
+                                if(view2 instanceof LevelView){
+                                    view2.play();
+                                }
+                            }
+                        }else{
+                            const v2=r.cont.createView();
+                            if(v2 instanceof LevelView){
+                                v2.play();
+                            }else{
+                                r.cont.replaceView(v2,1);
+                                const view2=r.cont.createdViews[0];
+                                if(view2 instanceof LevelView){
+                                    view2.play();
+                                }
+                            }
+                        }
+                    }
+
+                }else{
+                    b2.sSvg(AllSvg.play)
+                    boundingRect.draw();
+                }
+            }
+
+        boundingRect.draw();
+
     }
 
-    addViewGeneric(name: string, dir: Direction) {
-        //check if space is to small on x and y axis
-        if (false) {
-            return null;
-        }
-        let view;
-        if (this.views.length == 0) {
-            view = new View(this, name)
-        }
-        else {
-            view = this.addViewInDir(name,dir);
-        }
-        return view
-        //return view or null if no view created cause not possible
+    changeSelectedView(newView:View){
+        this.selectedView?.topBar.text.sColor(colorCreator.textColor);
+        newView.topBar.text.sColor(colorCreator.selectColor);
+        boundingRect.draw();
+        this.selectedView=newView;
     }
 
-    addViewInDir(name: string, dir: Direction) {
-        return new View(this, name, this.views[this.views.length - 1], dir);
-    }
 
     orientSideBar() {
         if (window.orientation == 90)//landscape
         {
-            this.boundBox.setBoxType(BoxType.hz);
-            this.sideBar.setBoxType(BoxType.vt);
+            this.boundBox.sBoxType(BoxType.hz);
+            this.sideBar.sBoxType(BoxType.vt);
+            this.viewBox.sBoxType(BoxType.hz)
         }
         else {
-            this.boundBox.setBoxType(BoxType.vt);
-            this.sideBar.setBoxType(BoxType.hz);
+            this.boundBox.sBoxType(BoxType.vt);
+            this.sideBar.sBoxType(BoxType.hz);
+            this.viewBox.sBoxType(BoxType.vt)
         }
     }
 }

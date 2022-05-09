@@ -5,9 +5,10 @@ import { MakeClickable } from '../../ui/clickable_rect.js';
 import { MakeHoverPressButton } from '../../ui_components/button.js';
 import { TextRect } from '../../ui/text_rect.js';
 import { AllSvg } from '../../util/allsvg.js';
-export class ViewTopBar extends Rect {
+export class ViewTopBar extends MakeClickable(Rect) {
     constructor(view) {
         super();
+        this.view = view;
         this
             .sParent(view)
             .setFixedSizeH(50)
@@ -16,19 +17,29 @@ export class ViewTopBar extends Rect {
         this.title
             .sParent(this)
             .sConstY(EConstraintsY.center)
-            .setText(view.getName())
-            .setTextSize(28);
+            .sText(view.name)
+            .sTextSize(28)
+            .sFixedOffsetX(7);
         this.delButton = new (MakeHoverPressButton(MakeClickable(SvgRect)));
         this.delButton
             .sParent(this)
             .sConstX(EConstraintsX.right)
             .sConstY(EConstraintsY.scale)
-            .sFixedSizeW(this.fixedSize.h)
-            .sSnapMargin(5)
+            .sFixedSizeW(this.gFixedSize().h)
+            .sSnapMargin(3)
             .sForgetOnLeave(true)
-            .sSvg(AllSvg.xMark);
+            .sSvg(AllSvg.xMark)
+            .sFixedOffsetX(6);
         this.delButton.onRelease = (mouseHandler) => {
             view.destroy();
         };
+        //this.onMouseDown=()=>{
+        //    console.log("show")
+        //    view.editor.viewAddPreview.show();
+        //}
+        //this.onMouseUp=()=>{
+        //    console.log("hide")
+        //    view.editor.viewAddPreview.hide();
+        //}
     }
 }

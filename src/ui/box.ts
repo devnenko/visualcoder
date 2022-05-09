@@ -1,33 +1,100 @@
 
+
 import { TransformConversions } from "../util/transform.js";
-import { EConstraintsX, EConstraintsY, Rect} from "./rect.js";
+import { EConstraintsX, EConstraintsY, Rect } from "./rect.js";
 import { boundingRect } from './bounding_rect.js';
+import { Shape } from "./shape.js";
 
 
-export enum BoxType{
-    hz="hz",
-    vt="vt"
+export enum BoxType {
+    hz = "hz",
+    vt = "vt"
 }
 
 export class Box extends Rect {
     protected children: Rect[] = [];
-    public boxType;
-    public availableSpace = 0;
-    public fixedSizeSpace = 0;
-    resizeBoxToContent = false;
+    private boxType;
+    private availableSpace = 0;
+    public childProportionsSumm = 0;
+    private resizeBoxToContent = false; //need to implement this
+    public  isBetStartEnd=false;
 
-    constructor(boxType:BoxType) {
+    private inBetweenClass: (new () => Rect) | null = null;
+    private fnToApply: (rect: any) => void  = (rect: any)=>{};
+
+    constructor(boxType: BoxType) {
         super();
-        this.boxType=boxType;
+        this.boxType = boxType;
     }
 
-    setBoxType(boxType:BoxType){
-        this.boxType=boxType;
+    sBoxType(boxType: BoxType) {
+        this.boxType = boxType;
+        return this;
     }
 
-    public resizeSelf(){
+    gBoxType() {
+        return this.boxType;
+    }
+
+    public resizeSelf() {
         super.resizeSelf();
         this.impValues();//first need to resize before we can set
+    }
+    private addBetRect() {
+        if(this.inBetweenClass!=null){
+            const rect = new this.inBetweenClass();
+            this.fnToApply(rect);
+            rect.placeHolder=true;
+            rect.sParent(this);
+            return rect;
+        }
+        return null;
+    }
+
+    setInBetween(rectClass: new () => Rect, fnToApply: (rect: any) => void) {
+        this.inBetweenClass=rectClass;
+        this.fnToApply=fnToApply;
+    }
+
+    refreshInBetween(){
+        for(let i=0;i<this.children.length;i++){
+            const currChild=this.children[i];
+            if(currChild.placeHolder==true){
+                if(this.isFirst(currChild)||this.children.indexOf(currChild)==this.children.length-1){
+                    currChild.destroy();
+                }
+                else if(this.children[i+1].placeHolder==true){
+                    currChild.destroy();
+                }
+            }
+            if(!(this.isFirst(currChild)||currChild.placeHolder==true)){
+                const prevChild=this.children[i-1];
+                if(prevChild.placeHolder!=true){
+                    const rect=this.addBetRect();
+                    if(rect!=null){
+                        rect.indexInParent(i);//because index should be one greater than previous, is how it works in function
+                    }
+                }
+            }
+        }
+        if(this.isBetStartEnd){
+            const r=this.addBetRect();
+            if(r){
+                r.indexInParent(0);
+            }
+            const r2=this.addBetRect();
+            if(r2){
+                r2.indexInParent(this.gChildren().length);
+            }
+        }
+    }
+
+    pushChild(child: Rect): void {
+        //this.refreshInBetween();
+        super.pushChild(child);
+    }
+    spliceChild(child: Shape): void {
+        super.spliceChild(child);
     }
 
     //public addInBetweenRect(rect: IRectConfig) {
@@ -75,53 +142,53 @@ export class Box extends Rect {
     //    };
     //}
 
-    public impValues(){
-        if(this.boxType==BoxType.hz){
+    public impValues() {
+        if (this.boxType == BoxType.hz) {
             let fixedSizeSumm = 0;
             this.children.forEach(el => {
-                const elConsts=el.gConsts();
+                const elConsts = el.gConsts();
                 if (elConsts.x == EConstraintsX.left || elConsts.x == EConstraintsX.right || elConsts.x == EConstraintsX.center) {
-                    fixedSizeSumm += el.fixedSize.w;
+                    fixedSizeSumm += el.gFixedSize().w;
                 }
             })
-            this.availableSpace = TransformConversions.edgesToPosAndSize(this.absEdges).size.w - fixedSizeSumm;
-    
+            this.availableSpace = TransformConversions.edgesToPosAndSize(this.gAbsEdges()).size.w - fixedSizeSumm;
+
             let childrenDimensionsSumm = 0;
             this.children.forEach(el => {
-                const elConsts=el.gConsts();
+                const elConsts = el.gConsts();
                 if (elConsts.x == EConstraintsX.scale) {
-                    childrenDimensionsSumm += el.boxProp;
+                    childrenDimensionsSumm += el.gBoxProp();
                 }
             })
-            this.fixedSizeSpace = childrenDimensionsSumm;
+            this.childProportionsSumm = childrenDimensionsSumm;
         }
-        else{
-            let fixedSizesSumm=0;
-            this.children.forEach(el=>{
-                const elConsts=el.gConsts();
-                if(elConsts.y==EConstraintsY.top||elConsts.y==EConstraintsY.bottom||elConsts.y==EConstraintsY.center){
-                    fixedSizesSumm+=el.fixedSize.h;
+        else {
+            let fixedSizesSumm = 0;
+            this.children.forEach(el => {
+                const elConsts = el.gConsts();
+                if (elConsts.y == EConstraintsY.top || elConsts.y == EConstraintsY.bottom || elConsts.y == EConstraintsY.center) {
+                    fixedSizesSumm += el.gFixedSize().h;
                 }
             })
-            this.availableSpace=TransformConversions.edgesToPosAndSize(this.absEdges).size.h-fixedSizesSumm;
-    
-            let childrenDimensionsSumm=0;
-            this.children.forEach(el=>{
-                const elConsts=el.gConsts();
-                if(elConsts.y==EConstraintsY.scale){
-                    childrenDimensionsSumm+=el.boxProp;
+            this.availableSpace = TransformConversions.edgesToPosAndSize(this.gAbsEdges()).size.h - fixedSizesSumm;
+
+            let childrenDimensionsSumm = 0;
+            this.children.forEach(el => {
+                const elConsts = el.gConsts();
+                if (elConsts.y == EConstraintsY.scale) {
+                    childrenDimensionsSumm += el.gBoxProp();
                 }
             })
-            this.fixedSizeSpace=childrenDimensionsSumm;
+            this.childProportionsSumm = childrenDimensionsSumm;
 
         }
     }
 
-    public resizeWithBox(rect:Rect){
-        if(this.boxType==BoxType.hz){
-            const parentAbsEdges = this.absEdges;
-            const absEdges = rect.absEdges;
-    
+    public resizeWithBox(rect: Rect) {
+        if (this.boxType == BoxType.hz) {
+            const parentAbsEdges = this.gAbsEdges();
+            const absEdges = rect.gAbsEdges();
+
             absEdges.top = parentAbsEdges.top
             absEdges.bottom = parentAbsEdges.bottom
             switch (rect.gConsts().x) {
@@ -130,51 +197,51 @@ export class Box extends Rect {
                         absEdges.left = parentAbsEdges.left;
                     }
                     else {
-                        absEdges.left = this.getPrevious(rect).absEdges.right;
+                        absEdges.left = this.getPrevious(rect).gAbsEdges().right;
                     }
-                    absEdges.right = absEdges.left + rect.fixedSize.w;
+                    absEdges.right = absEdges.left + rect.gFixedSize().w;
                     break;
                 case EConstraintsX.scale:
                     if (this.isFirst(rect)) {
                         absEdges.left = parentAbsEdges.left;
                     }
                     else {
-                        absEdges.left = this.getPrevious(rect).absEdges.right;
+                        absEdges.left = this.getPrevious(rect).gAbsEdges().right;
                     }
-                    absEdges.right = absEdges.left + this.availableSpace * rect.boxProp / this.fixedSizeSpace;
+                    absEdges.right = absEdges.left + this.availableSpace * rect.gBoxProp() / this.childProportionsSumm;
                     break;
             }
-    
-            rect.absEdges = absEdges;
+
+            rect.sAbsEdges(absEdges);
         }
-        else{
-            const parentAbsEdges=this.absEdges;
-            const absEdges=rect.absEdges;
-    
-            absEdges.left=parentAbsEdges.left
-            absEdges.right=parentAbsEdges.right
-            switch(rect.gConsts().y){
+        else {
+            const parentAbsEdges = this.gAbsEdges();
+            const absEdges = rect.gAbsEdges();
+
+            absEdges.left = parentAbsEdges.left
+            absEdges.right = parentAbsEdges.right
+            switch (rect.gConsts().y) {
                 case EConstraintsY.top: case EConstraintsY.bottom: case EConstraintsY.center:
-                    if(this.isFirst(rect)){
-                        absEdges.top=parentAbsEdges.top;
+                    if (this.isFirst(rect)) {
+                        absEdges.top = parentAbsEdges.top;
                     }
-                    else{
-                        absEdges.top=this.getPrevious(rect).absEdges.bottom;
+                    else {
+                        absEdges.top = this.getPrevious(rect).gAbsEdges().bottom;
                     }
-                    absEdges.bottom=absEdges.top+rect.fixedSize.h;
+                    absEdges.bottom = absEdges.top + rect.gFixedSize().h;
                     break;
                 case EConstraintsY.scale:
-                    if(this.isFirst(rect)){
-                        absEdges.top=parentAbsEdges.top;
+                    if (this.isFirst(rect)) {
+                        absEdges.top = parentAbsEdges.top;
                     }
-                    else{
-                        absEdges.top=this.getPrevious(rect).absEdges.bottom;
+                    else {
+                        absEdges.top = this.getPrevious(rect).gAbsEdges().bottom;
                     }
-                    absEdges.bottom=absEdges.top+this.availableSpace*rect.boxProp/this.fixedSizeSpace;
+                    absEdges.bottom = absEdges.top + this.availableSpace * rect.gBoxProp() / this.childProportionsSumm;
                     break;
             }
-            rect.absEdges=absEdges;
-        }
+            rect.sAbsEdges(absEdges);
+        } 
     }
 
     private isFirst(child: Rect) {
@@ -187,33 +254,6 @@ export class Box extends Rect {
     private getPrevious(child: Rect) {
         const indexInParent = this.children.indexOf(child);
         const newRect = this.children[indexInParent - 1];
-        return newRect as Rect;
+        return newRect;
     }
 }
-
-
-
-            //const absEdges=this.absEdges;
-            //const parentAbsEdges=this.parent.absEdges;
-    //
-            //if(this.resizeBoxToContent==true){
-            //    switch(this.constraintY){
-            //        case EConstraintsY.top:
-            //            absEdges.top=parentAbsEdges.top+this.fixedOffsetY;
-            //            absEdges.bottom=absEdges.top+fixedSizesSumm;
-            //            break;
-            //        case EConstraintsY.bottom:
-            //            absEdges.bottom=parentAbsEdges.bottom-this.fixedOffsetY;
-            //            absEdges.top=absEdges.bottom-fixedSizesSumm;
-            //            break;
-            //        case EConstraintsY.center:
-            //            const middle=TransformConversions.average(parentAbsEdges.top,parentAbsEdges.bottom);
-            //            absEdges.top=middle-fixedSizesSumm/2+this.fixedOffsetY;
-            //            absEdges.bottom=absEdges.top+fixedSizesSumm;
-            //            break;
-            //        default:
-            //            console.error("box has scale constraint, but is supposed to resize to content, makes no sense")
-            //    }
-            //}
-    //
-            //this.absEdges=absEdges;

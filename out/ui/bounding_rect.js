@@ -18,8 +18,17 @@ export class BoundingRect {
             this.allShapes[i].draw();
         }
     }
-    getChildren() {
+    gChildren() {
         return this.children;
+    }
+    gAbsEdges() {
+        return this.absEdges;
+    }
+    pushChild(child) {
+        this.children.push(child);
+    }
+    spliceChild(child) {
+        this.children.splice(this.children.indexOf(child), 1);
     }
     setDrawOrder() {
         this.allShapes.sort(function (a, b) {

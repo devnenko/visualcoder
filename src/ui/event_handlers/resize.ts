@@ -6,7 +6,7 @@ import { Canvas } from "../canvas.js";
 /**
  * 
  */
-export abstract class ResizeHandler {
+export abstract class ResizeHandler { 
 
     public static canvases: Canvas[] = [];
 

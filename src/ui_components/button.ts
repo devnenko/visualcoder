@@ -15,6 +15,7 @@ export function MakeHoverPressButton<Base extends Class>(base: Base) {
         pressColor: string = colorCreator.colorByBrightness(90);
         forgetOnMouseLeave:boolean=true;
         onPress = (mouseHandler: MouseHandler) => { };
+        onMovePressed = (mouseHandler: MouseHandler) => { };
         onRelease = (mouseHandler: MouseHandler) => { };
 
         constructor(...args: any[]) {
@@ -46,6 +47,7 @@ export function MakeHoverPressButton<Base extends Class>(base: Base) {
             super.onMouseDown(mouseHandler);
         }
         onMouseMoveDown(mouseHandler: MouseHandler) {
+            this.onMovePressed(mouseHandler);
             super.onMouseMoveDown(mouseHandler);
         }
         onMouseUp(mouseHandler: MouseHandler) {
@@ -62,6 +64,112 @@ export function MakeHoverPressButton<Base extends Class>(base: Base) {
         }
     }
 }
+
+export function MakeToggleButton<Base extends Class>(base: Base) {
+
+    return class extends base {
+        idleColor: string= colorCreator.colorByBrightness(40);
+        hoverColor: string = colorCreator.colorByBrightness(70);
+        pressColor: string = colorCreator.colorByBrightness(90);
+        onPress = (mouseHandler: MouseHandler) => { };
+        onRelease = (mouseHandler: MouseHandler) => { };
+
+        isToggleOn: boolean = false;
+        onToggle: (isOn: boolean) => void = () => { };
+        onGroupToggle: (isOn: boolean) => void = () => { };
+        canClickToggleOf: boolean = true;
+        assignedGroup: ToggleButtonGroup | null = null;
+
+        constructor(...args: any[]) {
+            super(...args);
+            this.sColor(this.idleColor);
+            
+        }
+
+
+        public toggle(newToggleState: boolean) {
+            this.isToggleOn = newToggleState;
+            if (this.isToggleOn == true) {
+                this.sColor(this.pressColor)
+                boundingRect.draw();
+            }
+            else {
+                this.sColor(this.idleColor)
+                boundingRect.draw();
+                //because need to be hovering over in order to be able to do that anyway
+            }
+            this.onToggle(this.isToggleOn);
+            this.onGroupToggle(this.isToggleOn);
+            boundingRect.draw();
+        }
+
+        onMouseHoverBegin(mouseHandler: MouseHandler) {
+            document.body.style.cursor = "pointer";
+            if (this.isToggleOn == false) {
+                this.sColor(this.hoverColor)
+                boundingRect.draw();
+            }
+        }
+        onMouseHoverEnd(mouseHandler: MouseHandler) {
+            document.body.style.cursor = "default";
+            if (this.isToggleOn == false) {
+                this.sColor(this.idleColor)
+                boundingRect.draw();
+            }
+        }
+        onMouseDown(mouseHandler: MouseHandler) {
+            this.onPress(mouseHandler);
+        }
+        onMouseUp(mouseHandler: MouseHandler) {
+            if (!(this.isToggleOn == true && this.canClickToggleOf == false)) {
+                this.isToggleOn = !this.isToggleOn
+                this.toggle(this.isToggleOn);
+            }
+            this.onRelease(mouseHandler);
+            document.body.style.cursor = "default";
+        }
+        destroySelf(): void {
+            this.assignedGroup?.removeButton(this);
+            super.destroySelf();
+        }
+
+    }
+}
+
+const DefClass1 = (MakeToggleButton(MakeClickable(Rect)))
+export type ToggleButtonMixin = InstanceType<typeof DefClass1>;
+
+export class ToggleButtonGroup {
+    public buttons: ToggleButtonMixin[] = [];
+    public currentToggled: ToggleButtonMixin | null = null;
+    constructor() {
+
+    }
+    setCurrentToggled(button: ToggleButtonMixin) {
+        if (this.currentToggled != button) {
+            button.toggle(true);
+        }
+    }
+    addButtons(buttons: ToggleButtonMixin[]) {
+        buttons.forEach(button => {
+            this.buttons.push(button);
+            button.assignedGroup = this;
+            button.canClickToggleOf=false;
+            button.onGroupToggle = (newToggleState) => {
+                if (newToggleState == true) {
+                    this.currentToggled?.toggle(false);
+                    this.currentToggled = button;
+                }
+            }
+        });
+    }
+    removeButton(button: ToggleButtonMixin) {
+        this.buttons.slice(this.buttons.indexOf(button), 1)
+    }
+}
+
+
+/**
 
 export interface IToggleButtonConfig extends IClickableConfig {
     hoverColor?: string,
@@ -182,3 +290,5 @@ export class ToggleButtonGroup {
         this.buttons.slice(this.buttons.indexOf(button), 1)
     }
 }
+
+*/

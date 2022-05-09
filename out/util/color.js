@@ -5,7 +5,7 @@ class ColorCreator {
         this.brightColorDef = this.colorByBrightness(60);
         this.darkBackground = this.colorByBrightness(10);
         this.midUiElements = this.colorByBrightness(30);
-        this.highlight = this.colorByBrightness(65);
+        this.highlightColor = "orange";
     }
     colorByBrightness(brightness) {
         const value = brightness / 100 * 255;

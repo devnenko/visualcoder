@@ -29,8 +29,20 @@ export class BoundingRect {
         }
     }
 
-    getChildren(){
+    gChildren(){
         return this.children;
+    }
+
+    gAbsEdges(){
+        return this.absEdges;
+    }
+
+    pushChild(child:Shape){
+        this.children.push(child);
+    }
+
+    spliceChild(child:Shape){
+        this.children.splice(this.children.indexOf(child),1)
     }
 
     private setDrawOrder(){

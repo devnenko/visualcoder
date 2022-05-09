@@ -19,3 +19,5 @@
     -materials(text for now)
     -meshes(text for now)
     -Gameobjects
+
+<input id="keyboardHack"  background-color= "lightskyblue"  style="position:absolute; left: -20px; height:0%; width:0%"></div>

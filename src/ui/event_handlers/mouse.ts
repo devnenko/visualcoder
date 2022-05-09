@@ -1,6 +1,7 @@
 import { IPos } from "../../util/transform.js";
 import { boundingRect } from "../bounding_rect.js";
 import { CLickableMixinClass } from "../clickable_rect.js";
+import { Rect } from "../rect.js";
 
 
 export enum EMouseType {
@@ -44,6 +45,8 @@ export class MouseHandler {
 
     isMouse: boolean = true;
 
+    activepointer:Rect|null=null;
+
     constructor() {
         window.addEventListener('touchstart', this.touchStart.bind(this), { passive: false });
         window.addEventListener('mousedown', this.mouseDown.bind(this));
@@ -51,7 +54,7 @@ export class MouseHandler {
         window.addEventListener('mousemove', this.mouseMove.bind(this));
         window.addEventListener('touchend', this.touchEnd.bind(this), { passive: false });
         window.addEventListener('mouseup', this.mouseUp.bind(this));
-
+//
         window.addEventListener('blur', this.visiChange.bind(this));
         window.addEventListener('focus', this.visiChange.bind(this));
 
@@ -75,18 +78,19 @@ export class MouseHandler {
 
     visiChange(e: any) {
         this.cancelAll();
-        console.log("blur")
     }
 
     isOverlapping(obj: CLickableMixinClass){
-        return obj.absEdges.left < this.mousePos.x && obj.absEdges.right > this.mousePos.x && obj.absEdges.top < this.mousePos.y && obj.absEdges.bottom > this.mousePos.y;
+        const objEdges=obj.gAbsEdges();
+        return objEdges.left < this.mousePos.x && objEdges.right > this.mousePos.x && objEdges.top < this.mousePos.y && objEdges.bottom > this.mousePos.y;
     }
 
     getOverlapping(pos: IPos) {
         let objs: CLickableMixinClass[] = [];
 
         for (const obj of this.callbackObjects) {
-            if (obj.absEdges.left < pos.x && obj.absEdges.right > pos.x && obj.absEdges.top < pos.y && obj.absEdges.bottom > pos.y) {
+            const objEdges=obj.gAbsEdges();
+            if (objEdges.left < pos.x && objEdges.right > pos.x && objEdges.top < pos.y && objEdges.bottom > pos.y) {
                 //is overlapping$
                 objs.push(obj);
             }
@@ -110,7 +114,7 @@ export class MouseHandler {
         const consRects: CLickableMixinClass[] = [];
         const top = this.getTop(rects);
         for (const rect of rects) {
-            if (rect.mouseOnlyIfTopMost == false && rect != top) {
+            if (rect.gMouseOnlyIfTopMost() == false && rect != top) {
                 consRects.push(rect);
             }
         }
@@ -142,7 +146,7 @@ export class MouseHandler {
 
 
     touchStart(e: TouchEvent) {
-        e.preventDefault();
+        //e.preventDefault(); disables long clikc select with canvas but also events from passing through to div
 
         if (this.isMouse == true)//edgecase mouse down and then touch down
         {
@@ -166,8 +170,13 @@ export class MouseHandler {
         this.mousePos={x:this.ongoingTouches[0].x,y:this.ongoingTouches[0].y}
     }
     mouseDown(e: MouseEvent) {
-        e.preventDefault();
+        //e.preventDefault();
         
+        if(this.activepointer){
+            this.activepointer.destroy();
+            this.activepointer=null;//important dont forget or it will destroy all components
+        }
+        boundingRect.draw();
 
         if (this.isMouse == false)//edgecase touch down and then mouse down
         {
@@ -185,7 +194,7 @@ export class MouseHandler {
 
     touchMove(e: TouchEvent) {
 
-        e.preventDefault();
+        //e.preventDefault();
         this.mousePos={x:this.ongoingTouches[0].x,y:this.ongoingTouches[0].y}
         var touches = e.changedTouches;
 
@@ -199,11 +208,11 @@ export class MouseHandler {
         }
     }
     mouseMove(e: MouseEvent) {
-        e.preventDefault();
+        //e.preventDefault();
         this.mousePos={x:e.clientX,y:e.clientY}
         if (this.ongoingTouches[0])//has a touch
         {
-            e.preventDefault();
+            //e.preventDefault();
             const changedTouchClass = this.ongoingTouches[0];
             changedTouchClass.x = e.clientX;
             changedTouchClass.y = e.clientY;
@@ -241,7 +250,7 @@ export class MouseHandler {
     }
 
     touchEnd(e: TouchEvent) {
-        e.preventDefault();
+        //e.preventDefault();
         const ctx = boundingRect.canvas.ctx
         var touches = e.changedTouches;
 
@@ -261,7 +270,7 @@ export class MouseHandler {
         ctx.fillStyle = "blue"
     }
     mouseUp(e: MouseEvent) {
-        e.preventDefault();
+        //e.preventDefault();
         this.up(this.ongoingTouches[0])
         if (this.hover == null) {
             this.hover = new CTouch(1, e.clientX, e.clientY, this)
@@ -279,7 +288,9 @@ export class MouseHandler {
     }
 
     up(touch: CTouch) {
+        console.log(this.getConsidered(touch.touchDownRects))
         this.getConsidered(touch.touchDownRects).forEach(el => {
+            
             el.onMouseUp(this);
         })
     }
@@ -298,6 +309,10 @@ export class MouseHandler {
             }
         }
         return -1;    // not found
+    }
+
+    posOnRect(rect:Rect){
+        return{x:this.mousePos.x-rect.gAbsEdges().left,y:this.mousePos.y-rect.gAbsEdges().top}
     }
 }
 

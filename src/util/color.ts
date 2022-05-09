@@ -5,7 +5,7 @@ class ColorCreator{
 
     darkBackground=this.colorByBrightness(10);
     midUiElements=this.colorByBrightness(30);
-    highlight=this.colorByBrightness(65);
+    highlightColor="orange";
 
     colorByBrightness(brightness:number){//number between 0 and 100
         const value=brightness/100*255;

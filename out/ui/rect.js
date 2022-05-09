@@ -25,14 +25,38 @@ export class Rect extends Shape {
         this.fixedOffsetY = 0;
         this.fixedSizeW = 100;
         this.fixedSizeH = 100;
-        this._snapMargin = 0;
-        this._color = "orange";
+        this.snapMargin = 0;
         this.boxProportion = 100;
+        this.color = "orange";
+        this.placeHolder = false;
+        this.hasStroke = false;
+        this.strokeColor = "pink";
+        this.strokeSize = 10;
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
+    }
+    sHasStroke(val) {
+        this.hasStroke = val;
+        return this;
+    }
+    sStrokeColor(val) {
+        this.strokeColor = val;
+        return this;
+    }
+    sStrokeSize(val) {
+        this.strokeSize = val;
+        return this;
+    }
+    gParent() {
+        return super.gParent();
     }
     sFillSpace() {
         this.constraintX = EConstraintsX.scale;
         this.constraintY = EConstraintsY.scale;
+        return this;
+    }
+    sCenter() {
+        this.constraintX = EConstraintsX.center;
+        this.constraintY = EConstraintsY.center;
         return this;
     }
     sConstX(constX) {
@@ -40,6 +64,11 @@ export class Rect extends Shape {
         return this;
     }
     sConstY(constY) {
+        this.constraintY = constY;
+        return this;
+    }
+    sConsts(constX, constY) {
+        this.constraintX = constX;
         this.constraintY = constY;
         return this;
     }
@@ -54,13 +83,15 @@ export class Rect extends Shape {
         this.fixedOffsetY = offsetY;
         return this;
     }
+    sFixedOffset(offset) {
+        this.fixedOffsetY = offset;
+        this.fixedOffsetX = offset;
+        return this;
+    }
     sFixedSize(size) {
         this.fixedSizeW = size;
         this.fixedSizeH = size;
         return this;
-    }
-    get fixedSize() {
-        return { w: this.fixedSizeW, h: this.fixedSizeH };
     }
     sFixedSizeW(sizeW) {
         this.fixedSizeW = sizeW;
@@ -70,34 +101,44 @@ export class Rect extends Shape {
         this.fixedSizeH = sizeH;
         return this;
     }
+    gFixedSize() {
+        return { w: this.fixedSizeW, h: this.fixedSizeH };
+    }
     sSnapMargin(margin) {
-        this._snapMargin = margin;
+        this.snapMargin = margin;
         return this;
     }
-    get snapMargin() {
-        return this._snapMargin;
+    gSnapMargin() {
+        return this.snapMargin;
     }
     sColor(color) {
-        this._color = color;
+        this.color = color;
         return this;
     }
-    get color() {
-        return this._color;
+    gColor() {
+        return this.color;
     }
     sBoxProp(prop) {
         this.boxProportion = prop;
         return this;
     }
-    get boxProp() {
+    gBoxProp() {
         return this.boxProportion;
     }
+    sAbsEdges(absEdges) {
+        this.absEdges = absEdges;
+        return this;
+    }
+    gAbsEdges() {
+        return this.absEdges;
+    }
     resizeSelf() {
-        if (typeof this.parent.resizeWithBox === "function") {
-            this.parent.resizeWithBox(this);
+        if (typeof this.gParent().resizeWithBox === "function") {
+            this.gParent().resizeWithBox(this);
         }
         else {
             let absEdges = this.absEdges;
-            const parentAbsEdges = this.parent.absEdges;
+            const parentAbsEdges = this.parent.gAbsEdges();
             switch (this.constraintX) {
                 case EConstraintsX.left:
                     absEdges.left = parentAbsEdges.left + this.fixedOffsetX;
@@ -137,22 +178,29 @@ export class Rect extends Shape {
                     break;
             }
         }
+        this.applySnapMargin();
     }
     applySnapMargin() {
-        this.absEdges.left += this._snapMargin;
-        this.absEdges.right -= this._snapMargin;
-        this.absEdges.top += this._snapMargin;
-        this.absEdges.bottom -= this._snapMargin;
+        this.absEdges.left += this.snapMargin;
+        this.absEdges.right -= this.snapMargin;
+        this.absEdges.top += this.snapMargin;
+        this.absEdges.bottom -= this.snapMargin;
     }
     draw() {
-        this.applySnapMargin();
-        if (this.isVisible) {
+        if (this.gIsVisible()) {
             const posAndSize = TransformConversions.edgesToPosAndSize(this.absEdges);
-            const ctx = this.getCanvas().ctx;
+            const ctx = this.gCanvas().ctx;
             ctx.beginPath();
             ctx.rect(Math.floor(posAndSize.pos.x), Math.floor(posAndSize.pos.y), Math.ceil(posAndSize.size.w), Math.ceil(posAndSize.size.h));
-            ctx.fillStyle = this._color;
+            ctx.fillStyle = this.color;
             ctx.fill();
+            if (this.hasStroke == true) {
+                ctx.beginPath();
+                ctx.rect(Math.floor(posAndSize.pos.x) + this.strokeSize / 2, Math.floor(posAndSize.pos.y) + this.strokeSize / 2, Math.ceil(posAndSize.size.w) - this.strokeSize, Math.ceil(posAndSize.size.h) - this.strokeSize);
+                ctx.strokeStyle = this.strokeColor;
+                ctx.lineWidth = this.strokeSize;
+                ctx.stroke();
+            }
         }
     }
 }
