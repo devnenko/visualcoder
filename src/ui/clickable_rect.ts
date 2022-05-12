@@ -26,8 +26,8 @@ export function MakeClickable<Base extends Class>(base: Base) {
             super.destroy();
         }
 
-        sMouseOnlyTopMost(isTrue:boolean){
-            this.mouseOnlyIfTopMost=isTrue;
+        sMousePassthrough(isTrue:boolean){
+            this.mouseOnlyIfTopMost=!isTrue;
         }
     }
 }

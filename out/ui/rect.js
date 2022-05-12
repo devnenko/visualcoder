@@ -1,7 +1,7 @@
 import { Shape } from "./shape.js";
 import { TransformConversions } from "../util/transform.js";
 import { boundingRect } from "./bounding_rect.js";
-import { uniform } from "../util/uniform.js";
+import { uni } from "../util/uniform.js";
 export var EConstraintsX;
 (function (EConstraintsX) {
     EConstraintsX["left"] = "left";
@@ -22,7 +22,7 @@ export var BoxType;
     BoxType["vt"] = "vt";
 })(BoxType || (BoxType = {}));
 export class Rect extends Shape {
-    constructor() {
+    constructor(parent) {
         super();
         this.parent = boundingRect;
         this.constraintX = EConstraintsX.left;
@@ -40,14 +40,17 @@ export class Rect extends Shape {
         this.strokeSize = 10;
         this.absEdges = { left: 0, right: 0, top: 0, bottom: 0 };
         this.boxType = BoxType.hz;
+        if (parent) {
+            this.sParent(parent);
+        }
     }
     applyOffsetSnap() {
-        this.sSnapMargin(uniform.defSnapMargin);
+        this.sSnapMargin(uni.defSnapMargin);
         if (this.parent.boxType == BoxType.hz) {
-            this.sFixedOffsetX(uniform.defEdgeDist);
+            this.sFixedOffsetX(uni.defEdgeDist);
         }
         else {
-            this.sFixedOffsetY(uniform.defEdgeDist);
+            this.sFixedOffsetY(uni.defEdgeDist);
         }
         return this;
     }

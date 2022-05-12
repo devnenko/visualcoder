@@ -29,6 +29,11 @@ export function MakeHoverPressButton<Base extends Class>(base: Base) {
             .sConsts(EConstraintsX.center,EConstraintsY.center)
             return t;
         }
+        sIdleColor(color:string){
+            this.sColor(color)
+            this.idleColor=color;
+            return this;
+        }
 
         //sForgetOnLeave(forget:boolean){
         //    this.forgetOnMouseLeave=forget;

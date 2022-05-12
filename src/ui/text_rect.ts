@@ -15,10 +15,20 @@ export class TextRect extends Rect{
     private size: number = 24;
 
 
-    constructor() {
+    constructor(parent?:Rect,text?:string,size?:number) {
         super()
         this.sColor(colorCreator.textColor)
             .sConsts(EConstraintsX.center,EConstraintsY.center)
+
+        if(parent){
+            this.sParent(parent);
+        }
+        if(text){
+            this.sText(text);
+        }
+        if(size){
+            this.sTextSize(size);
+        }
     }
 
     sTextSize(size:number){

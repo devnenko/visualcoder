@@ -5,7 +5,7 @@ import { Shape } from "./shape.js";
 import { IEdges, TransformConversions } from "../util/transform.js";
 import { BoundingRect, boundingRect } from "./bounding_rect.js";
 import { Box} from "./box.js";
-import { uniform } from "../util/uniform.js";
+import { uni } from "../util/uniform.js";
 
 export enum EConstraintsX {
     left = "left",
@@ -47,18 +47,21 @@ export class Rect extends Shape {
 
     private absEdges: IEdges = { left: 0, right: 0, top: 0, bottom: 0 };
 
-    constructor() {
+    constructor(parent?:Rect) {
         super()
         this.boxType=BoxType.hz;
+        if(parent){
+            this.sParent(parent);
+        }
     }
 
     applyOffsetSnap(){
-        this.sSnapMargin(uniform.defSnapMargin);
+        this.sSnapMargin(uni.defSnapMargin);
 
         if((this.parent as Rect).boxType==BoxType.hz){
-            this.sFixedOffsetX(uniform.defEdgeDist);
+            this.sFixedOffsetX(uni.defEdgeDist);
         }else{
-            this.sFixedOffsetY(uniform.defEdgeDist);
+            this.sFixedOffsetY(uni.defEdgeDist);
         }
         return this;
     }

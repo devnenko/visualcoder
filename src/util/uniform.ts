@@ -3,36 +3,31 @@ import { BoxType, EConstraintsX, EConstraintsY, Rect } from "../ui/rect.js";
 import { TransformConversions } from "./transform.js";
 
 class Uniform {
-    defEdgeDist = 6;
-    defSnapMargin = 4;
-    vtBoxSize=50;
-    applyOffsetSnap=<T extends Rect>(baseObj: T) => {
+    defEdgeDist = 4;
+    defSnapMargin = 5;
+    vtBoxSize=45;
+    offsetSnap=<T extends Rect>(baseObj: T) => {
         baseObj.sSnapMargin(this.defSnapMargin)
         
         if((baseObj.gParent() as Rect).boxType==BoxType.hz){
-            console.log("ye")
             baseObj.sFixedOffsetX(this.defEdgeDist);
         }else{
-            console.log("yo")
             baseObj.sFixedOffsetY(this.defEdgeDist);
         }
 
         return baseObj;
     }
-    makeInvisFill = <T extends Rect>(baseObj: T, parent?: Rect) => {
+    invisFill = <T extends Rect>(baseObj: T) => {
         baseObj
             .sFillSpace()
             .sIsVisible(false);
 
-        if (parent) {
-            baseObj.sParent(parent)
-        }
         return baseObj;
     }
 
-    makeRectConform = <T extends Rect>(baseObj: T,parent: Rect) => {
+    makeConform = <T extends Rect>(baseObj: T) => {
 
-        baseObj.sParent(parent)
+        const parent=baseObj.gParent() as Rect;
         
         if(parent.boxType==BoxType.hz){
             baseObj.sConstY(EConstraintsY.scale)
@@ -46,4 +41,4 @@ class Uniform {
     }
 }
 
-export const uniform = new Uniform;
+export const uni = new Uniform;

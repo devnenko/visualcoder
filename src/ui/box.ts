@@ -18,9 +18,12 @@ export class Box extends Rect {
     private inBetweenClass: (new () => Rect) | null = null;
     private fnToApply: (rect: any) => void  = (rect: any)=>{};
 
-    constructor(boxType: BoxType) {
+    constructor(boxType: BoxType,parent?:Rect) {
         super();
         this.boxType = boxType;
+        if(parent){
+            this.sParent(parent);
+        }
     }
 
     sBoxType(boxType: BoxType) {

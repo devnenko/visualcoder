@@ -22,8 +22,12 @@ export class SvgObj{
 
 export class SvgRect extends Rect {
     private svg:SvgObj=SvgObj.defaultSvg;
-    constructor() {
-        super();
+    constructor(svg?:SvgObj,parent?:Rect) {
+        super(parent);
+        
+        if(svg){
+            this.sSvg(svg);
+        }
     }
 
     sSvg(svg:SvgObj){

@@ -24,6 +24,7 @@ export abstract class Shape {
         return this.isVisible;
     }
 
+
     sParent(parent: Shape | BoundingRect) {
         const parentChidren = this.parent.gChildren();
 

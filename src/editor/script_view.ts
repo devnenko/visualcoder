@@ -5,9 +5,23 @@ import { IKeyPressHandler, KeypressHandler } from "../ui/event_handlers/keypress
 import { BoxType, Rect } from "../ui/rect.js";
 import { TextRect } from "../ui/text_rect.js";
 import { MakeHoverPressButton, MakeToggleButton } from "../ui_components/button.js";
-import { uniform } from "../util/uniform.js";
-import { View } from "./view.js";
-import { ViewController } from "./view_controller.js";
+import { uni } from "../util/uniform.js";
+import {  View } from "./view.js";
+import {  ViewController } from "./view_controller.js";
+
+//enum ScriptEvents{
+//    editor="editor",
+//    start="start",
+//    frame="frame"
+//}
+
+enum ScriptCommand{
+    print="print"
+}
+
+interface ScriptBlock{
+    command:ScriptCommand
+}
 
 export class Block extends (MakeToggleButton(MakeClickable(Rect))) implements IKeyPressHandler{
     text;
@@ -16,7 +30,7 @@ export class Block extends (MakeToggleButton(MakeClickable(Rect))) implements IK
         super()
         this.view=view;
         this.sParent(view.vtBox);
-        this.setFixedSizeH(uniform.vtBoxSize)
+        this.setFixedSizeH(uni.vtBoxSize)
         this.text = new TextRect;
         this.text.sParent(this);
     
@@ -55,9 +69,11 @@ export class ScriptView extends View {
         this.setTitle()
 
 
-        this.clickArea = uniform.makeInvisFill(new (MakeClickable(Rect)), this.contArea)
+        this.clickArea = uni.invisFill(new (MakeClickable(Rect)))
+        this.clickArea.sParent(this.contArea);
 
-        this.vtBox = uniform.makeInvisFill(new Box(BoxType.vt), this.clickArea)
+        this.vtBox = uni.invisFill(new Box(BoxType.vt))
+        this.vtBox.sParent(this.clickArea)
 
         this.clickArea.onMouseUp = () => {
             const b = new Block(this)
@@ -76,14 +92,14 @@ export class ScriptView extends View {
         chil.forEach(el=>{
             fileSrc.push(el.text.gText());
         })
-        const asset=this.cont.getAsset();
+        const asset=this.controller.asset;
         if(asset){
             asset.source=JSON.stringify(fileSrc);
         }
     }
     refreshContent(): void {
         this.vtBox.destroyChildren();
-        const asset = this.cont.getAsset();
+        const asset = this.controller.asset;
         if (asset) {
             const obj: string[] = JSON.parse(asset.source);
             obj.forEach(el => {

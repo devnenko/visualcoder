@@ -23,9 +23,10 @@ KeypressHandler.init();
 //const r2=new Rect
 
 export const editor=new Editor();
-createAsset("level1",AssetType.level)
-createAsset("script1",AssetType.script)
-//editor.addView(editor.contBrowserCont)
+ 
+createAsset("script1",AssetType.script,editor)
+
+//editor.addView(editor.contBrowserCont) 
 //boundingRect.draw();
 
 

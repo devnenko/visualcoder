@@ -38,10 +38,11 @@ export class MouseHandler {
 
     currentTouch: Touch | null = null;
     isDown = false;
-    hoveredRects:CLickableMixin[]=[];
+    hoveredRects:CLickableMixin[]=[]; 
 
     draggedAsset:Asset| null = null;
     private assetRect:Rect| null = null;
+    isValidDrag:boolean=false;
 
     subscribedRects: CLickableMixin[] = [];
     dragInRects: (IDragHandler&Rect)[] = [];
@@ -237,6 +238,8 @@ export class MouseHandler {
                 this.assetRect=new Rect;
                 this.assetRect.sZIndex(100)
                             .sColor("red")//red == not droppable here
+
+                this.isValidDrag=false;
             }
             this.assetRect.sFixedOffsetX(pos.x);
             this.assetRect.sFixedOffsetY(pos.y);
@@ -251,9 +254,11 @@ export class MouseHandler {
             if(overl){
                 if((overl as (IDragHandler&Rect)).acceptedTypes.includes(this.draggedAsset.type)){
                     this.assetRect.sColor("green");
+                    this.isValidDrag=true;
                 }
             }else{
                 this.assetRect.sColor("red");
+                this.isValidDrag=false;
             }
 
             boundingRect.draw();

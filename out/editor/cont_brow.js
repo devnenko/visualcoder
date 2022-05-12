@@ -9,24 +9,26 @@ import { MakeHoverPressButton } from "../ui_components/button.js";
 import { AllSvg } from "../util/allsvg.js";
 import { colorCreator } from "../util/color.js";
 import { TransformConversions } from "../util/transform.js";
-import { uniform } from "../util/uniform.js";
-import { allAssets, destroyAsset } from "./asset.js";
+import { uni } from "../util/uniform.js";
+import { allAssets, AssetType, destroyAsset } from "./asset.js";
 import { View } from "./view.js";
 class AssetButton extends MakeHoverPressButton(MakeClickable(Rect)) {
-    constructor(cB, asset) {
+    constructor(cB, btAsset) {
         super();
         this
             .sParent(cB.vtBox)
-            .sFixedSize(uniform.vtBoxSize);
+            .sFixedSize(uni.vtBoxSize);
         this.onPress = () => {
-            mouseHandler.draggedAsset = asset;
+            mouseHandler.draggedAsset = btAsset;
         };
         this.onRelease = () => {
-            if (asset.cont.createdViews.length == 0) {
-                asset.cont.createView();
-            }
-            else {
-                cB.cont.editor.changeSelectedView(asset.cont.createdViews[0]);
+            if (mouseHandler.isValidDrag == false) {
+                if (btAsset.cont.createdViews.length == 0) {
+                    btAsset.cont.createDefaultView();
+                }
+                else {
+                    cB.controller.editor.changeSelectedView(btAsset.cont.createdViews[0]);
+                }
             }
         };
         this.title = new TextRect();
@@ -34,25 +36,33 @@ class AssetButton extends MakeHoverPressButton(MakeClickable(Rect)) {
             .sParent(this)
             .sConstX(EConstraintsX.left)
             .applyOffsetSnap();
-        this.title.sText(asset.name);
+        this.title.sText(btAsset.name);
         boundingRect.draw();
         this.type = new TextRect();
         this.type
             .sParent(this)
             .sConstX(EConstraintsX.left)
-            .sFixedOffsetX(TransformConversions.edgesToPosAndSize(this.title.gAbsEdges()).size.w + 15 + uniform.defEdgeDist);
-        this.type.sText(asset.type);
-        const delButton = uniform.makeRectConform(new (MakeHoverPressButton(MakeClickable(SvgRect))), this);
-        delButton
-            .applyOffsetSnap()
-            .sConstX(EConstraintsX.right)
-            .sSvg(AllSvg.trash)
-            .onRelease = () => {
-            destroyAsset(asset);
-            cB.cont.refreshViews();
-        };
-        delButton.idleColor = colorCreator.darkColorDef;
-        delButton.sColor(colorCreator.darkColorDef);
+            .sFixedOffsetX(TransformConversions.edgesToPosAndSize(this.title.gAbsEdges()).size.w + 15 + uni.defEdgeDist);
+        this.type.sText(btAsset.type);
+        if (cB.controller.editor.playStartLv != btAsset) {
+            const delButton = uni.makeConform(new (MakeHoverPressButton(MakeClickable(SvgRect)))(AllSvg.trash, this));
+            delButton
+                .applyOffsetSnap()
+                .sConstX(EConstraintsX.right)
+                .sSvg(AllSvg.trash)
+                .onRelease = () => {
+                destroyAsset(btAsset);
+                cB.controller.refreshViews();
+            };
+            delButton.idleColor = colorCreator.darkColorDef;
+            delButton.sColor(colorCreator.darkColorDef);
+        }
+        if (btAsset.type == AssetType.level) {
+            //make flag for all level button
+            //if(cB.controller.editor.playStartLv==asset){
+            //    //toggle flag
+            //}
+        }
     }
 }
 export class ContentBrowser extends View {
@@ -61,8 +71,8 @@ export class ContentBrowser extends View {
         this.viewName = "ContentBrowser";
         this.setTitle();
         this.indexInParent(0);
-        //this.sFixedSize(200)
-        //    .sConsts(EConstraintsX.left,EConstraintsY.top)
+        //this.sFixedSize(240)
+        //.sConsts(EConstraintsX.left,EConstraintsY.top)
         this.vtBox = new Box(BoxType.vt);
         this.vtBox
             .sParent(this.contArea)
@@ -73,19 +83,21 @@ export class ContentBrowser extends View {
     }
     refreshContent() {
         this.vtBox.destroyChildren();
+        console.log(allAssets);
         allAssets.forEach(el => {
             const button = new AssetButton(this, el);
         });
-        const spacer = uniform.makeRectConform(new Rect, this.vtBox);
-        spacer.sFixedSize(uniform.defEdgeDist)
+        const spacer = uni.makeConform(new Rect(this.vtBox));
+        spacer.sFixedSize(uni.defEdgeDist)
             .sIsVisible(false);
-        const createButton = uniform.makeRectConform(new (MakeHoverPressButton(MakeClickable(Rect))), this.vtBox);
+        const createButton = uni.makeConform(new (MakeHoverPressButton(MakeClickable(Rect)))(this.vtBox));
         createButton.sFixedSize(50)
             .onRelease = () => {
             //create new asset and refresh views
         };
         const text = createButton.addText();
         text.sText("Create Asset");
+        console.log("esse");
         boundingRect.draw();
     }
 }

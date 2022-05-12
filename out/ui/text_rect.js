@@ -2,13 +2,22 @@ import { EConstraintsX, EConstraintsY, Rect } from "./rect.js";
 import { TransformConversions } from "../util/transform.js";
 import { colorCreator } from "../util/color.js";
 export class TextRect extends Rect {
-    constructor() {
+    constructor(parent, text, size) {
         super();
         //use texture atlas in future
         this.text = "Empty Text";
         this.size = 24;
         this.sColor(colorCreator.textColor)
             .sConsts(EConstraintsX.center, EConstraintsY.center);
+        if (parent) {
+            this.sParent(parent);
+        }
+        if (text) {
+            this.sText(text);
+        }
+        if (size) {
+            this.sTextSize(size);
+        }
     }
     sTextSize(size) {
         this.size = size;

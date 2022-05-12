@@ -24,8 +24,8 @@ export function MakeClickable(base) {
             mouseHandler.unsubscribe(this);
             super.destroy();
         }
-        sMouseOnlyTopMost(isTrue) {
-            this.mouseOnlyIfTopMost = isTrue;
+        sMousePassthrough(isTrue) {
+            this.mouseOnlyIfTopMost = !isTrue;
         }
     };
 }

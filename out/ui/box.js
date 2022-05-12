@@ -2,7 +2,7 @@ import { TransformConversions } from "../util/transform.js";
 import { BoxType, EConstraintsX, EConstraintsY, Rect } from "./rect.js";
 import { boundingRect } from './bounding_rect.js';
 export class Box extends Rect {
-    constructor(boxType) {
+    constructor(boxType, parent) {
         super();
         this.children = [];
         this.availableSpace = 0;
@@ -13,6 +13,9 @@ export class Box extends Rect {
         this.inBetweenClass = null;
         this.fnToApply = (rect) => { };
         this.boxType = boxType;
+        if (parent) {
+            this.sParent(parent);
+        }
     }
     sBoxType(boxType) {
         this.boxType = boxType;
